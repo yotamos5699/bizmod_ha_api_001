@@ -2,41 +2,8 @@
 
 const { json } = require("express/lib/response");
 
-// var googleSheetOutPut = [
-//   { AccountKey: 6304, ItemKey: "XP100SA", Quantity: 4 },
-//   { AccountKey: 6304, ItemKey: "SP250SA", Quantity: 5 },
-//   { AccountKey: 6304, ItemKey: "BH200SA", Quantity: 7 },
-//   { AccountKey: 6305, ItemKey: "BB100SA", Quantity: 2 },
-//   { AccountKey: 6305, ItemKey: "HI250SA", Quantity: 3 },
-//   { AccountKey: 6306, ItemKey: "XP100SA", Quantity: 8 },
-//   { AccountKey: 6306, ItemKey: "BB100SA", Quantity: 8 },
-// ];
-// var stock = [
-//   { AccountKey: 111, ItemKey: 22, Quantity: 5, pname: "toy" },
-//   { AccountKey: 111, ItemKey: 11, Quantity: 2, pname: "boy" },
-//   { AccountKey: 222, ItemKey: 22, Quantity: 3, pname: "toy" },
-//   { AccountKey: 222, ItemKey: 22, Quantity: 1, pname: "toy" },
-//   { AccountKey: 222, ItemKey: 22, Quantity: 7, pname: "toy" },
-//   { AccountKey: 333, ItemKey: 22, Quantity: 2, pname: "toy" },
-//   { AccountKey: 333, ItemKey: 22, Quantity: 6, pname: "toy" },
-//   { AccountKey: 333, ItemKey: 22, Quantity: 9, pname: "toy" },
-// ];
-
-// var jsonres = [
-//   { AccountKey: 111, ItemKey: 22, Quantity: 5, pname: "toy" },
-//   { AccountKey: 111, ItemKey: 11, Quantity: 2, pname: "boy" },
-//   { AccountKey: 222, ItemKey: 22, Quantity: 3, pname: "toy" },
-//   { AccountKey: 222, ItemKey: 22, Quantity: 1, pname: "toy" },
-//   { AccountKey: 222, ItemKey: 22, Quantity: 7, pname: "toy" },
-//   { AccountKey: 333, ItemKey: 22, Quantity: 2, pname: "toy" },
-//   { AccountKey: 333, ItemKey: 22, Quantity: 6, pname: "toy" },
-//   { AccountKey: 333, ItemKey: 22, Quantity: 9, pname: "toy" },
-// ];
-
-// Taking a table and returning linkes listd of : Main obj and nested objects***************
-//***************************************************************************************** */
-
-
+// Taking a table and returning 2 lists of : Main obj(usser) and nested objects(arrey of items)***************
+// ***************************************************************************************** */
 
 function sortTableToLinkedLists(jsonres) {
   console.log(JSON.stringify(jsonres, null, 2));
