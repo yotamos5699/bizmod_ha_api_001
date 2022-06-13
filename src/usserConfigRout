@@ -6,36 +6,49 @@ const Credential = require('./getCred')
 //localhost:5000/api/tranziant
 
 
+router.post("/api/getussercred", async function (req, res) {
+    const usserKey = req.body.Authorisation;
+    console.log("USSER KEY  " + usserKey);
+    try {
+        const usserData = Credential.getCastumersCred(usserKey);
+    } catch (e) {
+        console.log("error on prosses" + e);
+    }
+    res.json({
+        status: "yes",
+        data: JSON.stringify(usserData)
+    });
+});
+
+
+
 router.post("/api/usersignin", async function (req, res) {
-
     const reqValues = Object.entries(req.body)
-
     let isCorrupted = false
     reqValues.forEach(pair => {
         pair[1] == null ? isCorrupted = true : isCorrupted = isCorrupted
     })
 
-    
-    if(!isCorrupted){
+    if (!isCorrupted) {
         let generatedUsserKey = Credential.generateKey()
         Credential.setNewUsserCradential(req.body, generatedUsserKey)
 
         res.json({
             status: "yes",
             Key: generatedUsserKey
-          });
-    }else{
+        });
+    } else {
         res.json({
             status: "no",
             request: JSON.stringify(req)
-          });
+        });
 
     }
 
-    
+
     console.log(req);
 
-    
+
 });
 
 
