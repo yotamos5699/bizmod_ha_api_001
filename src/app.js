@@ -51,7 +51,7 @@ app.post("/api/createdoc", async function (req, res) {
   }
   res.json({
     status: "yes",
-    data: jsonArrey
+    data: JSON.stringify(jsonArrey)
   });
 });
 
@@ -82,7 +82,7 @@ app.post("/api/calcki", async function (req, res) {
 app.post("/api/getrecords", async function (req, res) {
   let jsondata;
   var reportData = await req.body;
-  
+
   console.log(JSON.stringify(reportData))
   let userKey = req.headers.authorization;
   console.log(userKey)
@@ -90,19 +90,25 @@ app.post("/api/getrecords", async function (req, res) {
     console.log("passs if")
     try {
       console.log(reportData.TID)
-      reportData.TID != '4' ? jsondata = await reportsCreator.exportRecords(reportData.TID, userKey) :
+      reportData.TID != '4' ? jsondata = await reportsCreator.exportRecords(reportData, userKey) :
         jsondata = await reportsCreator.exportRecords(reportData, userKey)
-        console.log(jsondata)
+
+      //  console.log(jsondata)
+      //res.json(jsondata)
     } catch (err) {
       console.dir(`error on prosses  ${err} \n request info \n ${JSON.stringify(req.body)}`);
       console.debug(err)
 
     }
   }
+
+  console.log(jsondata)
   res.json({
-    status: "yes",
-    data: jsondata
+     status:'yes',
+      data: JSON.stringify(jsondata)
   });
+
+console.log(JSON.stringify(jsondata))
 });
 
 app.post("/api/test", async function (req, res) {

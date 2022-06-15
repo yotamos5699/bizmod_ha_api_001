@@ -57,9 +57,11 @@ let localHostUrl = "http://localhost:5000/api/calcki"
 //     }]
 // ]
 
+let res
+document.getElementById("btn").addEventListener('click', apiTest1)
 
 
-async function testButton() {
+async function apiTest1() {
     // let localHostUrl2 = 
     // let data = {
     //     mainMtx: mainMatrix,
@@ -76,7 +78,7 @@ async function testButton() {
         method: "POST",
         // mode: "no-cors",
         headers: {
-            'Content-Type': "application/json",
+           'Content-Type': "application/json",
             'Authorization': "Bearer 1111"
         },
         body: JSON.stringify(data)
@@ -88,11 +90,10 @@ async function testButton() {
     }
 
     console.log(options)
-    let res = await fetch("http://localhost:5000/api/getrecords", options)
-    console.log(JSON.stringify(res))
-    document.getElementById('app').textContent = JSON.stringify(res)
-
+    res = await fetch("http://localhost:5000/api/getrecords", options)
+    let json = await res.json()
+    console.log(json)
+   
+    document.getElementById('app').textContent = JSON.stringify(JSON.stringify(res.data))
 }
-
-//testButton();
-document.getElementById("btn").addEventListener('click', testButton)
+let c = 0

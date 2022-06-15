@@ -78,7 +78,7 @@ function matrixToTable(matrixData, headers) {
 
 
     });
-
+    console.log("client log " + tableData)
     return JSON.stringify(tableData)
 
 }

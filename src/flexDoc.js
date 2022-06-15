@@ -10,10 +10,13 @@ const {
 
 
 
-async function exportRecords(fileData, privetKey) {
+async function exportRecords(reqData, privetKey) {
   //console.log("filedata" + fileData);
   // jsondata = await reportsCreator.exportRecords(userKey, req.body.TID)
 
+  let fileData = reqData.TID
+  console.log("file data  DDFDFDFDFD   " + JSON.stringify(fileData))
+  let sortKey = reqData.sortKey
 
   const [
     usserDbname,
@@ -49,7 +52,14 @@ async function exportRecords(fileData, privetKey) {
   }
 
   let reportCod, parameters;
-  fileData == '4' ? [reportCod, parameters] = fileData : [reportCod, parameters] = docHash[fileData][0]
+  if (fileData == '4') {
+    [reportCod, parameters] = fileData
+  } else if (fileData == '1') {
+    [reportCod, parameters] = docHash[fileData][0]
+  } else if (fileData == '2') {
+    [reportCod, parameters] = docHash[fileData]
+
+  }
 
 
   let apiRes = await wizlib.exportDataRecords(myDBname, {
@@ -70,39 +80,38 @@ async function exportRecords(fileData, privetKey) {
     });
   }
   apiRes = JSON.parse(apiRes)
-  treeData = JSON.parse(treeData)
+  console.log(apiRes)
+
   let resArrey = [];
-  console.log(treeData.repdata)
+  if (fileData == '1') {
+    treeData = JSON.parse(treeData)
 
-  treeData.repdata.forEach(item => {
-    let record = {};
-    apiRes.repdata.forEach(row => {
-      // record = row
-      //console.log(row['מפתח פריט'] + " " + item['מפתח פריט'])
-      //console.log(row['מפתח פריט'] + " " + item['מפתח פריט אב'])
+    console.log(treeData.repdata)
 
-      if (row['מפתח פריט'] == item['מפתח פריט אב']) {
-        record = row
-        record['מפתח פריט אב'] = item['מפתח פריט']
-        console.log(row['מפתח פריט'] + " " + item['מפתח פריט אב'])
-      }
-      // } else {
-      //   record = row
-      //   record['מפתח פריט אב'] = item['מפתח פריט']
-      // }
+    treeData.repdata.forEach(item => {
+      let record = {};
+      apiRes.repdata.forEach(row => {
 
-    })
-    if(record){resArrey.push(record)}
-    else{
+        if (row['מפתח פריט'] == item['מפתח פריט אב']) {
+          record = row
+          record['מפתח פריט אב'] = item['מפתח פריט']
+          console.log(row['מפתח פריט'] + " " + item['מפתח פריט אב'])
+        }
+
+      })
+      if (record) {
+        resArrey.push(record)
+      } else {
         record = row
         record['מפתח פריט אב'] == row['מפתח פריט']
         resArrey.push(record)
-    } 
-  })
-  
-  
+      }
+    })
+  }
 
-  const jsondata = resArrey;
+
+  const jsondata = resArrey.length > 0 ? resArrey : apiRes
+  // console.log("jsondata " + jsondata)
   const data = JSON.stringify(jsondata, null, 2);
 
   fs.writeFile("./dbFiles/lastItemsCall.json", data, (err) => {
@@ -110,9 +119,18 @@ async function exportRecords(fileData, privetKey) {
     // console.log(err, "See resaults in myApiRes.txt");
   });
 
-
-  return data;
-  }
  
+
+  if (sortKey) {
+    let sortedData = []
+    jsondata.forEach(row => {
+      if (row['קוד מיון'] == sortKey) {
+        sortedData.push(row)
+      }
+    })
+    return sortedData
+  } else return jsondata;
+}
+
 
 module.exports.exportRecords = exportRecords;
