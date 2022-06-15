@@ -16,6 +16,7 @@ async function exportRecords(reqData, privetKey) {
 
   let fileData = reqData.TID
   console.log("file data  DDFDFDFDFD   " + JSON.stringify(fileData))
+  console.log("sanity check sanity check sanity check sanity check !!!!! ")
   let sortKey = reqData.sortKey
 
   const [
