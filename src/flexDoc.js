@@ -7,6 +7,9 @@ const defultReports = require('./filencryption');
 const {
   PassThrough
 } = require("stream");
+const {
+  Console
+} = require("console");
 
 
 
@@ -120,7 +123,8 @@ async function exportRecords(reqData, privetKey) {
     // console.log(err, "See resaults in myApiRes.txt");
   });
 
- 
+
+  console.log("fuck u  " + JSON.stringify(jsondata, null, 2))
 
   if (sortKey) {
     let sortedData = []
