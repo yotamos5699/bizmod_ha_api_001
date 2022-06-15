@@ -15,7 +15,7 @@
  function getCastumersCred(key) {
 
     try {
-        castumersConfigData = JSON.parse(fs.readFileSync("apiConfig.json"));
+        castumersConfigData = await JSON.parse(fs.readFileSync("apiConfig.json"));
         // console.log(castumersConfigData);
     } catch (e) {
         //no config file tak from fs
