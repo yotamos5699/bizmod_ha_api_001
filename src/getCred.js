@@ -2,17 +2,27 @@
  const crypto = require('crypto')
  const fs = require("fs");
  var castumersConfigData = [{}];
- try {
-     castumersConfigData = JSON.parse(fs.readFileSync("apiConfig.json"));
-    // console.log(castumersConfigData);
- } catch (e) {
-     //no config file take from fs
-   //  console.log(e);
- }
+//  try {
+//      castumersConfigData = JSON.parse(fs.readFileSync("apiConfig.json"));
+//      // console.log(castumersConfigData);
+//  } catch (e) {
+//      //no config file tak from fs
+//      //  console.log(e);
+//  }
 
+ 
 
  function getCastumersCred(key) {
+    try {
+        castumersConfigData = JSON.parse(fs.readFileSync("apiConfig.json"));
+        // console.log(castumersConfigData);
+    } catch (e) {
+        //no config file tak from fs
+        //  console.log(e);
+    }
+    console.log("this is the usser json file content" + JSON.stringify(castumersConfigData))
      let usserCred = {}
+     console.log("tal u are in !!!!!!!!!!!!!!!!!!!!!!!!")
      castumersConfigData.forEach(usser => {
          if (usser.Key == key) {
              usserCred.WizcloudApiPrivateKey = usser.WizcloudApiPrivateKey
@@ -20,7 +30,7 @@
              usserCred.WizcloudApiDBName = usser.WizcloudApiDBName
          }
      })
-    console.log(usserCred)
+     console.log(usserCred)
      if (usserCred) return [usserCred.WizcloudApiDBName, usserCred.WizcloudApiServer, usserCred.WizcloudApiPrivateKey]
      else return "no usser in data base ...."
 
@@ -51,7 +61,7 @@
          console.log(err, "See resaults in myApiRes.txt");
      });
 
-    
+
 
  }
  getCastumersCred('1111')
