@@ -3,6 +3,7 @@
 const wizlib = require("wizcloud-api");
 const getCredential = require('./getCred')
 var fs = require("fs");
+
 const defultReports = require('./filencryption');
 const {
   PassThrough
@@ -118,7 +119,7 @@ async function exportRecords(reqData, privetKey) {
   // console.log("jsondata " + jsondata)
   const data = JSON.stringify(jsondata, null, 2);
 
-  fs.writeFile("./dbFiles/lastItemsCall.json", data, (err) => {
+  fs.writeFile(path.resolve(__dirname, "./dbFiles/lastItemsCall.json"), data, (err) => {
     if (err) throw err;
     // console.log(err, "See resaults in myApiRes.txt");
   });

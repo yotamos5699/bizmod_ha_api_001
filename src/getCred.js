@@ -1,5 +1,6 @@
  const catumerConfig = require('./apiConfig.json')
  const crypto = require('crypto')
+ const path = require("path");
  const fs = require("fs");
  var castumersConfigData = [{}];
 //  try {
@@ -15,11 +16,12 @@
  function getCastumersCred(key) {
 
     try {
-        castumersConfigData = JSON.parse(fs.readFileSync("apiConfig.json"));
-        // console.log(castumersConfigData);
+        console.log("getCastumersCred key", key);
+
+        castumersConfigData = JSON.parse(fs.readFileSync(path.resolve(__dirname, "./apiConfig.json")));
+        console.log("castumersConfigData", castumersConfigData);
     } catch (e) {
-        //no config file tak from fs
-        //  console.log(e);
+         console.log("getCastumersCred, err: ", e);
     }
 
 
