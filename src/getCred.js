@@ -16,10 +16,15 @@
  function getCastumersCred(key) {
 
     try {
+<<<<<<< HEAD
         console.log("getCastumersCred key", key);
 
         castumersConfigData = JSON.parse(fs.readFileSync(path.resolve(__dirname, "./apiConfig.json")));
         console.log("castumersConfigData", castumersConfigData);
+=======
+        castumersConfigData = await JSON.parse(fs.readFileSync("apiConfig.json"));
+        // console.log(castumersConfigData);
+>>>>>>> 522c3b1307372f54acc024bb28cec206f5fcb71d
     } catch (e) {
          console.log("getCastumersCred, err: ", e);
     }
