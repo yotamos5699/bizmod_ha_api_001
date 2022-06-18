@@ -7,9 +7,6 @@ const defultReports = require('./filencryption');
 const {
   PassThrough
 } = require("stream");
-const {
-  Console
-} = require("console");
 
 
 
@@ -124,11 +121,11 @@ async function exportRecords(reqData, privetKey) {
   });
 
 
-  console.log("fuck u  " + JSON.stringify(jsondata, null, 2))
+  console.log("json.res  " + JSON.stringify(jsondata, null, 2))
 
   if (sortKey) {
     let sortedData = []
-    jsondata.forEach(row => {
+    jsondata.repdata.forEach(row => {
       if (row['קוד מיון'] == sortKey) {
         sortedData.push(row)
       }

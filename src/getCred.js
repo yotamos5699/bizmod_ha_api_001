@@ -5,7 +5,7 @@
 //  try {
 //      castumersConfigData = JSON.parse(fs.readFileSync("apiConfig.json"));
 //      // console.log(castumersConfigData);
-//  } catch (e) {
+//  } catch (e) {s
 //      //no config file tak from fs
 //      //  console.log(e);
 //  }
@@ -15,7 +15,7 @@
  function getCastumersCred(key) {
 
     try {
-        castumersConfigData = await JSON.parse(fs.readFileSync("apiConfig.json"));
+        castumersConfigData = JSON.parse(fs.readFileSync("apiConfig.json"));
         // console.log(castumersConfigData);
     } catch (e) {
         //no config file tak from fs

@@ -60,17 +60,18 @@ app.post("/api/createdoc", async function (req, res) {
 app.post("/api/calcki", async function (req, res) {
     let reqData = await req.body;
 
-    if (reqData.Type == '1') {
+    if (reqData.FID == '1') {
+      console.log(`print if pass${reqData.FID}`)
       try {
-        let table = await calcki.matrixToTable(reqData.data)
-        res.json(JSON.parse(table))
+        let table = await calcki.matrixToTable(reqData.matrixData, reqData.trimData)
+        res.json(JSON.stringify(table))
       } catch (err) {
         console.log(`error on prosses  ${err} \n request info \n ${JSON.stringify(req)}`);
       }
     } else if (reqData.Type == '2') {
       try {
         let documents = await tableSorting.jsonToInvoice(reqData.data)
-        res.json(JSON.parse(documents))
+        res.json(JSON.stringify(documents))
       } catch (err) {
         console.log(`error on prosses  ${err} \n request info \n ${JSON.stringify(req)}`);
       }
@@ -78,6 +79,11 @@ app.post("/api/calcki", async function (req, res) {
   }
 
 );
+
+
+
+
+
 
 app.post("/api/getrecords", async function (req, res) {
   let jsondata;
@@ -104,17 +110,24 @@ app.post("/api/getrecords", async function (req, res) {
 
   console.log(jsondata)
   res.json({
-     status:'yes',
-      data: JSON.stringify(jsondata)
+    status: 'yes',
+    data: JSON.stringify(jsondata)
   });
 
-console.log(JSON.stringify(jsondata))
+  console.log(JSON.stringify(jsondata))
 });
 
 app.post("/api/test", async function (req, res) {
+  
+  
+  try{
   let reqData = await req.body;
-  let key = await req.headers.authorization
-  console.log(JSON.stringify(reqData.TID))
-  console.log(JSON.stringify(key))
+  console.log(reqData)
+  res.json(reqData)
+  }catch(err){
+    console.dir(err)
+  }
+
+ 
 
 })
