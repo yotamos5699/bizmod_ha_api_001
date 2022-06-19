@@ -57,28 +57,28 @@ app.post("/api/createdoc", async function (req, res) {
 
 
 
-app.post("/api/calcki", async function (req, res) {
-    let reqData = await req.body;
+// app.post("/api/calcki", async function (req, res) {
+//     let reqData = await req.body;
+//     console.log("body  dfdfdfdf" + JSON.stringify(reqData))
+//     if (reqData.FID == '1') {
+//       console.log(`print if pass${reqData.FID}`)
+//       try {
+//         let table = await calcki.joinMatrixes(JSON.parse(reqData.matrixesData), reqData.trimData)
+//         res.json(JSON.stringify(table))
+//       } catch (err) {
+//         console.log(`error on prosses  ${err} \n request info \n ${JSON.stringify(reqData)}`);
+//       }
+//     } else if (reqData.Type == '2') {
+//       try {
+//         let documents = await tableSorting.jsonToInvoice(reqData.data)
+//         res.json(JSON.stringify(documents))
+//       } catch (err) {
+//         console.log(`error on prosses  ${err} \n request info \n ${JSON.stringify(req)}`);
+//       }
+//     }
+//   }
 
-    if (reqData.FID == '1') {
-      console.log(`print if pass${reqData.FID}`)
-      try {
-        let table = await calcki.matrixToTable(reqData.matrixData, reqData.trimData)
-        res.json(JSON.stringify(table))
-      } catch (err) {
-        console.log(`error on prosses  ${err} \n request info \n ${JSON.stringify(req)}`);
-      }
-    } else if (reqData.Type == '2') {
-      try {
-        let documents = await tableSorting.jsonToInvoice(reqData.data)
-        res.json(JSON.stringify(documents))
-      } catch (err) {
-        console.log(`error on prosses  ${err} \n request info \n ${JSON.stringify(req)}`);
-      }
-    }
-  }
-
-);
+// );
 
 
 
@@ -108,13 +108,13 @@ app.post("/api/getrecords", async function (req, res) {
     }
   }
 
-  console.log(jsondata)
+ // console.log(jsondata)
   res.json({
     status: 'yes',
     data: JSON.stringify(jsondata)
   });
 
-  console.log(JSON.stringify(jsondata))
+  //console.log(JSON.stringify(jsondata))
 });
 
 app.post("/api/test", async function (req, res) {
@@ -122,6 +122,7 @@ app.post("/api/test", async function (req, res) {
   
   try{
   let reqData = await req.body;
+  let matrixData = await reqData.matrixesData
   console.log(reqData)
   res.json(reqData)
   }catch(err){

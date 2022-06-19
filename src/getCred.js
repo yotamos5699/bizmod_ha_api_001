@@ -2,28 +2,25 @@
  const crypto = require('crypto')
  const fs = require("fs");
  var castumersConfigData = [{}];
-//  try {
-//      castumersConfigData = JSON.parse(fs.readFileSync("apiConfig.json"));
-//      // console.log(castumersConfigData);
-//  } catch (e) {s
-//      //no config file tak from fs
-//      //  console.log(e);
-//  }
+ //  try {
+ //      castumersConfigData = JSON.parse(fs.readFileSync("apiConfig.json"));
+ //      // console.log(castumersConfigData);
+ //  } catch (e) {
+ //      //no config file tak from fs
+ //      //  console.log(e);
+ //  }
 
- 
+
 
  function getCastumersCred(key) {
-
-    try {
-        castumersConfigData = JSON.parse(fs.readFileSync("apiConfig.json"));
-        // console.log(castumersConfigData);
-    } catch (e) {
-        //no config file tak from fs
-        //  console.log(e);
-    }
-
-
-    console.log("this is the usser json file content" + JSON.stringify(castumersConfigData))
+     try {
+         castumersConfigData = JSON.parse(fs.readFileSync("./apiConfig.json"));
+         // console.log(castumersConfigData);
+     } catch (e) {
+         //no config file tak from fs
+         //  console.log(e);
+     }
+     console.log("this is the usser json file content" + JSON.stringify(castumersConfigData))
      let usserCred = {}
      console.log("tal u are in !!!!!!!!!!!!!!!!!!!!!!!!")
      castumersConfigData.forEach(usser => {
@@ -67,7 +64,7 @@
 
 
  }
- //getCastumersCred('1111')
+ getCastumersCred('1111')
  module.exports.generateKey = generateKey;
  module.exports.setNewUsserCradential = setNewUsserCradential;
  module.exports.getCastumersCred = getCastumersCred;
