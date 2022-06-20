@@ -13,13 +13,7 @@
 
 
  function getCastumersCred(key) {
-     try {
-         castumersConfigData = JSON.parse(fs.readFileSync("./apiConfig.json"));
-         // console.log(castumersConfigData);
-     } catch (e) {
-         //no config file tak from fs
-         //  console.log(e);
-     }
+    loadCastumersConfigData()
      console.log("this is the usser json file content" + JSON.stringify(castumersConfigData))
      let usserCred = {}
      console.log("tal u are in !!!!!!!!!!!!!!!!!!!!!!!!")
@@ -43,6 +37,24 @@
      let key = crypto.randomBytes(32).toString('hex')
      return key
  }
+
+
+ function loadCastumersConfigData() {
+    try {
+      castumersConfigData = JSON.parse(
+        fs.readFileSync(path.resolve(__dirname, "./apiConfig.json"))
+      );
+    } catch (err) {
+      console.log("getCastumersCred, path.resolve err: ");
+      console.dir(err);
+      try {
+        castumersConfigData = JSON.parse(fs.readFileSync("./apiConfig.json"));
+      } catch (err) {
+        console.log("getCastumersCred fs readfile, err: ");
+        console.dir(err);
+      }
+    }
+  }
 
 
  function setNewUsserCradential(usserData, generatedUsserKey) {

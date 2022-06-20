@@ -9,6 +9,20 @@ const {
   PassThrough
 } = require("stream");
 
+const docHash = {
+  '1': [
+    [defultReports.stockEncrypt_reportData,
+      defultReports.params_data_st
+    ],
+    [defultReports.encrypt_treeItemsreportData,
+      defultReports.treeItemsParams_data
+    ]
+  ],
+
+  '2': [defultReports.castumersEncryptData,
+    defultReports.params_data_ca
+  ]
+}
 
 
 async function exportRecords(reqData, privetKey) {
@@ -17,8 +31,10 @@ async function exportRecords(reqData, privetKey) {
 
   let fileData = reqData.TID
   console.log("file data  DDFDFDFDFD   " + JSON.stringify(fileData))
-  console.log("sanity check sanity check sanity check sanity check !!!!! ")
   let sortKey = reqData.sortKey
+  let Warehouse = ''
+  fileData == '1' ? Warehouse = reqData.Warehouse : Warehouse = null
+
 
   const [
     usserDbname,
@@ -26,9 +42,7 @@ async function exportRecords(reqData, privetKey) {
     usserPrivetKey
   ] = getCredential.getCastumersCred('1111')
 
-  console.log(usserDbname)
-  console.log(usserServerName)
-  console.log(usserPrivetKey)
+  console.log(`usser cred \n${usserDbname}\n${usserServerName}\n${usserPrivetKey}`)
 
   let myDBname = usserDbname;
   try {
@@ -38,20 +52,7 @@ async function exportRecords(reqData, privetKey) {
     console.log(e);
   }
 
-  let docHash = {
-    '1': [
-      [defultReports.stockEncrypt_reportData,
-        defultReports.params_data_st
-      ],
-      [defultReports.encrypt_treeItemsreportData,
-        defultReports.treeItemsParams_data
-      ]
-    ],
 
-    '2': [defultReports.castumersEncryptData,
-      defultReports.params_data_ca
-    ]
-  }
 
   let reportCod, parameters;
   if (fileData == '4') {
@@ -121,25 +122,52 @@ async function exportRecords(reqData, privetKey) {
     // console.log(err, "See resaults in myApiRes.txt");
   });
 
-
   // console.log("json.res  " + JSON.stringify(jsondata, null, 2))
 
-  if (sortKey) {
-    console.log("sorting data ......")
-    let sortedData = []
-    jsondata.repdata.forEach(row => {
-      if (row['קוד מיון'] == sortKey) {
-        sortedData.push(row)
-      }
-    })
-    console.log("SORTED DATA" + sortedData)
-    return sortedData
+  if (sortKey || Warehouse) {
+    try {
+      sortReportData(jsondata, sortKey, Warehouse)
+    } catch (err) {
+      console.log(`error on sortReportData${err}`)
+    }
   } else {
     console.log("raw data...." + jsondata.repdata)
     return jsondata;
   }
 }
 
+
+const sortReportData = (reportData, sortKey, Warehouse) => {
+  let headersList = ['קוד מיון', 'מחסן']
+  let headersValues = [sortKey, Warehouse]
+
+  let Headers = []
+  let pair = {}
+  headersValues.forEach((value, index) => {
+    if (value) {
+      pair = {
+        [headersList[index]]: value
+      }
+      Headers.push(pair)
+    }
+  })
+
+
+  let sortedData = []
+  let updatedData = reportData
+  Headers.forEach(header => {
+    console.log(`sorting data ...... \n ${header}`)
+    updatedData.repdata.forEach(row => {
+      if (row[header.key] == header.value) {
+        sortedData.push(row)
+      }
+    })
+    console.log(`sorted data \n ${sortedData}`)
+    updatedData = sortedData
+  })
+  return updatedData
+
+}
 
 module.exports.exportRecords = exportRecords;
 
@@ -168,7 +196,7 @@ module.exports.exportRecords = exportRecords;
 //   "moneyMissing": 1312,
 //   "castumers": "asdasdasda"
 //   }
-  
+
 //   },
 //   "data": [{
 //   "cellsData": [null, null, null, null, null, null, null, null],
@@ -186,12 +214,12 @@ module.exports.exportRecords = exportRecords;
 //   "Details": "לתשלום עד ה 3.4.23"
 //   }]
 //   },
-  
+
 //   {
 //   "cellsData": [null, null, null, null, null, null, null, null],
 //   "docData": [null]
 //   },
-  
+
 //   {
 //   "cellsData": [null, null, null, null, {
 //   "cellData": {
@@ -204,7 +232,7 @@ module.exports.exportRecords = exportRecords;
 //   }, null, null, null],
 //   "docData": [null]
 //   },
-  
+
 //   {
 //   "cellsData": [null, null, null, null, null, null, null, null],
 //   "docData": [{
@@ -223,6 +251,6 @@ module.exports.exportRecords = exportRecords;
 //   }
 //   }],
 //   "docData": [null]
-  
+
 //   }]}]
 //   }
