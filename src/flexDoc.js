@@ -3,6 +3,7 @@
 const wizlib = require("wizcloud-api");
 const getCredential = require('./getCred')
 var fs = require("fs");
+const path = require("path");
 
 const defultReports = require('./filencryption');
 const {
