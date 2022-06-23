@@ -6,16 +6,18 @@ var fs = require("fs");
 
 
 
-async function createDoc(stock, docID, privetKey) {
-  //console.log("befor document" + JSON.stringify(stock));
-  const {
+async function createDoc(stock, docID, privetKey, index) {
+  console.log(`creat do start don num"${index}" data:\n ${JSON.stringify(stock)}`);
+  const [
     usserDbname,
     usserServerName,
     usserPrivetKey
-  } = getCredential.getCastumersCred(privetKey)
+  ] = await getCredential.getCastumersCred("1111")
 
+  console.log(`usser db name++\n ${usserDbname} usser server name ++\n ${usserServerName} usser privet key ++\n ${usserPrivetKey}`)
+
+  let myDBname = usserDbname;
   try {
-    let myDBname = usserDbname;
     wizlib.init(usserPrivetKey, usserServerName);
   } catch (e) {
     console.log(e);
@@ -36,10 +38,12 @@ async function createDoc(stock, docID, privetKey) {
   });
   console.log(apiRes);
 
-  fs.writeFile("myApiRes.txt", JSON.stringify(apiRes), (err) => {
-    if (err) throw err;
-    console.log("See resaults in myApiRes.txt");
-  });
+  // fs.writeFile("myApiRes.txt", JSON.stringify(apiRes), (err) => {
+  //   if (err) throw err;
+  //   console.log("See resaults in myApiRes.txt");
+ // }
+ // );
+ return JSON.parse(apiRes)
 }
 
 

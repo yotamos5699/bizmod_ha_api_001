@@ -4,7 +4,7 @@ const wizlib = require("wizcloud-api");
 const getCredential = require('./getCred')
 var fs = require("fs");
 const path = require("path");
-
+const Helper = require('./Helper')
 const defultReports = require('./filencryption');
 const {
   PassThrough
@@ -41,7 +41,7 @@ async function exportRecords(reqData, privetKey) {
     usserDbname,
     usserServerName,
     usserPrivetKey
-  ] = getCredential.getCastumersCred('1111')
+  ] = await getCredential.getCastumersCred("1111")
 
   console.log(`usser cred \n${usserDbname}\n${usserServerName}\n${usserPrivetKey}`)
 
@@ -114,11 +114,11 @@ async function exportRecords(reqData, privetKey) {
   }
 
 
-  const jsondata = resArrey.length > 0 ? resArrey : apiRes
+  let jsondata = resArrey.length > 0 ? resArrey : apiRes
   // console.log("jsondata " + jsondata)
   const data = JSON.stringify(jsondata, null, 2);
 
-  fs.writeFile("./dbFiles/lastItemsCall.json", data, (err) => {
+  fs.writeFile(path.resolve(__dirname, "./lastItemsCall.json"), data, (err) => {
     if (err) throw err;
     // console.log(err, "See resaults in myApiRes.txt");
   });
@@ -127,131 +127,16 @@ async function exportRecords(reqData, privetKey) {
 
   if (sortKey || Warehouse) {
     try {
-      sortReportData(jsondata, sortKey, Warehouse)
+      jsondata = Helper.sortReportData(jsondata.repdata, sortKey, Warehouse)
+
+      return jsondata
     } catch (err) {
       console.log(`error on sortReportData${err}`)
     }
   } else {
     console.log("raw data...." + jsondata.repdata)
-    return jsondata;
+    return jsondata.repdata;
   }
 }
 
-
-const sortReportData = (reportData, sortKey, Warehouse) => {
-  let headersList = ['קוד מיון', 'מחסן']
-  let headersValues = [sortKey, Warehouse]
-
-  let Headers = []
-  let pair = {}
-  headersValues.forEach((value, index) => {
-    if (value) {
-      pair = {
-        [headersList[index]]: value
-      }
-      Headers.push(pair)
-    }
-  })
-
-
-  let sortedData = []
-  let updatedData = reportData
-  Headers.forEach(header => {
-    console.log(`sorting data ...... \n ${header}`)
-    updatedData.repdata.forEach(row => {
-      if (row[header.key] == header.value) {
-        sortedData.push(row)
-      }
-    })
-    console.log(`sorted data \n ${sortedData}`)
-    updatedData = sortedData
-  })
-  return updatedData
-
-}
-
 module.exports.exportRecords = exportRecords;
-
-// "matrixesData":[{
-//   "matrixID": "asdajhjkhasd!@#$xdfhasdg$%4fgjf%^&#$@FHGJ",
-//   "DocumentID": "1",
-//   "data": [
-//   ["AcountName", "AountKey", "CellPhone", "bb100", "xp100", "ab500", "spxp100", "sr"],
-//   ["yota", "10001", "506655699", "2", null, "1", "4", null],
-//   ["yosh", "10022", "506655698", "2", "3", null, "4", "6"],
-//   ["moti", "10401", "504654523", "2", "3", "1", "4", "6"],
-//   ["dana", "10601", "525543268", null, "3", "1", "4", "6"],
-//   ["tal", "11201", "507635997", "2", null, "1", "4", "6"]
-//   ]
-//   },
-//   {
-//   "matrixConfig": {
-//   "submitTstemp": "12/11/2022",
-//   "managerID": "2312411241",
-//   "totalSells": 12312312,
-//   "mainMatrixId": "asdajhjkhasd!@#$xdfhasdg$%4fgjf%^&#$@FHGJ"
-//   },
-//   "matrixGlobalData": {
-//   "Details": "LONG TIME ON DE",
-//   "problemsLog": {
-//   "moneyMissing": 1312,
-//   "castumers": "asdasdasda"
-//   }
-
-//   },
-//   "data": [{
-//   "cellsData": [null, null, null, null, null, null, null, null],
-//   "docData": [null]
-//   },
-//   {
-//   "cellsData": [null, null, null, {
-//   "cellData": {
-//   "itemRow": [{
-//   "Price": 222
-//   }]
-//   }
-//   }, null, null, null, null, null],
-//   "docData": [{
-//   "Details": "לתשלום עד ה 3.4.23"
-//   }]
-//   },
-
-//   {
-//   "cellsData": [null, null, null, null, null, null, null, null],
-//   "docData": [null]
-//   },
-
-//   {
-//   "cellsData": [null, null, null, null, {
-//   "cellData": {
-//   "itemRow": [{
-//   "DiscountPrc": 7
-//   }, {
-//   "Details": "מחיר מיוחד לגייז"
-//   }]
-//   }
-//   }, null, null, null],
-//   "docData": [null]
-//   },
-
-//   {
-//   "cellsData": [null, null, null, null, null, null, null, null],
-//   "docData": [{
-//   "DiscountPrc": 12
-//   }]
-//   },
-//   {
-//   "cellsData": [null, null, null, null, null, null, null, {
-//   "cellData": {
-//   "itemRow": [{
-//   "DiscountPrc": 3
-//   }],
-//   "metaData": [{
-//   "Details": "לקוח לא משלם במסירה"
-//   }]
-//   }
-//   }],
-//   "docData": [null]
-
-//   }]}]
-//   }
