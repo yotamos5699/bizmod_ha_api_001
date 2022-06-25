@@ -99,7 +99,7 @@ async function exportRecords(reqData, privetKey) {
         if (row['מפתח פריט'] == item['מפתח פריט אב']) {
           record = row
           record['מפתח פריט אב'] = item['מפתח פריט']
-          console.log(row['מפתח פריט'] + " " + item['מפתח פריט אב'])
+        //  console.log(row['מפתח פריט'] + " " + item['מפתח פריט אב'])
         }
 
       })
@@ -125,17 +125,17 @@ async function exportRecords(reqData, privetKey) {
 
   // console.log("json.res  " + JSON.stringify(jsondata, null, 2))
 
-  if (sortKey || Warehouse) {
+  if (sortKey) {
     try {
-      jsondata = Helper.sortReportData(jsondata.repdata, sortKey, Warehouse)
+      jsondata = Helper.sortReportData(jsondata, sortKey)
 
       return jsondata
     } catch (err) {
       console.log(`error on sortReportData${err}`)
     }
   } else {
-    console.log("raw data...." + jsondata.repdata)
-    return jsondata.repdata;
+    console.log("raw data...." + JSON.stringify(jsondata))
+    return jsondata;
   }
 }
 

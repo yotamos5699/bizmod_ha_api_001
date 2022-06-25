@@ -17,43 +17,70 @@ const createRetJson = async (answer, index) => {
 
 
 
-const sortReportData = (reportData, sortKey, Warehouse) => {
-  let headersList = ['קוד מיון', 'מחסן']
-  let headersValues = [sortKey, Warehouse]
+// const sortReportData = (reportData, sortKey) => {
 
-  let Headers = []
-  let Values = []
-  headersValues.forEach((value, index) => {
-
-
-    if (value) {
-      pair = {
-        [headersList[index]]: value
-      }
-      Headers.push(headersList[index])
-      Values.push(value)
-    }
-  })
+//  // let sortByValues = []
+//   let Keys = Object.keys(sortKey)
+//   let Values = Object.values(sortKey)
+//   //Values.forEach((value, index) => {
 
 
-  let sortedData = []
+//   //   if (value) {
+//   //     pair = {
+//   //       [Keys[index]]: value
+//   //     }
+//   //     Headers.push(headersList[index])
+//   //     Values.push(value)
+//   //   }
+//   // })
+
+
+//   let sortedData = []
+//   let updatedData = reportData
+//   console.log("ffffffffffffffffffffffffffff" + JSON.stringify(updatedData[0, 1, 2], null, 2))
+//   Keys.forEach((key, index) => {
+//     updatedData.forEach(row => {
+//      // console.log(`heder keyyyyyyy  ${header}\n eader value !!!!!!  ${Values[index]}`)
+//       if (row[key] == Values[index]) {
+//         sortedData.push(row)
+//         console.log(row)
+//       }
+//     })
+//     updatedData = sortedData
+//     console.log(`sorted data \n ${(JSON.stringify(sortedData))}`)
+//   })
+
+
+//   return updatedData
+
+// }
+
+
+
+const sortReportData = (reportData, sortKey) => {
+  let Keys = Object.keys(sortKey)
+  let Values = Object.values(sortKey)
+ // console.log(`KEYS ${Keys} \n VALUES ${Values}`)
+  let newSortedData
   let updatedData = reportData
-  console.log("ffffffffffffffffffffffffffff" + JSON.stringify(updatedData[0, 1, 2], null, 2))
-  Headers.forEach((header, index) => {
+  //console.log(`data to sort....\n ${JSON.stringify(updatedData[0, 1, 2], null, 2)}`)
+  Keys.forEach((key, index) => {
+    newSortedData = []
     updatedData.forEach(row => {
-     // console.log(`heder keyyyyyyy  ${header}\n eader value !!!!!!  ${Values[index]}`)
-      if (row[header] == Values[index]) {
-        sortedData.push(row)
-        console.log(row)
+      // console.log(`header keyyyyyyy  ${key}\n header value !!!!!!  ${Values[index]}`)
+      if (row[key] == Values[index]) {
+        newSortedData.push(row)
+        // console.log(row)
       }
     })
-    updatedData = sortedData
-    console.log(`sorted data \n ${(JSON.stringify(sortedData))}`)
+    updatedData = newSortedData
+    console.log(`sorted data \n ${(JSON.stringify(newSortedData))}`)
   })
 
-
+  if (!updatedData) return {
+    status: "no rows to return"
+  }
   return updatedData
-
 }
 
 module.exports.sortReportData = sortReportData
