@@ -9,6 +9,7 @@ const documentCreator = require(`./DocumentCreator`);
 const reportsCreator = require('./flexDoc');
 const Helper = require('./Helper')
 const calcki = require('./calcki')
+const path = require("path");
 var timeout = require('express-timeout-handler');
 app.use(timeout.handler(options));
 const {
@@ -113,86 +114,100 @@ app.post("/api/createdoc", timeout.set(500000), async function (req, res) {
 
 });
 
+app.get("/api/geturls", async function (req, res) {
 
-app.post("/api/createdoc", async function (req, res) {
-  var [docData, docID] = req.body;
-  var docReturnArrey = [];
+  let fileName = 'castumersInvoiceUrls'
 
+  console.log(req.headers);
 
-  let sortedTable = [];
-  sortedTable = await tableSorting.jsonToInvoice(docData);
+  let data = fs.readFileSync(path.resolve(__dirname, `./${fileName}.json`), (err) => {
+    if (err) throw err;
+    console.log(err, "See resaults in myApiRes.txt");
+  })
+  data = JSON.parse(data)
+  console.log(JSON.stringify(data.data))
 
-  if (sortedTable.length < 1) {
-    res.json({
-      status: "error",
-      Details: "no data in table"
-    });
-    console.log(`no data in table`);
-    res.end();
-  }
-  //let sorstedTable = await JSON.parse(sortedTable2);
-
-  for (let i = 0; i <= sortedTable.length - 1; i++) {
-    console.log("number of times " + i);
-    console.log(
-      `doc data sended to create DOC.. \n  ${JSON.stringify(
-          sortedTable[i],
-          null,
-          2
-        )}`
-    );
-    await documentCreator
-      .createDoc(JSON.parse(sortedTable[i]), docID, "1111", i)
-      .then(async (docOutPut) => {
-        console.log(
-          `response from create doc nun ${i}\n ${JSON.stringify(
-              docOutPut,
-              null,
-              2
-            )}`
-        );
-        let obj2Return = await Helper.createRetJson(docOutPut, i);
-        return obj2Return;
-      })
-      .then((docResult) => {
-        console.log(
-          `doc filterd resoult num ${i} \n${JSON.stringify(docResult)}`
-        );
-        if (docResult) {
-          docReturnArrey.push(docResult);
-        } else docReturnArrey.push({
-          status: "no",
-          Details: `no data on object number ${i}`
-        })
-      })
-      .catch((err) => {
-        console.log(`catch in main loop...\n ${err}`);
-        console.error(err);
-      });
-  }
-  console.log(`Doc response arrey ${JSON.stringify(docReturnArrey, null, 2)}`);
-
-  if (docReturnArrey) {
-    try {
-      res.json({
-        status: "yes",
-        data: JSON.stringify(docReturnArrey),
-      });
-    } catch (err) {
-      console.error(err);
-      res.json({
-        status: console.error(err),
-      });
-    }
-  } else {
-    res.json({
-      status: "no",
-      Details: `No data on main Arrey, yo ${i}`
-
-    })
-  }
-
+  res.send(JSON.stringify(data,null,2)).end();
 });
+// app.post("/api/createdoc", async function (req, res) {
+//   var [docData, docID] = req.body;
+//   var docReturnArrey = [];
+
+
+//   let sortedTable = [];
+//   sortedTable = await tableSorting.jsonToInvoice(docData);
+
+//   if (sortedTable.length < 1) {
+//     res.json({
+//       status: "error",
+//       Details: "no data in table"
+//     });
+//     console.log(`no data in table`);
+//     res.end();
+//   }
+//   //let sorstedTable = await JSON.parse(sortedTable2);
+
+//   for (let i = 0; i <= sortedTable.length - 1; i++) {
+//     console.log("number of times " + i);
+//     console.log(
+//       `doc data sended to create DOC.. \n  ${JSON.stringify(
+//           sortedTable[i],
+//           null,
+//           2
+//         )}`
+//     );
+//     await documentCreator
+//       .createDoc(JSON.parse(sortedTable[i]), docID, "1111", i)
+//       .then(async (docOutPut) => {
+//         console.log(
+//           `response from create doc nun ${i}\n ${JSON.stringify(
+//               docOutPut,
+//               null,
+//               2
+//             )}`
+//         );
+//         let obj2Return = await Helper.createRetJson(docOutPut, i);
+//         return obj2Return;
+//       })
+//       .then((docResult) => {
+//         console.log(
+//           `doc filterd resoult num ${i} \n${JSON.stringify(docResult)}`
+//         );
+//         if (docResult) {
+//           docReturnArrey.push(docResult);
+//         } else docReturnArrey.push({
+//           status: "no",
+//           Details: `no data on object number ${i}`
+//         })
+//       })
+//       .catch((err) => {
+//         console.log(`catch in main loop...\n ${err}`);
+//         console.error(err);
+//       });
+//   }
+//   console.log(`Doc response arrey ${JSON.stringify(docReturnArrey, null, 2)}`);
+
+//   if (docReturnArrey) {
+//     try {
+//       res.json({
+//         status: "yes",
+//         data: JSON.stringify(docReturnArrey),
+//       });
+//     } catch (err) {
+//       console.error(err);
+//       res.json({
+//         status: console.error(err),
+//       });
+//     }
+//   } else {
+//     res.json({
+//       status: "no",
+//       Details: `No data on main Arrey, yo ${i}`
+
+//     })
+//   }
+
+// });
 
 var options = {
   // Optional. This will be the default timeout for all endpoints.
