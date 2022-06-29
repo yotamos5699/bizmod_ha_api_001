@@ -11,7 +11,12 @@ const Helper = require('./Helper')
 const calcki = require('./calcki')
 const path = require("path");
 var timeout = require('express-timeout-handler');
+try{
 app.use(timeout.handler(options));
+}catch(err){
+  console.log("on time out heandeler")
+  console.dir(err)
+}
 const {
   errorMonitor
 } = require('stream');
@@ -32,8 +37,12 @@ app.use(
   })
 );
 
-
-app.use(express.json());
+try {
+  app.use(express.json());
+} catch (err) {
+  console.log("on app.use.json()")
+  console.dir(err)
+}
 app.listen(PORT, (err) =>
   console.log(`server ${err ? " on" : "listening"} port` + PORT)
 );
@@ -60,21 +69,21 @@ app.post("/api/createdoc", timeout.set(500000), async function (req, res) {
 
     console.log("number of times " + i);
     console.log(
-      `doc data sended to create DOC.. \n  ${JSON.stringify(
+      `%cDoc data sended to creating document:.. \n  ${JSON.stringify(
         sortedTable[i],
         null,
         2
-      )}`
+      )}`, 'font-size:30px;'
     );
     await documentCreator
       .createDoc(JSON.parse(sortedTable[i]), docID, i)
       .then(async (docOutPut) => {
         console.log(
-          `response from create doc nun ${i}\n ${JSON.stringify(
+          `%cResponse from create doc nun ${i}\n ${JSON.stringify(
             docOutPut,
             null,
             2
-          )}`
+          )}`, "font-size:30px;"
         );
 
         let obj2Return = await Helper.createRetJson(docOutPut, i, Action);
@@ -91,6 +100,7 @@ app.post("/api/createdoc", timeout.set(500000), async function (req, res) {
         console.dir(err);
       });
   }
+
   console.log(`Doc response arrey ************************\n${JSON.stringify(docReturnArrey, null, 2)}`);
   try {
     rr = await Helper.updateJsonFILE('castumersInvoiceUrls', docReturnArrey)
@@ -127,7 +137,7 @@ app.get("/api/geturls", async function (req, res) {
   data = JSON.parse(data)
   console.log(JSON.stringify(data.data))
 
-  res.send(JSON.stringify(data,null,2)).end();
+  res.send(JSON.stringify(data, null, 2)).end();
 });
 // app.post("/api/createdoc", async function (req, res) {
 //   var [docData, docID] = req.body;
@@ -217,6 +227,7 @@ var options = {
   // Optional. This function will be called on a timeout and it MUST
   // terminate the request.
   // If omitted the module will end the request with a default 503 error.
+  
   onTimeout: function (req, res) {
     res.status(503).send('Service unavailable. Please retry.');
   },
