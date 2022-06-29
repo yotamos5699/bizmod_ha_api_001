@@ -9,6 +9,10 @@ const defultReports = require('./filencryption');
 const {
   PassThrough
 } = require("stream");
+const {
+  table
+} = require("console");
+const res = require("express/lib/response");
 
 const docHash = {
   '1': [
@@ -89,32 +93,68 @@ async function exportRecords(reqData, privetKey) {
   let resArrey = [];
   if (fileData == '1') {
     treeData = JSON.parse(treeData)
-
+    console.log(JSON.stringify(treeData, null, 2))
+    console.log(JSON.stringify(apiRes, null, 2))
     // console.log(treeData.repdata)
 
-    treeData.repdata.forEach(item => {
+    treeData.repdata.forEach(treeDataRow => {
       let record = {};
-      apiRes.repdata.forEach(row => {
+      apiRes.repdata.forEach((itemsDataRow) => {
 
-        if (row['מפתח פריט'] == item['מפתח פריט אב']) {
-          record = row
-          record['מפתח פריט אב'] = item['מפתח פריט']
-        //  console.log(row['מפתח פריט'] + " " + item['מפתח פריט אב'])
+        if (itemsDataRow['מפתח פריט'] == treeDataRow['מפתח פריט אב']) {
+          record = itemsDataRow
+          record['מפתח פריט אב'] = treeDataRow['מפתח פריט']
+
+          //  console.log(row['מפתח פריט'] + " " + item['מפתח פריט אב'])
         }
 
       })
       if (record) {
         resArrey.push(record)
       } else {
-        record = row
-        record['מפתח פריט אב'] == row['מפתח פריט']
+        record = itemsDataRow
+        record['מפתח פריט אב'] = itemsDataRow['מפתח פריט']
         resArrey.push(record)
       }
     })
   }
 
 
-  let jsondata = resArrey.length > 0 ? resArrey : apiRes
+
+  let newArrey = []
+  resArrey.forEach(resRow => {
+    let record = {}
+
+    apiRes.repdata.forEach(tableRow => {
+      if (resRow['מפתח פריט אב'] == tableRow['מפתח פריט']) {
+        record = resRow
+        record['שם פריט אב'] = tableRow['שם פריט']
+        record['תרה כמותית אב'] = tableRow['יתרה כמותית במלאי']
+        newArrey.push(record)
+      }
+
+    })
+
+  })
+  // record['שם אב'] = itemsDataRow['שם פריט']
+  // record['יתרה כמותית במלאי'] = row['יתרה כמותית במלאי']
+  // record['משקל'] = itemsDataRow['משקל']
+  // //   {
+  //   "איתור אב": null,
+  //   "מפתח פריט אב": "XPF",
+  //   "משקל אב": 1,
+  //   "איתור": null,
+  //   "מפתח פריט": "XP",
+  //   "משקל": 1
+  // },
+  // "שם פריט": "גת קימבו לפי משקל",
+  // "מפתח פריט": "KIKG",
+  // "קוד מיון": 51200,
+  // "יתרה כמותית במלאי": 0,
+  // "משקל": 1,
+  // "מחסן": 1
+
+  let jsondata = resArrey.length > 0 ? newArrey : apiRes
   // console.log("jsondata " + jsondata)
   const data = JSON.stringify(jsondata, null, 2);
 

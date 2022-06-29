@@ -9,6 +9,8 @@ const documentCreator = require(`./DocumentCreator`);
 const reportsCreator = require('./flexDoc');
 const Helper = require('./Helper')
 const calcki = require('./calcki')
+var timeout = require('express-timeout-handler');
+app.use(timeout.handler(options));
 const {
   errorMonitor
 } = require('stream');
@@ -35,6 +37,81 @@ app.listen(PORT, (err) =>
   console.log(`server ${err ? " on" : "listening"} port` + PORT)
 );
 
+app.post("/api/createdoc", timeout.set(500000), async function (req, res) {
+
+  var [docData, docID] = req.body.data;
+  var Action = req.body.Action;
+
+  console.log(docData, " ", docID, " ", Action)
+  var rr = [{}]
+  var docReturnArrey = [];
+
+  let sortedTable = [];
+  sortedTable = await tableSorting.jsonToInvoice(docData);
+
+  if (sortedTable.length < 1) return res.end(`
+    "Detailes":"no data"`)
+  // else res.end(`
+  //   "Details": "מכין את הקובץ אח שלי"`)
+
+  //let counter = 0
+  for (let i = 0; i <= sortedTable.length - 1; i++) {
+
+    console.log("number of times " + i);
+    console.log(
+      `doc data sended to create DOC.. \n  ${JSON.stringify(
+        sortedTable[i],
+        null,
+        2
+      )}`
+    );
+    await documentCreator
+      .createDoc(JSON.parse(sortedTable[i]), docID, i)
+      .then(async (docOutPut) => {
+        console.log(
+          `response from create doc nun ${i}\n ${JSON.stringify(
+            docOutPut,
+            null,
+            2
+          )}`
+        );
+
+        let obj2Return = await Helper.createRetJson(docOutPut, i, Action);
+        return obj2Return
+      })
+      .then((docResult) => {
+        console.log(
+          `doc filterd resoult num ${i} \n${JSON.stringify(docResult)}`
+        );
+
+        docReturnArrey.push(docResult);
+      }).catch((err) => {
+        console.log(`catch in main loop...\n ${err}`);
+        console.dir(err);
+      });
+  }
+  console.log(`Doc response arrey ************************\n${JSON.stringify(docReturnArrey, null, 2)}`);
+  try {
+    rr = await Helper.updateJsonFILE('castumersInvoiceUrls', docReturnArrey)
+  } catch (e) {
+    console.log(e)
+  }
+  console.log(JSON.stringify(rr))
+
+
+
+  try {
+    return res
+      .json({
+        status: "yes",
+        data: JSON.stringify(docReturnArrey, null, 2),
+      })
+  } catch (err) {
+    console.error(err);
+    res.send(err)
+  }
+
+});
 
 
 app.post("/api/createdoc", async function (req, res) {
@@ -117,7 +194,50 @@ app.post("/api/createdoc", async function (req, res) {
 
 });
 
+var options = {
+  // Optional. This will be the default timeout for all endpoints.
+  // If omitted there is no default timeout on endpoints
+  timeout: 3000,
 
+  // Optional. This function will be called on a timeout and it MUST
+  // terminate the request.
+  // If omitted the module will end the request with a default 503 error.
+  onTimeout: function (req, res) {
+    res.status(503).send('Service unavailable. Please retry.');
+  },
+
+  // Optional. Define a function to be called if an attempt to send a response
+  // happens after the timeout where:
+  // - method: is the method that was called on the response object
+  // - args: are the arguments passed to the method
+  // - requestTime: is the duration of the request
+  // timeout happened
+  onDelayedResponse: function (req, method, args, requestTime) {
+    console.log(`Attempted to call ${method} after timeout`);
+  },
+
+  // Optional. Provide a list of which methods should be disabled on the
+  // response object when a timeout happens and an error has been sent. If
+  // omitted, a default list of all methods that tries to send a response
+  // will be disable on the response object
+  disable: ['write', 'setHeaders', 'send', 'json', 'end']
+};
+
+//app.use(timeout.handler(options));
+
+// app.get('/greet', //The default timeout is in effect here
+//   function (req, res) {
+//     res.send('Hello world!');
+//   }
+// );
+
+// app.get('/leave',
+//   // This is a specific endpoint timeout which overrides the default timeout
+//   timeout.set(4000),
+//   function (req, res) {
+//     res.send('Goodbye!');
+//   }
+// );
 
 
 

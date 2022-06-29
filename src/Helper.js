@@ -1,5 +1,11 @@
-const createRetJson = async (answer, index) => {
-  console.log(`CreateRetJson function !! \n number doc ${index} \n ${JSON.stringify(answer)}`);
+const fs = require('fs')
+const path = require("path");
+const createRetJson = async (answer, index , Action) => {
+  console.log(
+    `CreateRetJson function !! \n number doc ${index} \n ${JSON.stringify(
+      answer
+    )}`
+  );
   ret = {
     DocumentIssuedStatus: answer[0]["DocumentIssuedStatus"],
     DocumentDefID: answer[0]["DocumentDetails"][0][0]["DocumentID"],
@@ -10,13 +16,44 @@ const createRetJson = async (answer, index) => {
     TotalCost: answer[0]["DocumentDetails"][0][0]["Tftal"],
     Address: answer[0]["DocumentDetails"][0][0]["Address"],
     DocumentDetails: answer[0]["DocumentDetails"][0][0]["Phone"],
-    DocUrl: answer[0]["urlDoc"]
+    DocUrl: answer[0]["urlDoc"],
+    Action: Action
   };
   return ret;
 };
 
 
 
+
+const updateJsonFILE = async (fileName, newData) => {
+  //fileName = 'castumersInvoiceUrls'
+
+  //newData = dd
+
+  let data = fs.readFileSync(path.resolve(__dirname, `./${fileName}.json`), (err) => {
+    if (err) throw err;
+
+    console.log(err, "See resaults in myApiRes.txt");
+  })
+  console.log(data)
+  data = await JSON.parse(data)
+  console.log(data)
+
+  newData.forEach((row, index) => {
+    console.log("row  " + row + "index " + index)
+    data.data.push(row)
+  })
+
+  console.log(typeof data)
+  console.log(data)
+
+  fs.writeFileSync(path.resolve(__dirname, `./${fileName}.json`), JSON.stringify(data), (err) => {
+    if (err) throw err;
+    console.log(err, "See resaults in myApiRes.txt");
+  });
+  return data
+
+}
 // const sortReportData = (reportData, sortKey) => {
 
 //  // let sortByValues = []
@@ -82,6 +119,6 @@ const sortReportData = (reportData, sortKey) => {
   }
   return updatedData
 }
-
+module.exports.updateJsonFILE = updateJsonFILE
 module.exports.sortReportData = sortReportData
 module.exports.createRetJson = createRetJson
