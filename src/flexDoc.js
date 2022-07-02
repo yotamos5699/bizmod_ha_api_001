@@ -5,7 +5,9 @@ const getCredential = require('./getCred')
 var fs = require("fs");
 const path = require("path");
 const Helper = require('./Helper')
-const defultReports = require('./filencryption');
+//const defultReports = require('./filencryption');
+const defultReports = Helper.readJsonFILE("filencryption");
+//const defultReports = undefined;
 const {
   PassThrough
 } = require("stream");
@@ -13,24 +15,33 @@ const {
   table
 } = require("console");
 const res = require("express/lib/response");
-
-const docHash = {
-  '1': [
-    [defultReports.stockEncrypt_reportData,
-      defultReports.params_data_st
+let docHash ={}
+try {
+  docHash = {
+    '1': [
+      [defultReports.stockEncrypt_reportData,
+        defultReports.params_data_st
+      ],
+      [defultReports.encrypt_treeItemsreportData,
+        defultReports.treeItemsParams_data
+      ]
     ],
-    [defultReports.encrypt_treeItemsreportData,
-      defultReports.treeItemsParams_data
-    ]
-  ],
 
-  '2': [defultReports.castumersEncryptData,
-    defultReports.params_data_ca
-  ]
+    '2': [defultReports.castumersEncryptData,
+      defultReports.params_data_ca
+    ]
+  }
+} catch (err) {
+  console.dir(err)
 }
 
-
 async function exportRecords(reqData, privetKey) {
+
+
+  if (defultReports == undefined) return ({
+    Detailes: "error in fetching defultReports data"
+  })
+
   //console.log("filedata" + fileData);
   // jsondata = await reportsCreator.exportRecords(userKey, req.body.TID)
 
@@ -136,23 +147,7 @@ async function exportRecords(reqData, privetKey) {
     })
 
   })
-  // record['שם אב'] = itemsDataRow['שם פריט']
-  // record['יתרה כמותית במלאי'] = row['יתרה כמותית במלאי']
-  // record['משקל'] = itemsDataRow['משקל']
-  // //   {
-  //   "איתור אב": null,
-  //   "מפתח פריט אב": "XPF",
-  //   "משקל אב": 1,
-  //   "איתור": null,
-  //   "מפתח פריט": "XP",
-  //   "משקל": 1
-  // },
-  // "שם פריט": "גת קימבו לפי משקל",
-  // "מפתח פריט": "KIKG",
-  // "קוד מיון": 51200,
-  // "יתרה כמותית במלאי": 0,
-  // "משקל": 1,
-  // "מחסן": 1
+  
 
   let jsondata = resArrey.length > 0 ? newArrey : apiRes
   // console.log("jsondata " + jsondata)
@@ -180,3 +175,22 @@ async function exportRecords(reqData, privetKey) {
 }
 
 module.exports.exportRecords = exportRecords;
+
+
+// record['שם אב'] = itemsDataRow['שם פריט']
+  // record['יתרה כמותית במלאי'] = row['יתרה כמותית במלאי']
+  // record['משקל'] = itemsDataRow['משקל']
+  // //   {
+  //   "איתור אב": null,
+  //   "מפתח פריט אב": "XPF",
+  //   "משקל אב": 1,
+  //   "איתור": null,
+  //   "מפתח פריט": "XP",
+  //   "משקל": 1
+  // },
+  // "שם פריט": "גת קימבו לפי משקל",
+  // "מפתח פריט": "KIKG",
+  // "קוד מיון": 51200,
+  // "יתרה כמותית במלאי": 0,
+  // "משקל": 1,
+  // "מחסן": 1

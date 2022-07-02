@@ -1,1 +1,87 @@
-{"data":[{"DocumentIssuedStatus":"OK","DocumentDefID":1,"StockID":1960,"DocNumber":3074,"AccountKey":"6107","Accountname":"בונבון משה שון צרפתי","TotalCost":772.2,"Address":"שלמה בן יוסף 10","DocumentDetails":"0506655699","DocUrl":"https://hash11n0.wizcloud.co.il/IWIZ/HTM84F9_wizdb2394n5_1960_751719068.pdf","Action":184},{"DocumentIssuedStatus":"OK","DocumentDefID":1,"StockID":1961,"DocNumber":3075,"AccountKey":"6107","Accountname":"בונבון משה שון צרפתי","TotalCost":772.2,"Address":"שלמה בן יוסף 10","DocumentDetails":"0506655699","DocUrl":"https://hash11n1.wizcloud.co.il/IWIZ/HTM1745_wizdb2394n5_1961_84094263.pdf","Action":184},{"DocumentIssuedStatus":"OK","DocumentDefID":1,"StockID":1964,"DocNumber":3078,"AccountKey":"6107","Accountname":"בונבון משה שון צרפתי","TotalCost":772.2,"Address":"שלמה בן יוסף 10","DocumentDetails":"0506655699","DocUrl":"https://hash11n2.wizcloud.co.il/IWIZ/HTM7E57_wizdb2394n5_1964_1175922080.pdf","Action":184},{"DocumentIssuedStatus":"OK","DocumentDefID":1,"StockID":1965,"DocNumber":3079,"AccountKey":"6107","Accountname":"בונבון משה שון צרפתי","TotalCost":772.2,"Address":"שלמה בן יוסף 10","DocumentDetails":"0506655699","DocUrl":"https://hash11n0.wizcloud.co.il/IWIZ/HTM2EDD_wizdb2394n5_1965_1215411917.pdf","Action":185},{"DocumentIssuedStatus":"OK","DocumentDefID":1,"StockID":1966,"DocNumber":3080,"AccountKey":"6201","Accountname":"בית קפה ג'ון","TotalCost":1053,"Address":"הגלגל 23, פינת היצירה 10","DocumentDetails":"0526544346","DocUrl":"https://hash11n3.wizcloud.co.il/IWIZ/HTM61AB_wizdb2394n5_1966_1220720051.pdf","Action":185},{"DocumentIssuedStatus":"OK","DocumentDefID":1,"StockID":1984,"DocNumber":3098,"AccountKey":"6107","Accountname":"בונבון משה שון צרפתי","TotalCost":772.2,"Address":"שלמה בן יוסף 10","DocumentDetails":"0506655699","DocUrl":"https://hash11n0.wizcloud.co.il/IWIZ/HTM605A_wizdb2394n5_1984_3014625250.pdf","Action":185},{"DocumentIssuedStatus":"OK","DocumentDefID":1,"StockID":1985,"DocNumber":3099,"AccountKey":"6201","Accountname":"בית קפה ג'ון","TotalCost":1053,"Address":"הגלגל 23, פינת היצירה 10","DocumentDetails":"0526544346","DocUrl":"https://hash11n4.wizcloud.co.il/IWIZ/HTM7D89_wizdb2394n5_1985_3020111365.pdf","Action":185},{"DocumentIssuedStatus":"OK","DocumentDefID":1,"StockID":1986,"DocNumber":3100,"AccountKey":"6107","Accountname":"בונבון משה שון צרפתי","TotalCost":772.2,"Address":"שלמה בן יוסף 10","DocumentDetails":"0506655699","DocUrl":"https://hash11n0.wizcloud.co.il/IWIZ/HTM4FFA_wizdb2394n5_1986_1469818478.pdf","Action":185},{"DocumentIssuedStatus":"OK","DocumentDefID":1,"StockID":1987,"DocNumber":3101,"AccountKey":"6201","Accountname":"בית קפה ג'ון","TotalCost":1053,"Address":"הגלגל 23, פינת היצירה 10","DocumentDetails":"0526544346","DocUrl":"https://hash11n0.wizcloud.co.il/IWIZ/HTM6BD1_wizdb2394n5_1987_1472128181.pdf","Action":185},{"DocumentIssuedStatus":"OK","DocumentDefID":1,"StockID":1988,"DocNumber":3102,"AccountKey":"6107","Accountname":"בונבון משה שון צרפתי","TotalCost":772.2,"Address":"שלמה בן יוסף 10","DocumentDetails":"0506655699","DocUrl":"https://hash11n2.wizcloud.co.il/IWIZ/HTM4F49_wizdb2394n5_1988_1659226633.pdf","Action":185},{"DocumentIssuedStatus":"OK","DocumentDefID":1,"StockID":1989,"DocNumber":3103,"AccountKey":"6201","Accountname":"בית קפה ג'ון","TotalCost":1053,"Address":"הגלגל 23, פינת היצירה 10","DocumentDetails":"0526544346","DocUrl":"https://hash11n4.wizcloud.co.il/IWIZ/HTM15B0_wizdb2394n5_1989_1660914839.pdf","Action":185},{"DocumentIssuedStatus":"OK","DocumentDefID":1,"StockID":1990,"DocNumber":3104,"AccountKey":"6107","Accountname":"בונבון משה שון צרפתי","TotalCost":772.2,"Address":"שלמה בן יוסף 10","DocumentDetails":"0506655699","DocUrl":"https://hash11n3.wizcloud.co.il/IWIZ/HTM845D_wizdb2394n5_1990_2139021866.pdf","Action":185},{"DocumentIssuedStatus":"OK","DocumentDefID":1,"StockID":1991,"DocNumber":3105,"AccountKey":"6201","Accountname":"בית קפה ג'ון","TotalCost":1053,"Address":"הגלגל 23, פינת היצירה 10","DocumentDetails":"0526544346","DocUrl":"https://hash11n4.wizcloud.co.il/IWIZ/HTM74BE_wizdb2394n5_1991_2139610595.pdf","Action":185}]}
+{
+    "data": [{
+        "DocumentIssuedStatus": "OK",
+        "DocumentDefID": 1,
+        "StockID": 1960,
+        "DocNumber": 3074,
+        "AccountKey": "6107",
+        "Accountname": "בונבון משה שון צרפתי",
+        "TotalCost": 772.2,
+        "Address": "שלמה בן יוסף 10",
+        "DocumentDetails": "0506655699",
+        "DocUrl": "https://hash11n0.wizcloud.co.il/IWIZ/HTM84F9_wizdb2394n5_1960_751719068.pdf",
+        "Action": 184
+    }, {
+        "DocumentIssuedStatus": "OK",
+        "DocumentDefID": 1,
+        "StockID": 1961,
+        "DocNumber": 3075,
+        "AccountKey": "6107",
+        "Accountname": "בונבון משה שון צרפתי",
+        "TotalCost": 772.2,
+        "Address": "שלמה בן יוסף 10",
+        "DocumentDetails": "0506655699",
+        "DocUrl": "https://hash11n1.wizcloud.co.il/IWIZ/HTM1745_wizdb2394n5_1961_84094263.pdf",
+        "Action": 184
+    }, {
+        "DocumentIssuedStatus": "OK",
+        "DocumentDefID": 1,
+        "StockID": 1964,
+        "DocNumber": 3078,
+        "AccountKey": "6107",
+        "Accountname": "בונבון משה שון צרפתי",
+        "TotalCost": 772.2,
+        "Address": "שלמה בן יוסף 10",
+        "DocumentDetails": "0506655699",
+        "DocUrl": "https://hash11n2.wizcloud.co.il/IWIZ/HTM7E57_wizdb2394n5_1964_1175922080.pdf",
+        "Action": 184
+    }, {
+        "DocumentIssuedStatus": "OK",
+        "DocumentDefID": 1,
+        "StockID": 1965,
+        "DocNumber": 3079,
+        "AccountKey": "6107",
+        "Accountname": "בונבון משה שון צרפתי",
+        "TotalCost": 772.2,
+        "Address": "שלמה בן יוסף 10",
+        "DocumentDetails": "0506655699",
+        "DocUrl": "https://hash11n0.wizcloud.co.il/IWIZ/HTM2EDD_wizdb2394n5_1965_1215411917.pdf",
+        "Action": 185
+    }, {
+        "DocumentIssuedStatus": "OK",
+        "DocumentDefID": 1,
+        "StockID": 1966,
+        "DocNumber": 3080,
+        "AccountKey": "6201",
+        "Accountname": "בית קפה ג'ון",
+        "TotalCost": 1053,
+        "Address": "הגלגל 23, פינת היצירה 10",
+        "DocumentDetails": "0526544346",
+        "DocUrl": "https://hash11n3.wizcloud.co.il/IWIZ/HTM61AB_wizdb2394n5_1966_1220720051.pdf",
+        "Action": 185
+    }, {
+        "DocumentIssuedStatus": "OK",
+        "DocumentDefID": 1,
+        "StockID": 1984,
+        "DocNumber": 3098,
+        "AccountKey": "6107",
+        "Accountname": "בונבון משה שון צרפתי",
+        "TotalCost": 772.2,
+        "Address": "שלמה בן יוסף 10",
+        "DocumentDetails": "0506655699",
+        "DocUrl": "https://hash11n0.wizcloud.co.il/IWIZ/HTM605A_wizdb2394n5_1984_3014625250.pdf",
+        "Action": 185
+    }, {
+        "DocumentIssuedStatus": "OK",
+        "DocumentDefID": 1,
+        "StockID": 1985,
+        "DocNumber": 3099,
+        "AccountKey": "6201",
+        "Accountname": "בית קפה ג'ון",
+        "TotalCost": 1053,
+        "Address": "הגלגל 23, פינת היצירה 10",
+        "DocumentDetails": "0526544346",
+        "DocUrl": "https://hash11n4.wizcloud.co.il/IWIZ/HTM7D89_wizdb2394n5_1985_3020111365.pdf",
+        "Action": 185
+    }]
+}

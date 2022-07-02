@@ -1,6 +1,8 @@
 const fs = require('fs')
 const path = require("path");
-const createRetJson = async (answer, index , Action) => {
+
+
+const createRetJson = async (answer, index, Action) => {
   console.log(
     `CreateRetJson function !! \n number doc ${index} \n ${JSON.stringify(
       answer
@@ -23,7 +25,18 @@ const createRetJson = async (answer, index , Action) => {
 };
 
 
+const readJsonFILE = (fileName) => {
+  let docData = fs.readFileSync(
+    path.resolve(__dirname, `./${fileName}.json`),
+    (err) => {
+      if (err) throw err;
 
+      console.log(err, "See resaults in myApiRes.txt");
+    }
+  );
+
+  return JSON.parse(docData);
+};
 
 const updateJsonFILE = async (fileName, newData) => {
   //fileName = 'castumersInvoiceUrls'
@@ -97,7 +110,7 @@ const updateJsonFILE = async (fileName, newData) => {
 const sortReportData = (reportData, sortKey) => {
   let Keys = Object.keys(sortKey)
   let Values = Object.values(sortKey)
- // console.log(`KEYS ${Keys} \n VALUES ${Values}`)
+  // console.log(`KEYS ${Keys} \n VALUES ${Values}`)
   let newSortedData
   let updatedData = reportData
   //console.log(`data to sort....\n ${JSON.stringify(updatedData[0, 1, 2], null, 2)}`)
@@ -119,6 +132,8 @@ const sortReportData = (reportData, sortKey) => {
   }
   return updatedData
 }
+
+module.exports.readJsonFILE = readJsonFILE
 module.exports.updateJsonFILE = updateJsonFILE
 module.exports.sortReportData = sortReportData
 module.exports.createRetJson = createRetJson
