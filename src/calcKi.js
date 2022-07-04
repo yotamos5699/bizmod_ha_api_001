@@ -1,28 +1,75 @@
-function joinMatrixes(matrixesArrey, trimData) {
-    let [tTop, tSide] = trimData
-    let joinedMarixesInfo = matrixesInfoValidation(matrixesArrey)
-    console.log("matrixes in function ssss" + JSON.stringify(matrixesArrey, null, 2))
-    let joinedMatrixData = []
-    let tMm = trimMatrix(matrixesArrey[0].data, tTop, tSide)
-    let tCm = trimMatrix(matrixesArrey[1].data, tTop, tSide)
-    //Logger.log(trimedChangesMatrix)
+
+
+const {mainMatrix, changesMatrix} = require('./mockData')
+
+
+
+const matrixes = [mainMatrix, changesMatrix]
+const trimData = [2, 4]
+//SS
+
+
+async function returnDocs(matrixesArrey,trimData){
+    let [tTop, tSide] = await trimData
+    //let tMm = await trimMatrix(matrixesArrey[0].data, tTop, tSide)
+    //let tCm = await trimMatrix(matrixesArrey[1].data, tTop, tSide)
+    let trimedMatrixes = [tMm.data,tCm.data]
+    let joinedMtx = await joinMatrixes(matrixesArrey, trimedMatrixes)
+    return joinedMtx
+}
+
+
+
+
+async function joinMatrixes(matrixesArrey, trimedData) {
+  
+    //let joinedMarixesInfo = matrixesInfoValidation(matrixesArrey)
+    let joinedMarixesInfo = {
+        "info": "info ya"
+    }
+
+    // console.log("matrixes in function ssss" + JSON.stringify(matrixesArrey, null, 2))
+    // let joinedMatrixData = []
+
+    // console.log(`matrix 1111111 ${JSON.stringify(matrixesArrey[1].data)}`)
+    
+    
+     let [tMm,tCm] = trimedData
+    
+    
     tCm.forEach((row, rowIndex) => {
-        Logger.log("ROW NUM " + rowIndex + `row data\n` + JSON.stringify(row))
+        // Logger.log("ROW NUM " + rowIndex + `row data\n` + JSON.stringify(row))
         let joinedRow = []
-        let docData = row.docData[0] != null ? row.docData : [null]
+        console.log(row)
+        let updatedCell
         row.cellsData.forEach((CmCell, cellIndex) => {
+
             let MmCell = tMm[rowIndex][cellIndex]
-            CmCell != null ? joinedRow.push({
-                    Data: CmCell,
-                    Quantity: MmCell
-                }) :
+            if (CmCell != null) {
+                let Keys = Object.keys(CmCell)
+                updatedCell = Keys.map(key => {
+                    return {
+                        [key]: CmCell[key]
+                    }
+                })
+
+                updatedCell.Quantity = MmCell
                 joinedRow.push(MmCell)
+                joinedRow.push(updatedCell)
+            } else joinedRow.push({
+                Quantity: MmCell
+            })
 
         })
 
+
+        CmCell.docData ? CmCell.docData : null
+        CmCell.metaData ? CmCell.metaData : null
+
         joinedMatrixData.push({
             'cellsData': joinedRow,
-            'docData': docData
+            'docData': CmCell.docData,
+            'metaData': CmCell.metaData
         })
     })
 
@@ -38,11 +85,12 @@ function joinMatrixes(matrixesArrey, trimData) {
     return constractedMatrix
 }
 
+//let res = joinMatrixes(matrixes, trimData)
+//console.log(`RES ****** \n ${JSON.stringify(res)}`)
 
 
 
-
-function trimMatrix(mtx, topIndex, sideIndex) {
+async function trimMatrix(mtx, topIndex, sideIndex) {
     let newMatrix = []
     let record = []
     for (let i = topIndex - 1; i < mtx.length; i++) {

@@ -108,11 +108,18 @@ const updateJsonFILE = async (fileName, newData) => {
 
 
 const sortReportData = (reportData, sortKey) => {
-  let Keys = Object.keys(sortKey)
-  let Values = Object.values(sortKey)
+  let Keys
+let Values
+  try{
+   Keys = Object.keys(sortKey)
+   Values = Object.values(sortKey)
+  }catch(err){
+    console.log('keys and sheet ', err)
+  }
   // console.log(`KEYS ${Keys} \n VALUES ${Values}`)
   let newSortedData
   let updatedData = reportData
+ 
   //console.log(`data to sort....\n ${JSON.stringify(updatedData[0, 1, 2], null, 2)}`)
   Keys.forEach((key, index) => {
     newSortedData = []

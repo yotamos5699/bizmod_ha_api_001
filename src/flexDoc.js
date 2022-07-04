@@ -12,7 +12,7 @@ const {
   PassThrough
 } = require("stream");
 const {
-  table
+  table, Console
 } = require("console");
 const res = require("express/lib/response");
 let docHash ={}
@@ -47,7 +47,7 @@ async function exportRecords(reqData, privetKey) {
 
   let fileData = reqData.TID
   console.log("file data  DDFDFDFDFD   " + JSON.stringify(fileData))
-  let sortKey = reqData.sortKey
+  let sortKey = await reqData.sortKey
   let Warehouse = ''
   fileData == '1' ? Warehouse = reqData.Warehouse : Warehouse = null
 
@@ -149,7 +149,9 @@ async function exportRecords(reqData, privetKey) {
   })
   
 
-  let jsondata = resArrey.length > 0 ? newArrey : apiRes
+  let jsondata = resArrey.length > 0 ? newArrey : apiRes.repdata
+
+ // console.log(jsondata)
   // console.log("jsondata " + jsondata)
   const data = JSON.stringify(jsondata, null, 2);
 
