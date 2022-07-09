@@ -72,7 +72,7 @@ app.post("/api/createdoc", timeout.set(500000), async function (req, res) {
 
     console.log("number of times " + i);
     console.log(
-      `%cDoc data sended to creating document:-.. \n  ${JSON.stringify(
+      `%cDoc data sended to creating document:-... \n  ${JSON.stringify(
         sortedTable[i],
         null,
         2
