@@ -72,7 +72,7 @@ app.post("/api/createdoc", timeout.set(500000), async function (req, res) {
 
     console.log("number of times " + i);
     console.log(
-      `%cDoc data sended to creating document:.. \n  ${JSON.stringify(
+      `%cDoc data sended to creating document:-.. \n  ${JSON.stringify(
         sortedTable[i],
         null,
         2
@@ -103,10 +103,11 @@ app.post("/api/createdoc", timeout.set(500000), async function (req, res) {
         console.dir(err);
       });
   }
-
+  let logMsg = docReturnArrey ? "*********** Doc Arrey is 'OK' ************" : "*********** Doc Arre is 'NULL' ***********"
+  
   console.log(`************************Doc response arrey*********************
            \n  ***************************************************************\n
-           ${JSON.stringify(docReturnArrey, null, 2)}`);
+           ${logMsg}`)
   try {
     rr = await Helper.updateJsonFILE('castumersInvoiceUrls', docReturnArrey)
   } catch (e) {
@@ -119,14 +120,14 @@ app.post("/api/createdoc", timeout.set(500000), async function (req, res) {
   try {
     return res
       .json({
-        status: "yes",
+        status: docReturnArrey ? "yes" : "no ",
         data: JSON.stringify(docReturnArrey, null, 2),
       })
   } catch (err) {
     console.error(err);
     res.send(err)
+    res.end("server crashed")
   }
-
 });
 
 app.get("/api/geturls", async function (req, res) {
