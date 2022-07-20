@@ -11,6 +11,7 @@ const Helper = require('./Helper')
 const calcki = require('./calcki')
 const path = require("path");
 var timeout = require('express-timeout-handler');
+const crypto = require('crypto')
 try {
   app.use(timeout.handler(options));
 } catch (err) {
@@ -26,6 +27,15 @@ try {
 // const {
 //   Console
 // } = require('console');
+
+
+function generateKey() {
+  let key = crypto.randomBytes(32).toString('hex')
+  return key
+}
+
+
+
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
@@ -46,6 +56,14 @@ try {
 app.listen(PORT, (err) =>
   console.log(`server ${err ? " on" : "listening"} port` + PORT)
 );
+
+
+app.get("/api/generatekey", (req, res) => {
+  console.log(req.headers)
+  let response = generateKey()
+res.end(JSON.stringify({"key":response}))
+
+})
 
 app.post("/api/createdoc", timeout.set(500000), async function (req, res) {
 
@@ -104,7 +122,7 @@ app.post("/api/createdoc", timeout.set(500000), async function (req, res) {
       });
   }
   let logMsg = docReturnArrey ? "*********** Doc Arrey is 'OK' ************" : "*********** Doc Arre is 'NULL' ***********"
-  
+
   console.log(`************************Doc response arrey*********************
            \n  ***************************************************************\n
            ${logMsg}`)
@@ -225,11 +243,15 @@ app.post("/api/getrecords", async function (req, res) {
 
     }
   }
-
+  let validationMsg = null
   // console.log(jsondata)
+  if (jsondata) {
+    validationMsg = Helper.checkDataValidation(jsondata,[1,2])
+  }
   res.json({
-    status: 'yes',
-    data: JSON.stringify(jsondata)
+    status: jsondata ? 'yes' : 'no',
+    data: JSON.stringify(jsondata),
+    validationError: validationMsg ? validationMsg : null
   });
 
   //console.log(JSON.stringify(jsondata))

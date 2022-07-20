@@ -1,3 +1,7 @@
+const {
+  json,
+  header
+} = require('express/lib/response');
 const fs = require('fs')
 const path = require("path");
 
@@ -67,6 +71,100 @@ const updateJsonFILE = async (fileName, newData) => {
   return data
 
 }
+let mock = [{
+    "AccountName": "moshe",
+    "AccountKey": "6110",
+    "DocumentID": 1,
+
+    "ItemKey": "AB500SA",
+    "Quantity": 2
+  },
+  {
+    "AccountName": "tal",
+    "AccountKey": "6110",
+    "DocumentID": 1,
+    "ItemKey": "KI250SA",
+    "Quantity": 2
+  },
+  {
+
+    "AccountName": "tal",
+    "AccountKey": "6107",
+    "DocumentID": 1,
+
+    "ItemKey": "",
+    "DocumentID": 2
+
+  },
+  {
+    "AccountName": "tal",
+    "AccountKey": "6110",
+    "DocumentID": 1,
+    "ItemKey": "KI250SA",
+    "Quantity": 2
+  },
+  {
+
+    "AccountName": "tal",
+    "AccountKey": "6107",
+    "DocumentID": 1,
+
+    "ItemKey": "",
+    "DocumentID": 2
+
+  }
+]
+
+
+const checkDataValidation = (jsonData, columArrey) => {
+  jsonData = mock
+  let errorLog = []
+  let error = {}
+  columArrey = [1, 2, 3]
+  let headers = Object.keys(jsonData[0])
+
+
+
+  jsonData.forEach((row, outindex) => {
+    let rowIndex = []
+    columArrey.forEach((column, index) => {
+      jsonData.forEach((inrow, inindex) => {
+
+        if (outindex != index) {
+          if (row[headers[column - 1]] == inrow[headers[column - 1]]) {
+            rowIndex ? rowIndex.push(inindex) : rowIndex.push(outindex, inindex)
+
+          }
+        }
+
+      })
+      if (rowIndex.length > 1) {
+        error = {
+          "סוג תקלה": "תקלת כפל מידע",
+          "בשורות ": `${rowIndex} `,
+          "בכותרת ": ` ${headers[column - 1]}`,
+          "ערך ": `${row[headers[column - 1]]}`
+        }
+        errorLog.push(error)
+      }
+      rowIndex = []
+    })
+  })
+
+  let res = errorLog ? errorLog : null
+
+  console.log(`**************************** Error Log ****************************\n `)
+  console.table(res)
+
+  return res
+}
+
+checkDataValidation()
+
+
+
+
+
 // const sortReportData = (reportData, sortKey) => {
 
 //  // let sortByValues = []
@@ -109,17 +207,17 @@ const updateJsonFILE = async (fileName, newData) => {
 
 const sortReportData = (reportData, sortKey) => {
   let Keys
-let Values
-  try{
-   Keys = Object.keys(sortKey)
-   Values = Object.values(sortKey)
-  }catch(err){
+  let Values
+  try {
+    Keys = Object.keys(sortKey)
+    Values = Object.values(sortKey)
+  } catch (err) {
     console.log('keys and sheet ', err)
   }
   // console.log(`KEYS ${Keys} \n VALUES ${Values}`)
   let newSortedData
   let updatedData = reportData
- 
+
   //console.log(`data to sort....\n ${JSON.stringify(updatedData[0, 1, 2], null, 2)}`)
   Keys.forEach((key, index) => {
     newSortedData = []
@@ -144,3 +242,4 @@ module.exports.readJsonFILE = readJsonFILE
 module.exports.updateJsonFILE = updateJsonFILE
 module.exports.sortReportData = sortReportData
 module.exports.createRetJson = createRetJson
+module.exports.checkDataValidation = checkDataValidation
