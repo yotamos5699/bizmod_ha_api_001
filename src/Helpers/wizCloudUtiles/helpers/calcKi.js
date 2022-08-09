@@ -1,6 +1,6 @@
 
 
-const {mainMatrix, changesMatrix} = require('./mockData')
+const {mainMatrix, changesMatrix} = require('../../../mockData')
 
 
 
@@ -23,22 +23,18 @@ async function returnDocs(matrixesArrey,trimData){
 
 async function joinMatrixes(matrixesArrey, trimedData) {
   
-    //let joinedMarixesInfo = matrixesInfoValidation(matrixesArrey)
     let joinedMarixesInfo = {
         "info": "info ya"
     }
 
-    // console.log("matrixes in function ssss" + JSON.stringify(matrixesArrey, null, 2))
-    // let joinedMatrixData = []
-
-    // console.log(`matrix 1111111 ${JSON.stringify(matrixesArrey[1].data)}`)
+   
     
     
      let [tMm,tCm] = trimedData
     
     
     tCm.forEach((row, rowIndex) => {
-        // Logger.log("ROW NUM " + rowIndex + `row data\n` + JSON.stringify(row))
+   
         let joinedRow = []
         console.log(row)
         let updatedCell
@@ -79,14 +75,11 @@ async function joinMatrixes(matrixesArrey, trimedData) {
     })
 
     console.table(JSON.stringify(constractedMatrix, null, 2))
-    //console.log(`matrixes legth test ++++ \n ${constractedMatrix.data.length == matrixesArrey[0].data.length == matrixesArrey[1].data.length}`)
-
+   
 
     return constractedMatrix
 }
 
-//let res = joinMatrixes(matrixes, trimData)
-//console.log(`RES ****** \n ${JSON.stringify(res)}`)
 
 
 

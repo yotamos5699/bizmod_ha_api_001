@@ -5,7 +5,6 @@ const {
 const fs = require('fs')
 const path = require("path");
 
-
 const createRetJson = async (answer, index, Action) => {
   console.log(
     `CreateRetJson function !! \n number doc ${index} \n ${JSON.stringify(
@@ -31,7 +30,7 @@ const createRetJson = async (answer, index, Action) => {
 
 const readJsonFILE = (fileName) => {
   let docData = fs.readFileSync(
-    path.resolve(__dirname, `./${fileName}.json`),
+    path.resolve(__dirname, `../${fileName}.json`),
     (err) => {
       if (err) throw err;
 
@@ -47,7 +46,7 @@ const updateJsonFILE = async (fileName, newData) => {
 
   //newData = dd
 
-  let data = fs.readFileSync(path.resolve(__dirname, `./${fileName}.json`), (err) => {
+  let data = fs.readFileSync(path.resolve(__dirname, `../${fileName}.json`), (err) => {
     if (err) throw err;
 
     console.log(err, "See resaults in myApiRes.txt");
@@ -64,7 +63,7 @@ const updateJsonFILE = async (fileName, newData) => {
   console.log(typeof data)
   console.log(data)
 
-  fs.writeFileSync(path.resolve(__dirname, `./${fileName}.json`), JSON.stringify(data), (err) => {
+  fs.writeFileSync(path.resolve(__dirname, `../${fileName}.json`), JSON.stringify(data), (err) => {
     if (err) throw err;
     console.log(err, "See resaults in myApiRes.txt");
   });

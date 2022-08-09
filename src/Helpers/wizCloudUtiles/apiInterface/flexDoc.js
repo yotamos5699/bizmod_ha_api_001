@@ -1,13 +1,15 @@
 //////////////////SS/////////////////////////////////////////basic required code
 //Must to configure private data on apiConfig.js file
 const wizlib = require("wizcloud-api");
-const getCredential = require('./getCred')
+const getCredential = require('../helpers/getCred')
 var fs = require("fs");
 const path = require("path");
-const Helper = require('./Helper')
+const Helper = require('../../generalUtils/Helper')
 //const defultReports = require('./filencryption');
-const defultReports = Helper.readJsonFILE("filencryption");
+
+const defultReports = Helper.readJsonFILE('wizCloudUtiles/apiInterface/filencryption');
 //const defultReports = undefined;
+
 const {
   PassThrough
 } = require("stream");
