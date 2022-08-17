@@ -97,6 +97,45 @@ let changesMatrix = {
     }
   ]
 }
+let mock = [
+  {
+    AccountName: "moshe",
+    AccountKey: "6110",
+    DocumentID: 1,
 
+    ItemKey: "AB500SA",
+    Quantity: 2,
+  },
+  {
+    AccountName: "tal",
+    AccountKey: "6110",
+    DocumentID: 1,
+    ItemKey: "KI250SA",
+    Quantity: 2,
+  },
+  {
+    AccountName: "tal",
+    AccountKey: "6107",
+    DocumentID: 1,
+
+    ItemKey: "",
+    DocumentID: 2,
+  },
+  {
+    AccountName: "tal",
+    AccountKey: "6110",
+    DocumentID: 1,
+    ItemKey: "KI250SA",
+    Quantity: 2,
+  },
+  {
+    AccountName: "tal",
+    AccountKey: "6107",
+    DocumentID: 1,
+
+    ItemKey: "",
+    DocumentID: 2,
+  },
+];
 module.exports.mainMatrix = mainMatrix
 module.exports.changesMatrix = changesMatrix

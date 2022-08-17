@@ -1,9 +1,22 @@
-const {
-  json,
-  header
-} = require('express/lib/response');
-const fs = require('fs')
+const { json, header } = require("express/lib/response");
+const fs = require("fs");
 const path = require("path");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (token == null) return res.sendStatus(401);
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, userData) => {
+    if (err) return res.sendStatus(403);
+    else req.userData = userData;
+  });
+};
+
+
 
 const createRetJson = async (answer, index, Action) => {
   console.log(
@@ -13,6 +26,7 @@ const createRetJson = async (answer, index, Action) => {
   );
   ret = {
     DocumentIssuedStatus: answer[0]["DocumentIssuedStatus"],
+    ValueDate: answer[0]["DocumentDetails"][0][0]["ValueDate"],
     DocumentDefID: answer[0]["DocumentDetails"][0][0]["DocumentID"],
     StockID: answer[0]["DocumentDetails"][0][0]["StockID"],
     DocNumber: answer[0]["DocumentDetails"][0][0]["DocNumber"],
@@ -22,10 +36,34 @@ const createRetJson = async (answer, index, Action) => {
     Address: answer[0]["DocumentDetails"][0][0]["Address"],
     DocumentDetails: answer[0]["DocumentDetails"][0][0]["Phone"],
     DocUrl: answer[0]["urlDoc"],
-    Action: Action
+    Action: Action,
+    SigStat: { isSigned: false },
   };
   return ret;
 };
+
+
+const constructUsserCred = (usser)=>{
+let usserCred ={}
+  usserCred.WizcloudApiPrivateKey = usser.WizcloudApiPrivateKey
+  usserCred.WizcloudApiServer = usser.WizcloudApiServer
+  usserCred.WizcloudApiDBName = usser.WizcloudApiDBName
+return usserCred
+}
+
+
+const constructNewUserCred =  (usserData, generatedUsserKey)=> {
+let newUsserData ={
+Key: generatedUsserKey,
+Name: usserData.Name,
+Email: usserData.Email,
+WizcloudApiPrivateKey: usserData.WizcloudApiPrivateKey,
+WizcloudApiServer: usserData.WizcloudApiServer,
+WizcloudApiDBName: usserData.WizcloudApiDBName,
+}
+return newUsserData
+}
+
 
 
 const readJsonFILE = (fileName) => {
@@ -46,199 +84,125 @@ const updateJsonFILE = async (fileName, newData) => {
 
   //newData = dd
 
-  let data = fs.readFileSync(path.resolve(__dirname, `../${fileName}.json`), (err) => {
-    if (err) throw err;
+  let data = fs.readFileSync(
+    path.resolve(__dirname, `../${fileName}.json`),
+    (err) => {
+      if (err) throw err;
 
-    console.log(err, "See resaults in myApiRes.txt");
-  })
-  console.log(data)
-  data = await JSON.parse(data)
-  console.log(data)
+      console.log(err, "See resaults in myApiRes.txt");
+    }
+  );
+  console.log(data);
+  data = await JSON.parse(data);
+  console.log(data);
 
   newData.forEach((row, index) => {
-    console.log("row  " + row + "index " + index)
-    data.data.push(row)
-  })
-
-  console.log(typeof data)
-  console.log(data)
-
-  fs.writeFileSync(path.resolve(__dirname, `../${fileName}.json`), JSON.stringify(data), (err) => {
-    if (err) throw err;
-    console.log(err, "See resaults in myApiRes.txt");
+    console.log("row  " + row + "index " + index);
+    data.data.push(row);
   });
-  return data
 
-}
-let mock = [{
-    "AccountName": "moshe",
-    "AccountKey": "6110",
-    "DocumentID": 1,
+  console.log(typeof data);
+  console.log(data);
 
-    "ItemKey": "AB500SA",
-    "Quantity": 2
-  },
-  {
-    "AccountName": "tal",
-    "AccountKey": "6110",
-    "DocumentID": 1,
-    "ItemKey": "KI250SA",
-    "Quantity": 2
-  },
-  {
-
-    "AccountName": "tal",
-    "AccountKey": "6107",
-    "DocumentID": 1,
-
-    "ItemKey": "",
-    "DocumentID": 2
-
-  },
-  {
-    "AccountName": "tal",
-    "AccountKey": "6110",
-    "DocumentID": 1,
-    "ItemKey": "KI250SA",
-    "Quantity": 2
-  },
-  {
-
-    "AccountName": "tal",
-    "AccountKey": "6107",
-    "DocumentID": 1,
-
-    "ItemKey": "",
-    "DocumentID": 2
-
-  }
-]
+  fs.writeFileSync(
+    path.resolve(__dirname, `../${fileName}.json`),
+    JSON.stringify(data),
+    (err) => {
+      if (err) throw err;
+      console.log(err, "See resaults in myApiRes.txt");
+    }
+  );
+  return data;
+};
 
 
 const checkDataValidation = (jsonData, columArrey) => {
-  jsonData = mock
-  let errorLog = []
-  let error = {}
-  columArrey = [1, 2, 3]
-  let headers = Object.keys(jsonData[0])
 
-
+  let errorLog = [];
+  let error = {};
+  columArrey = [1, 2, 3];
+  let headers = Object.keys(jsonData[0]);
 
   jsonData.forEach((row, outindex) => {
-    let rowIndex = []
+    let rowIndex = [];
     columArrey.forEach((column, index) => {
       jsonData.forEach((inrow, inindex) => {
-
         if (outindex != index) {
           if (row[headers[column - 1]] == inrow[headers[column - 1]]) {
-            rowIndex ? rowIndex.push(inindex) : rowIndex.push(outindex, inindex)
-
+            rowIndex
+              ? rowIndex.push(inindex)
+              : rowIndex.push(outindex, inindex);
           }
         }
-
-      })
+      });
       if (rowIndex.length > 1) {
         error = {
           "סוג תקלה": "תקלת כפל מידע",
           "בשורות ": `${rowIndex} `,
           "בכותרת ": ` ${headers[column - 1]}`,
-          "ערך ": `${row[headers[column - 1]]}`
-        }
-        errorLog.push(error)
+          "ערך ": `${row[headers[column - 1]]}`,
+        };
+        errorLog.push(error);
       }
-      rowIndex = []
-    })
-  })
+      rowIndex = [];
+    });
+  });
 
-  let res = errorLog ? errorLog : null
+  let res = errorLog ? errorLog : null;
 
-  console.log(`**************************** Error Log ****************************\n `)
-  console.table(res)
+  console.log(
+    `**************************** Error Log ****************************\n `
+  );
+  console.table(res);
 
-  return res
-}
+  return res;
+};
 
-checkDataValidation()
-
-
-
-
-
-// const sortReportData = (reportData, sortKey) => {
-
-//  // let sortByValues = []
-//   let Keys = Object.keys(sortKey)
-//   let Values = Object.values(sortKey)
-//   //Values.forEach((value, index) => {
-
-
-//   //   if (value) {
-//   //     pair = {
-//   //       [Keys[index]]: value
-//   //     }
-//   //     Headers.push(headersList[index])
-//   //     Values.push(value)
-//   //   }
-//   // })
-
-
-//   let sortedData = []
-//   let updatedData = reportData
-//   console.log("ffffffffffffffffffffffffffff" + JSON.stringify(updatedData[0, 1, 2], null, 2))
-//   Keys.forEach((key, index) => {
-//     updatedData.forEach(row => {
-//      // console.log(`heder keyyyyyyy  ${header}\n eader value !!!!!!  ${Values[index]}`)
-//       if (row[key] == Values[index]) {
-//         sortedData.push(row)
-//         console.log(row)
-//       }
-//     })
-//     updatedData = sortedData
-//     console.log(`sorted data \n ${(JSON.stringify(sortedData))}`)
-//   })
-
-
-//   return updatedData
-
-// }
-
+//checkDataValidation();
 
 
 const sortReportData = (reportData, sortKey) => {
-  let Keys
-  let Values
+  let Keys;
+  let Values;
   try {
-    Keys = Object.keys(sortKey)
-    Values = Object.values(sortKey)
+    Keys = Object.keys(sortKey);
+    Values = Object.values(sortKey);
   } catch (err) {
-    console.log('keys and sheet ', err)
+    console.log("keys and sheet ", err);
   }
-  // console.log(`KEYS ${Keys} \n VALUES ${Values}`)
-  let newSortedData
-  let updatedData = reportData
+  
+  let newSortedData;
+  let updatedData = reportData;
 
-  //console.log(`data to sort....\n ${JSON.stringify(updatedData[0, 1, 2], null, 2)}`)
+ 
   Keys.forEach((key, index) => {
-    newSortedData = []
-    updatedData.forEach(row => {
-      // console.log(`header keyyyyyyy  ${key}\n header value !!!!!!  ${Values[index]}`)
+    newSortedData = [];
+    updatedData.forEach((row) => {
+    
       if (row[key] == Values[index]) {
-        newSortedData.push(row)
-        // console.log(row)
+        newSortedData.push(row);
+      
       }
-    })
-    updatedData = newSortedData
-    console.log(`sorted data \n ${(JSON.stringify(newSortedData))}`)
-  })
+    });
+    updatedData = newSortedData;
+    console.log(`sorted data \n ${JSON.stringify(newSortedData)}`);
+  });
 
-  if (!updatedData) return {
-    status: "no rows to return"
-  }
-  return updatedData
-}
+  if (!updatedData)
+    return {
+      status: "no rows to return",
+    };
+  return updatedData;
+};
 
-module.exports.readJsonFILE = readJsonFILE
-module.exports.updateJsonFILE = updateJsonFILE
-module.exports.sortReportData = sortReportData
-module.exports.createRetJson = createRetJson
-module.exports.checkDataValidation = checkDataValidation
+
+module.exports.authenticateToken = authenticateToken
+module.exports.constructNewUserCred = constructNewUserCred
+module.exports.constructUsserCred = constructUsserCred
+module.exports.readJsonFILE = readJsonFILE;
+module.exports.updateJsonFILE = updateJsonFILE;
+module.exports.sortReportData = sortReportData;
+module.exports.createRetJson = createRetJson;
+module.exports.checkDataValidation = checkDataValidation;
+
+

@@ -30,7 +30,6 @@ async function createDoc(stock, docID, privetKey, index) {
     AccountKey: stock.AccountKey,
     moves: stock.moves,
   };
-  // console.log("stock.moves" + JSON.stringify(stock.moves));
   let apiRes = await wizlib.createDocument(myDBname, {
     rows: doc,
     issueStock: true,
@@ -38,15 +37,12 @@ async function createDoc(stock, docID, privetKey, index) {
   });
   console.log(apiRes);
 
-  // fs.writeFile("myApiRes.txt", JSON.stringify(apiRes), (err) => {
-  //   if (err) throw err;
-  //   console.log("See resaults in myApiRes.txt");
- // }
- // );
  return JSON.parse(apiRes)
 }
 
-
+module.exports.createDoc = createDoc;
+module.exports.delDocument = delDocument;
+module.exports.showDocument = showDocument;
 
 
 async function issueDoc() {
@@ -66,9 +62,8 @@ async function showDocument() {
     DocumentID: "1",
     stockID: 67,
   });
+
+
+
   console.log(apiRes);
 }
-
-module.exports.createDoc = createDoc;
-module.exports.delDocument = delDocument;
-module.exports.showDocument = showDocument;

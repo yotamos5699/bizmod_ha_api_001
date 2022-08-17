@@ -1,19 +1,25 @@
+// *************** MAIN APP SERVER ***************
+const crypto = require("crypto");
 const express = require("express");
 const app = express();
+//const mgHelper = require("../not in use files/DBs/dbFiles/mgHelper");
 const fs = require("fs");
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 const cors = require(`cors`);
-const MGrouter = require("./routs/DBs/mongo");
+const bodyParser = require("body-parser");
+const DBrouter = require("./routs/dbRouts");
 const tableSorting = require("./Helpers/wizCloudUtiles/helpers/tablesorting");
 const documentCreator = require(`./Helpers/wizCloudUtiles/apiInterface/DocumentCreator`);
 const reportsCreator = require("./Helpers/wizCloudUtiles/apiInterface/flexDoc");
 const Helper = require("./Helpers/generalUtils/Helper");
 const calcki = require("./Helpers/wizCloudUtiles/helpers/calcKi");
-const path = require("path");
-const UTrouter = require("./routs/UTIL/utilRouter");
-const axios = require("axios");
-app.use(MGrouter);
-app.use(UTrouter);
+const res = require("express/lib/response");
+
+// app.use(bodyParser.urlencoded({ extended: true }));
+// app.use(bodyParser.json());
+app.use(express.json());
+app.use(DBrouter);
+
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
@@ -29,85 +35,40 @@ app.listen(PORT, (err) =>
   console.log(`server ${err ? " on" : "listening"} port` + PORT)
 );
 
-app.post("/api/createdoc", async function (req, res) {
-  var {
-    data: { matrixesData },
-    FID,
-  } = await req.body;
-  if (matrixesData && FID) {
-    let r = await axios.get("http://gatavigdorapi.herokuapp.com/api/geturls");
-    let jr = JSON.stringify(r.data);
-
-    res
-      .send({
-        status: "yes",
-        data: jr,
-      })
-      .catch((e) => {
-        console.log(e);
-        res.send({ status: "no", data: e });
-      });
-  } else {
-    res.send({ status: "no", data: "DATA ERROR" });
-  }
+app.post("/api/generatekey", async (req, res) => {
+  res.send({ key: crypto.randomBytes(32).toString("hex") });
 });
-//   var Action = req.body.Action;
-//   console.log(docData, " ", docID, " ", Action);
 
-//   var docReturnArrey = [];
-//   let sortedTable = [];
-//   try {
-//     sortedTable = await tableSorting.jsonToInvoice(docData);
-//   } catch (err) {
-//     console.dir(`sort table !!!!, ${JSON.stringify(sortedTable, null, 2)}`);
-//   }
-//   res.end({ status: "yes", data: "עובד על הקבצים אח שלי" });
-//   if (sortedTable.length < 1) return res.end(` "Detailes":"no data"`);
-//   for (let i = 0; i <= sortedTable.length - 1; i++) {
-//     await documentCreator
-//       .createDoc(JSON.parse(sortedTable[i]), docID, i)
-//       .then(async (docOutPut) => {
-//         let obj2Return = await Helper.createRetJson(docOutPut, i, Action);
-//         return obj2Return;
-//       })
-//       .then((docResult) => {
-//         docReturnArrey.push(docResult);
-//       })
-//       .catch((err) => {
-//         console.log(`catch in main loop...\n ${err}`);
-//         console.dir(err);
-//       });
-//   }
-//   return res.json({
-//     status: docReturnArrey ? "yes" : "no ",
-//     data: JSON.stringify(docReturnArrey, null, 2),
-//   });
-// });
+app.post("/api/createdoc", async (req, res) => {
+  var Action = req.body.Action;
 
-// app.post("/api/calcki", async function (req, res) {
-//   let reqData = await req.body;
-//   if (reqData.FID == "1") {
-//     console.log(`print if pass${reqData.FID}`);
-//     try {
-//       let table = await calcki.joinMatrixes(
-//         JSON.parse(reqData.matrixesData),
-//         reqData.trimData
-//       );
-//       res.json(JSON.stringify(table));
-//     } catch (err) {
-//       console.log(`error on prosses  ${err} \n request info }`);
-//     }
-//   } else if (reqData.Type == "2") {
-//     try {
-//       let documents = await tableSorting.jsonToInvoice(reqData.data);
-//       res.json(JSON.stringify(documents));
-//     } catch (err) {
-//       console.log(
-//         `error on prosses  ${err} \n request info \n ${JSON.stringify(req)}`
-//       );
-//     }
-//   }
-// });
+  // res.end({ status: "yes", data: "עובד על הקבצים אח שלי" });
+  let [docData, docID] = req.body.data;
+  let logArrey = [];
+  tableSorting
+    .jsonToInvoice(docData)
+    .then(async (sortedTable) => {
+      for (let i = 0; i <= sortedTable.length - 1; i++) {
+        await documentCreator
+          .createDoc(JSON.parse(sortedTable[i]), docID, i)
+          .then(
+            async (docOutPut) =>
+              await Helper.createRetJson(docOutPut, i, Action)
+          )
+          .then((docResult) => logArrey.push(docResult));
+      }
+    })
+    .then(() => mgHelper.saveDocURL(logArrey))
+    .then((result) => res.json({ status: "yes", data: result }))
+
+    .catch((err) => {
+      console.log(`catch in main loop...\n ${err}`);
+      res.json({
+        status: "no",
+        data: err,
+      });
+    });
+});
 
 app.post("/api/getrecords", async function (req, res) {
   console.log;
@@ -153,6 +114,30 @@ app.post("/api/test", async function (req, res) {
   }
 });
 
+// app.post("/api/calcki", async function (req, res) {
+//   let reqData = await req.body;
+//   if (reqData.FID == "1") {
+//     console.log(`print if pass${reqData.FID}`);
+//     try {
+//       let table = await calcki.joinMatrixes(
+//         JSON.parse(reqData.matrixesData),
+//         reqData.trimData
+//       );
+//       res.json(JSON.stringify(table));
+//     } catch (err) {
+//       console.log(`error on prosses  ${err} \n request info }`);
+//     }
+//   } else if (reqData.Type == "2") {
+//     try {
+//       let documents = await tableSorting.jsonToInvoice(reqData.data);
+//       res.json(JSON.stringify(documents));
+//     } catch (err) {
+//       console.log(
+//         `error on prosses  ${err} \n request info \n ${JSON.stringify(req)}`
+//       );
+//     }
+//   }
+// });
 // let obj = {
 //   "NewDocumentStockID": 776,
 //   "DocumentIssuedStatus": "OK",
