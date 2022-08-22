@@ -9,14 +9,6 @@ const Helper = require('../../generalUtils/Helper')
 
 const defultReports = Helper.readJsonFILE('wizCloudUtiles/apiInterface/filencryption');
 //const defultReports = undefined;
-
-const {
-  PassThrough
-} = require("stream");
-const {
-  table, Console
-} = require("console");
-const res = require("express/lib/response");
 let docHash ={}
 try {
   docHash = {
@@ -60,7 +52,7 @@ async function exportRecords(reqData, privetKey) {
     usserPrivetKey
   ] = await getCredential.getCastumersCred("1111")
 
-  console.log(`usser cred \n${usserDbname}\n${usserServerName}\n${usserPrivetKey}`)
+  console.log({usserDbname, usserServerName, usserPrivetKey})
 
   let myDBname = usserDbname;
   try {

@@ -1,16 +1,10 @@
 const express = require("express");
 const DBrouter = express.Router();
-
 const bodyParser = require("body-parser");
-//const mongoose = require("mongoose");
 require("dotenv").config();
-//const dbUrl = process.env.DB_SERVER_BASE_URL || 5000;
 const dbUrl = "http://localhost:5000";
 const axios = require("axios");
-const { validate } = require("uuid");
-//const { options } = require("./fireBase");
-const Helper = require('../Helpers/generalUtils/Helper')
-
+const Helper = require("../Helpers/generalUtils/Helper");
 
 console.log(dbUrl);
 DBrouter.use(express.json());
@@ -22,22 +16,25 @@ const fetchData = async (data, reqUrl) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json;charset=UTF-8",
-    
     },
     data: data,
   };
   return axios(options).then((result) => result.data);
 };
 
-DBrouter.post("/api/loadmatrixes", async (req, res) => {
-  const data = await req.body;
-  console.log('data !!!',data)
-  fetchData(data, "/api/loadmatrixes")
-    .then((result) => res.send(result))
-    .catch((e) => res.send(e));
-});
+DBrouter.post(
+  "/api/loadmatrixes",
+  Helper.authenticateToken,
+  async (req, res) => {
+    const data = await req.body;
+    console.log("data !!!", data);
+    fetchData(data, "/api/loadmatrixes")
+      .then((result) => res.send(result))
+      .catch((e) => res.send(e));
+  }
+);
 
-DBrouter.post("/api/saveMatrix", async function (req, res) {
+DBrouter.post("/api/saveMatrix", Helper.authenticateToken, async (req, res) => {
   const data = await req.body;
   fetchData(data, "/api/savematrix")
     .then((result) => res.send(result))
@@ -45,51 +42,86 @@ DBrouter.post("/api/saveMatrix", async function (req, res) {
 });
 
 // ****************************  MONGO DB END POINTS  **************************** //
-DBrouter.post("/api/loadDocUrls", async (req, res) => {
-  const data = await req.body;
-  fetchData(data, "/api/loadDocUrls")
-    .then((result) => res.send(result))
-    .catch((e) => res.send(e));
-});
+DBrouter.post(
+  "/api/loadDocUrls",
+  Helper.authenticateToken,
+  async (req, res) => {
+    const data = await req.body;
+    fetchData(data, "/api/loadDocUrls")
+      .then((result) => res.send(result))
+      .catch((e) => res.send(e));
+  }
+);
 
-DBrouter.post("/api/getData", async function (req, res) {
+DBrouter.post("/api/getData", Helper.authenticateToken, async (req, res) => {
   const data = await req.body;
   fetchData(data, "/api/getdata")
     .then((result) => res.send(result))
     .catch((e) => res.send(e));
 });
 
-DBrouter.post("/api/Register", async (req, res) => {
+DBrouter.post("/api/Register", Helper.authenticateToken, async (req, res) => {
   const data = await req.body;
   fetchData(data, "/api/register")
     .then((result) => res.send(result))
     .catch((e) => res.send(e));
-})
+});
 
-DBrouter.post("/api/setConfig", async (req, res) => {
+DBrouter.post("/api/setConfig", Helper.authenticateToken, async (req, res) => {
   const data = await req.body;
+  console.log("in matrix ui", data);
   fetchData(data, "/api/setConfig")
-    .then((result) => res.send(result))
+    .then((result) => {
+      console.log("result in fetch %%%%", result);
+      res.send(result);
+    })
     .catch((e) => res.send(e));
-})
-//  *****************************  FIRE BASE END POINTS  **********************************//
-DBrouter.post("/api/savesignedFiles", async function (req, res) {
-  const options = await req.boby;
-  const fetcResult = await fetchData(options, "/api/savesignedFils");
-  fetcResult.then(res.send(fetcResult));
 });
 
-DBrouter.post("/api/loadsignedFiles", async function (req, res) {
-  const options = await req.boby;
-  const fetcResult = await fetchData(options, "/api/loadsignedFiles");
-  fetcResult.then(res.send(fetcResult));
-});
+DBrouter.post(
+  "/api/setErpConfig",
+  Helper.authenticateToken,
+  async (req, res) => {
+    const data = await req.body;
+    console.log("in matrix ui", data);
+    fetchData(data, "/api/setErpConfig")
+      .then((result) => {
+        console.log("result in fetch %%%%", result);
+        res.send(result);
+      })
+      .catch((e) => res.send(e));
+  }
+);
+//  *****************************  FIRE BASE END POINTS  **********************************//
+DBrouter.post(
+  "/api/savesignedFiles",
+  Helper.authenticateToken,
+  async (req, res) => {
+    const options = await req.boby;
+    const fetcResult = await fetchData(
+      options,
+      Helper.authenticateToken,
+      "/api/savesignedFils"
+    );
+    fetcResult.then(res.send(fetcResult));
+  }
+);
+
+DBrouter.post(
+  "/api/loadsignedFiles",
+  Helper.authenticateToken,
+  async (req, res) => {
+    const options = await req.boby;
+    const fetcResult = await fetchData(
+      options,
+      Helper.authenticateToken,
+      "/api/loadsignedFiles"
+    );
+    fetcResult.then(res.send(fetcResult));
+  }
+);
 
 module.exports = DBrouter;
-
-
-
-
 
 // const uri =
 //   "mongodb+srv://yotamos:linux6926@cluster0.zj6wiy3.mongodb.net/mtxlog?retryWrites=true&w=majority";
