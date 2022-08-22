@@ -10,13 +10,36 @@ const authenticateToken = (req, res, next) => {
 
   if (token == null) return res.sendStatus(401);
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, userData) => {
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
     if (err) return res.sendStatus(403);
-    else req.userData = userData;
+    req.user = user;
+    next();
   });
 };
 
+const authenticateTokenTest = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
 
+  if (token == null) {
+    res.send({
+      status: 401,
+      msg: "***** in test mode ***** no token in header",
+    });
+    next();
+  }
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) {
+      res.send({
+        status: 403,
+        msg: "***** in test mode ***** no token in header",
+      });
+      next();
+    }
+    req.user = user;
+    next();
+  });
+};
 
 const createRetJson = async (answer, index, Action) => {
   console.log(
@@ -42,29 +65,25 @@ const createRetJson = async (answer, index, Action) => {
   return ret;
 };
 
+const constructUsserCred = (usser) => {
+  let usserCred = {};
+  usserCred.WizcloudApiPrivateKey = usser.WizcloudApiPrivateKey;
+  usserCred.WizcloudApiServer = usser.WizcloudApiServer;
+  usserCred.WizcloudApiDBName = usser.WizcloudApiDBName;
+  return usserCred;
+};
 
-const constructUsserCred = (usser)=>{
-let usserCred ={}
-  usserCred.WizcloudApiPrivateKey = usser.WizcloudApiPrivateKey
-  usserCred.WizcloudApiServer = usser.WizcloudApiServer
-  usserCred.WizcloudApiDBName = usser.WizcloudApiDBName
-return usserCred
-}
-
-
-const constructNewUserCred =  (usserData, generatedUsserKey)=> {
-let newUsserData ={
-Key: generatedUsserKey,
-Name: usserData.Name,
-Email: usserData.Email,
-WizcloudApiPrivateKey: usserData.WizcloudApiPrivateKey,
-WizcloudApiServer: usserData.WizcloudApiServer,
-WizcloudApiDBName: usserData.WizcloudApiDBName,
-}
-return newUsserData
-}
-
-
+const constructNewUserCred = (usserData, generatedUsserKey) => {
+  let newUsserData = {
+    Key: generatedUsserKey,
+    Name: usserData.Name,
+    Email: usserData.Email,
+    WizcloudApiPrivateKey: usserData.WizcloudApiPrivateKey,
+    WizcloudApiServer: usserData.WizcloudApiServer,
+    WizcloudApiDBName: usserData.WizcloudApiDBName,
+  };
+  return newUsserData;
+};
 
 const readJsonFILE = (fileName) => {
   let docData = fs.readFileSync(
@@ -115,9 +134,7 @@ const updateJsonFILE = async (fileName, newData) => {
   return data;
 };
 
-
 const checkDataValidation = (jsonData, columArrey) => {
-
   let errorLog = [];
   let error = {};
   columArrey = [1, 2, 3];
@@ -160,7 +177,6 @@ const checkDataValidation = (jsonData, columArrey) => {
 
 //checkDataValidation();
 
-
 const sortReportData = (reportData, sortKey) => {
   let Keys;
   let Values;
@@ -170,18 +186,15 @@ const sortReportData = (reportData, sortKey) => {
   } catch (err) {
     console.log("keys and sheet ", err);
   }
-  
+
   let newSortedData;
   let updatedData = reportData;
 
- 
   Keys.forEach((key, index) => {
     newSortedData = [];
     updatedData.forEach((row) => {
-    
       if (row[key] == Values[index]) {
         newSortedData.push(row);
-      
       }
     });
     updatedData = newSortedData;
@@ -195,14 +208,12 @@ const sortReportData = (reportData, sortKey) => {
   return updatedData;
 };
 
-
-module.exports.authenticateToken = authenticateToken
-module.exports.constructNewUserCred = constructNewUserCred
-module.exports.constructUsserCred = constructUsserCred
+module.exports.authenticateToken = authenticateToken;
+module.exports.constructNewUserCred = constructNewUserCred;
+module.exports.constructUsserCred = constructUsserCred;
 module.exports.readJsonFILE = readJsonFILE;
 module.exports.updateJsonFILE = updateJsonFILE;
 module.exports.sortReportData = sortReportData;
 module.exports.createRetJson = createRetJson;
 module.exports.checkDataValidation = checkDataValidation;
-
-
+module.exports.authenticateTokenTest = authenticateTokenTest;

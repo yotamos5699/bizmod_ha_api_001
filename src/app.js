@@ -13,7 +13,7 @@ const documentCreator = require(`./Helpers/wizCloudUtiles/apiInterface/DocumentC
 const reportsCreator = require("./Helpers/wizCloudUtiles/apiInterface/flexDoc");
 const Helper = require("./Helpers/generalUtils/Helper");
 const calcki = require("./Helpers/wizCloudUtiles/helpers/calcKi");
-const res = require("express/lib/response");
+
 
 // app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(bodyParser.json());
@@ -39,7 +39,7 @@ app.post("/api/generatekey", async (req, res) => {
   res.send({ key: crypto.randomBytes(32).toString("hex") });
 });
 
-app.post("/api/createdoc", async (req, res) => {
+app.post("/api/createdoc",Helper.authenticateTokenTest, async (req, res) => {
   var Action = req.body.Action;
 
   // res.end({ status: "yes", data: "עובד על הקבצים אח שלי" });
@@ -70,7 +70,9 @@ app.post("/api/createdoc", async (req, res) => {
     });
 });
 
-app.post("/api/getrecords", async function (req, res) {
+
+
+app.post("/api/getrecords",Helper.authenticateToken, async function (req, res) {
   console.log;
   let jsondata;
   let reportData = await req.body;
