@@ -26,18 +26,21 @@ DBrouter.post(
   "/api/loadmatrixes",
   Helper.authenticateToken,
   async (req, res) => {
+    const testMsg = req.testMsg;
     const data = await req.body;
-    console.log("data !!!", data);
+
     fetchData(data, "/api/loadmatrixes")
-      .then((result) => res.send(result))
+      .then((result) => res.send(testMsg ?  {result,testMsg} : {result}))
       .catch((e) => res.send(e));
   }
 );
 
 DBrouter.post("/api/saveMatrix", Helper.authenticateToken, async (req, res) => {
+  const testMsg = req.testMsg;
   const data = await req.body;
+  
   fetchData(data, "/api/savematrix")
-    .then((result) => res.send(result))
+    .then((result) => res.send(testMsg ?  {result,testMsg} : {result}))
     .catch((e) => res.send(e));
 });
 
@@ -46,34 +49,42 @@ DBrouter.post(
   "/api/loadDocUrls",
   Helper.authenticateToken,
   async (req, res) => {
+    const testMsg = req.testMsg;
     const data = await req.body;
+  
     fetchData(data, "/api/loadDocUrls")
-      .then((result) => res.send(result))
+      .then((result) => res.send(testMsg ?  {result,testMsg} : {result}))
       .catch((e) => res.send(e));
   }
 );
 
 DBrouter.post("/api/getData", Helper.authenticateToken, async (req, res) => {
+  const testMsg = req.testMsg;
   const data = await req.body;
+  
   fetchData(data, "/api/getdata")
-    .then((result) => res.send(result))
+    .then((result) =>res.send(testMsg ?  {result,testMsg} : {result}))
     .catch((e) => res.send(e));
 });
 
 DBrouter.post("/api/Register", Helper.authenticateToken, async (req, res) => {
+  const testMsg = req.testMsg;
   const data = await req.body;
+
   fetchData(data, "/api/register")
-    .then((result) => res.send(result))
+    .then((result) => res.send(testMsg ?  {result,testMsg} : {result}))
     .catch((e) => res.send(e));
 });
 
 DBrouter.post("/api/setConfig", Helper.authenticateToken, async (req, res) => {
+  const testMsg = req.testMsg;
   const data = await req.body;
+  
   console.log("in matrix ui", data);
   fetchData(data, "/api/setConfig")
     .then((result) => {
       console.log("result in fetch %%%%", result);
-      res.send(result);
+      res.send(testMsg ?  {result,testMsg} : {result});
     })
     .catch((e) => res.send(e));
 });
@@ -86,8 +97,7 @@ DBrouter.post(
     console.log("in matrix ui", data);
     fetchData(data, "/api/setErpConfig")
       .then((result) => {
-        console.log("result in fetch %%%%", result);
-        res.send(result);
+        res.send(testMsg ?  {result,testMsg} : {result});
       })
       .catch((e) => res.send(e));
   }
@@ -97,13 +107,14 @@ DBrouter.post(
   "/api/savesignedFiles",
   Helper.authenticateToken,
   async (req, res) => {
+    const testMsg = req.testMsg;
     const options = await req.boby;
     const fetcResult = await fetchData(
       options,
       Helper.authenticateToken,
       "/api/savesignedFils"
     );
-    fetcResult.then(res.send(fetcResult));
+    fetcResult.then(res.send(testMsg ?  {result,testMsg} : {result}));
   }
 );
 
@@ -111,13 +122,14 @@ DBrouter.post(
   "/api/loadsignedFiles",
   Helper.authenticateToken,
   async (req, res) => {
+    const testMsg = req.testMsg;
     const options = await req.boby;
     const fetcResult = await fetchData(
       options,
       Helper.authenticateToken,
       "/api/loadsignedFiles"
     );
-    fetcResult.then(res.send(fetcResult));
+    fetcResult.then(res.send(testMsg ?  {result,testMsg} : {result}));
   }
 );
 
