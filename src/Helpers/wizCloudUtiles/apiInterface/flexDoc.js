@@ -1,192 +1,170 @@
 //////////////////SS/////////////////////////////////////////basic required code
 //Must to configure private data on apiConfig.js file
 const wizlib = require("wizcloud-api");
-const getCredential = require('../helpers/getCred')
+const getCredential = require("../helpers/getCred");
 var fs = require("fs");
 const path = require("path");
-const Helper = require('../../generalUtils/Helper')
-//const defultReports = require('./filencryption');
+const Helper = require("../../generalUtils/Helper");
+const defultReports = require("./filencryption");
 
-const defultReports = Helper.readJsonFILE('wizCloudUtiles/apiInterface/filencryption');
+//const defultReports = Helper.readJsonFILE('wizCloudUtiles/apiInterface/filencryption');
 //const defultReports = undefined;
-let docHash ={}
+console.log(defultReports);
+
+let docHash = {};
 try {
   docHash = {
-    '1': [
-      [defultReports.stockEncrypt_reportData,
-        defultReports.params_data_st
+    1: [
+      [defultReports.stockEncrypt_reportData, defultReports.params_data_st],
+      [
+        defultReports.encrypt_treeItemsreportData,
+        defultReports.treeItemsParams_data,
       ],
-      [defultReports.encrypt_treeItemsreportData,
-        defultReports.treeItemsParams_data
-      ]
     ],
 
-    '2': [defultReports.castumersEncryptData,
-      defultReports.params_data_ca
-    ]
-  }
+    2: [defultReports.castumersEncryptData, defultReports.params_data_ca],
+  };
 } catch (err) {
-  console.dir(err)
+  console.dir(err);
 }
 
 async function exportRecords(reqData, privetKey) {
-
-
-  if (defultReports == undefined) return ({
-    Detailes: "error in fetching defultReports data"
-  })
+  console.log("~~~~~~~~~~~~~~~~~ in flex docs ~~~~~~~~~~~~~~~~~~");
+  if (defultReports == undefined)
+    return {
+      Detailes: "error in fetching defultReports data",
+    };
 
   //console.log("filedata" + fileData);
   // jsondata = await reportsCreator.exportRecords(userKey, req.body.TID)
 
-  let fileData = reqData.TID
-  console.log("file data  DDFDFDFDFD   " + JSON.stringify(fileData))
-  let sortKey = await reqData.sortKey
-  let Warehouse = ''
-  fileData == '1' ? Warehouse = reqData.Warehouse : Warehouse = null
+  let fileData = reqData.TID;
+  console.log("file data  DDFDFDFDFD   " + JSON.stringify(fileData));
+  let sortKey = await reqData.sortKey;
+  let Warehouse = "";
+  fileData == "1" ? (Warehouse = reqData.Warehouse) : (Warehouse = null);
 
+  const { usserDbname, usserServerName, usserPrivetKey } =
+    await getCredential.getCastumersCred("1111");
 
-  const [
-    usserDbname,
-    usserServerName,
-    usserPrivetKey
-  ] = await getCredential.getCastumersCred("1111")
-
-  console.log({usserDbname, usserServerName, usserPrivetKey})
+  console.log({ usserDbname, usserServerName, usserPrivetKey });
 
   let myDBname = usserDbname;
   try {
-
     wizlib.init(usserPrivetKey, usserServerName);
   } catch (e) {
     console.log(e);
   }
 
-
-
   let reportCod, parameters;
-  if (fileData == '4') {
-    [reportCod, parameters] = fileData
-  } else if (fileData == '1') {
-    [reportCod, parameters] = docHash[fileData][0]
-  } else if (fileData == '2') {
-    [reportCod, parameters] = docHash[fileData]
-
+  if (fileData == "4") {
+    [reportCod, parameters] = fileData;
+  } else if (fileData == "1") {
+    [reportCod, parameters] = docHash[fileData][0];
+  } else if (fileData == "2") {
+    [reportCod, parameters] = docHash[fileData];
   }
-
 
   let apiRes = await wizlib.exportDataRecords(myDBname, {
     datafile: reportCod,
     parameters: parameters,
-
-
   });
 
-  let treeData
-  if (fileData == '1') {
-    [reportCod, parameters] = docHash[fileData][1]
+  let treeData;
+  if (fileData == "1") {
+    [reportCod, parameters] = docHash[fileData][1];
     treeData = await wizlib.exportDataRecords(myDBname, {
       datafile: reportCod,
       parameters: parameters,
-
-
     });
   }
-  apiRes = JSON.parse(apiRes)
+  apiRes = JSON.parse(apiRes);
   // console.log(apiRes)
 
   let resArrey = [];
-  if (fileData == '1') {
-    treeData = JSON.parse(treeData)
-    console.log(JSON.stringify(treeData, null, 2))
-    console.log(JSON.stringify(apiRes, null, 2))
+  if (fileData == "1") {
+    treeData = JSON.parse(treeData);
+    console.log(JSON.stringify(treeData, null, 2));
+    console.log(JSON.stringify(apiRes, null, 2));
     // console.log(treeData.repdata)
 
-    treeData.repdata.forEach(treeDataRow => {
+    treeData.repdata.forEach((treeDataRow) => {
       let record = {};
       apiRes.repdata.forEach((itemsDataRow) => {
-
-        if (itemsDataRow['מפתח פריט'] == treeDataRow['מפתח פריט אב']) {
-          record = itemsDataRow
-          record['מפתח פריט אב'] = treeDataRow['מפתח פריט']
+        if (itemsDataRow["מפתח פריט"] == treeDataRow["מפתח פריט אב"]) {
+          record = itemsDataRow;
+          record["מפתח פריט אב"] = treeDataRow["מפתח פריט"];
 
           //  console.log(row['מפתח פריט'] + " " + item['מפתח פריט אב'])
         }
-
-      })
+      });
       if (record) {
-        resArrey.push(record)
+        resArrey.push(record);
       } else {
-        record = itemsDataRow
-        record['מפתח פריט אב'] = itemsDataRow['מפתח פריט']
-        resArrey.push(record)
+        record = itemsDataRow;
+        record["מפתח פריט אב"] = itemsDataRow["מפתח פריט"];
+        resArrey.push(record);
       }
-    })
+    });
   }
 
+  let newArrey = [];
+  resArrey.forEach((resRow) => {
+    let record = {};
 
-
-  let newArrey = []
-  resArrey.forEach(resRow => {
-    let record = {}
-
-    apiRes.repdata.forEach(tableRow => {
-      if (resRow['מפתח פריט אב'] == tableRow['מפתח פריט']) {
-        record = resRow
-        record['שם פריט אב'] = tableRow['שם פריט']
-        record['תרה כמותית אב'] = tableRow['יתרה כמותית במלאי']
-        newArrey.push(record)
+    apiRes.repdata.forEach((tableRow) => {
+      if (resRow["מפתח פריט אב"] == tableRow["מפתח פריט"]) {
+        record = resRow;
+        record["שם פריט אב"] = tableRow["שם פריט"];
+        record["תרה כמותית אב"] = tableRow["יתרה כמותית במלאי"];
+        newArrey.push(record);
       }
+    });
+  });
 
-    })
+  let jsondata = resArrey.length > 0 ? newArrey : apiRes.repdata;
 
-  })
-  
-
-  let jsondata = resArrey.length > 0 ? newArrey : apiRes.repdata
-
- // console.log(jsondata)
+  // console.log(jsondata)
   // console.log("jsondata " + jsondata)
   const data = JSON.stringify(jsondata, null, 2);
 
-  fs.writeFile(path.resolve(__dirname, "./lastItemsCall.json"), data, (err) => {
-    if (err) throw err;
-    // console.log(err, "See resaults in myApiRes.txt");
-  });
+  // fs.writeFile(path.resolve(__dirname, "./lastItemsCall.json"), data, (err) => {
+  //   if (err) throw err;
+  //   // console.log(err, "See resaults in myApiRes.txt");
+  // });
 
   // console.log("json.res  " + JSON.stringify(jsondata, null, 2))
 
   if (sortKey) {
     try {
-      jsondata = Helper.sortReportData(jsondata, sortKey)
+      jsondata = Helper.sortReportData(jsondata, sortKey);
 
-      return jsondata
+      return jsondata;
     } catch (err) {
-      console.log(`error on sortReportData${err}`)
+      console.log(`error on sortReportData${err}`);
     }
   } else {
-    console.log("raw data...." + JSON.stringify(jsondata))
+    console.log("raw data...." + JSON.stringify(jsondata));
     return jsondata;
   }
 }
 
 module.exports.exportRecords = exportRecords;
 
-
 // record['שם אב'] = itemsDataRow['שם פריט']
-  // record['יתרה כמותית במלאי'] = row['יתרה כמותית במלאי']
-  // record['משקל'] = itemsDataRow['משקל']
-  // //   {
-  //   "איתור אב": null,
-  //   "מפתח פריט אב": "XPF",
-  //   "משקל אב": 1,
-  //   "איתור": null,
-  //   "מפתח פריט": "XP",
-  //   "משקל": 1
-  // },
-  // "שם פריט": "גת קימבו לפי משקל",
-  // "מפתח פריט": "KIKG",
-  // "קוד מיון": 51200,
-  // "יתרה כמותית במלאי": 0,
-  // "משקל": 1,
-  // "מחסן": 1
+// record['יתרה כמותית במלאי'] = row['יתרה כמותית במלאי']
+// record['משקל'] = itemsDataRow['משקל']
+// //   {
+//   "איתור אב": null,
+//   "מפתח פריט אב": "XPF",
+//   "משקל אב": 1,
+//   "איתור": null,
+//   "מפתח פריט": "XP",
+//   "משקל": 1
+// },
+// "שם פריט": "גת קימבו לפי משקל",
+// "מפתח פריט": "KIKG",
+// "קוד מיון": 51200,
+// "יתרה כמותית במלאי": 0,
+// "משקל": 1,
+// "מחסן": 1

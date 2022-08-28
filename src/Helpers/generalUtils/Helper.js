@@ -70,9 +70,11 @@ const createRetJson = async (answer, index, Action) => {
 
 const constructUsserCred = (usser) => {
   let usserCred = {};
-  usserCred.WizcloudApiPrivateKey = usser.WizcloudApiPrivateKey;
-  usserCred.WizcloudApiServer = usser.WizcloudApiServer;
-  usserCred.WizcloudApiDBName = usser.WizcloudApiDBName;
+
+  //usserDbname, usserServerName, usserPrivetKey
+  usserCred.usserPrivetKey = usser.WizcloudApiPrivateKey;
+  usserCred.usserServerName = usser.WizcloudApiServer;
+  usserCred.usserDbname = usser.WizcloudApiDBName;
   return usserCred;
 };
 

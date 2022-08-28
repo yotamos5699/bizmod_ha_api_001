@@ -14,7 +14,6 @@ const reportsCreator = require("./Helpers/wizCloudUtiles/apiInterface/flexDoc");
 const Helper = require("./Helpers/generalUtils/Helper");
 const calcki = require("./Helpers/wizCloudUtiles/helpers/calcKi");
 
-
 // app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(bodyParser.json());
 app.use(express.json());
@@ -39,7 +38,7 @@ app.post("/api/generatekey", async (req, res) => {
   res.send({ key: crypto.randomBytes(32).toString("hex") });
 });
 
-app.post("/api/createdoc",Helper.authenticateTokenTest, async (req, res) => {
+app.post("/api/createdoc", Helper.authenticateTokenTest, async (req, res) => {
   var Action = req.body.Action;
 
   // res.end({ status: "yes", data: "עובד על הקבצים אח שלי" });
@@ -70,40 +69,46 @@ app.post("/api/createdoc",Helper.authenticateTokenTest, async (req, res) => {
     });
 });
 
-
-
-app.post("/api/getrecords",Helper.authenticateToken, async function (req, res) {
-  console.log;
-  let jsondata;
-  let reportData = await req.body;
-  let userKey = req.headers.authorization;
-  if (userKey == "Bearer 1111") {
-    console.log("passs if");
-    try {
-      console.log(reportData.TID);
-      reportData.TID != "4"
-        ? (jsondata = await reportsCreator.exportRecords(reportData, userKey))
-        : (jsondata = await reportsCreator.exportRecords(reportData, userKey));
-    } catch (err) {
-      console.dir(
-        `error on prosses  ${err} \n request info \n ${JSON.stringify(
-          req.body
-        )}`
-      );
-      console.debug(err);
+app.post(
+  "/api/getrecords",
+  Helper.authenticateToken,
+  async function (req, res) {
+    console.log("~~~~~~~~~~~~~ getrecords ~~~~~~~~~~~~~~~~~");
+    let jsondata;
+    let reportData = await req.body;
+    console.log(reportData);
+    let userKey = req.headers.authorization;
+    if (userKey == "Bearer 1111") {
+      console.log("passs if");
+      try {
+        console.log(reportData.TID);
+        reportData.TID != "4"
+          ? (jsondata = await reportsCreator.exportRecords(reportData, userKey))
+          : (jsondata = await reportsCreator.exportRecords(
+              reportData,
+              userKey
+            ));
+      } catch (err) {
+        console.dir(
+          `error on prosses  ${err} \n request info \n ${JSON.stringify(
+            req.body
+          )}`
+        );
+        console.debug(err);
+      }
     }
-  }
 
-  let validationMsg = null;
-  if (jsondata) {
-    validationMsg = Helper.checkDataValidation(jsondata, [1, 2]);
+    let validationMsg = null;
+    if (jsondata) {
+      validationMsg = Helper.checkDataValidation(jsondata, [1, 2]);
+    }
+    res.json({
+      status: jsondata ? "yes" : "no",
+      data: JSON.stringify(jsondata),
+      validationError: validationMsg ? validationMsg : null,
+    });
   }
-  res.json({
-    status: jsondata ? "yes" : "no",
-    data: JSON.stringify(jsondata),
-    validationError: validationMsg ? validationMsg : null,
-  });
-});
+);
 
 app.post("/api/test", async function (req, res) {
   try {

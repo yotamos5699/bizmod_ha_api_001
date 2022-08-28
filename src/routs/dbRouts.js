@@ -71,11 +71,11 @@ DBrouter.post("/api/getData", Helper.authenticateToken, async (req, res) => {
 DBrouter.post("/api/Register", Helper.authenticateToken, async (req, res) => {
   const testMsg = req.testMsg;
   const data = await req.body;
-
   fetchData(data, "/api/register")
     .then((result) => res.send(testMsg ? { result, testMsg } : { result }))
     .catch((e) => res.send(e));
 });
+
 
 DBrouter.post("/api/setConfig", Helper.authenticateToken, async (req, res) => {
   const testMsg = req.testMsg;
@@ -140,6 +140,7 @@ DBrouter.post(
 );
 
 module.exports = DBrouter;
+
 
 // const uri =
 //   "mongodb+srv://yotamos:linux6926@cluster0.zj6wiy3.mongodb.net/mtxlog?retryWrites=true&w=majority";
