@@ -145,18 +145,6 @@ DBrouter.post(
   }
 );
 
-const saveDocURL = async (docsArrey) => {
-  console.log("in matrix ui erp config ", data);
-  return fetchData(docsArrey, "/api/saveDoc", actionHeader)
-    .then((result) => {
-      console.log("result in fetch %%%%", result);
-      let resultData = result.data;
-      return { resultData };
-    })
-    .catch((e) => e);
-};
-
-module.exports.saveDocURL = saveDocURL;
 module.exports = DBrouter;
 
 // const uri =

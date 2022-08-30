@@ -4,11 +4,11 @@ const express = require("express");
 const app = express();
 //const mgHelper = require("../not in use files/DBs/dbFiles/mgHelper");
 const fs = require("fs");
-const PORT = process.env.PORT || 4001;
+const PORT = process.env.PORT || 3000;
 const cors = require(`cors`);
 const bodyParser = require("body-parser");
 const DBrouter = require("./routs/dbRouts");
-const { saveDocURL } = require("./routs/dbRouts");
+const db = require("./routs/dbRouts");
 const tableSorting = require("./Helpers/wizCloudUtiles/helpers/tablesorting");
 const documentCreator = require(`./Helpers/wizCloudUtiles/apiInterface/DocumentCreator`);
 const reportsCreator = require("./Helpers/wizCloudUtiles/apiInterface/flexDoc");
@@ -55,23 +55,43 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
       for (let i = 0; i <= data.length - 1; i++) {
         await documentCreator
           .createDoc(data[i], i)
-          .then(async (docOutPut) => {
-            console.log("DOC OUT PUT ", docOutPut);
-            await Helper.createRetJson(docOutPut, i, Action);
-          })
+          .then(
+            async (docOutPut) =>
+              await Helper.createRetJson(docOutPut, i, Action)
+          )
           .then((docResult) => logArrey.push(docResult));
       }
     })
-    .then(() => saveDocURL(logArrey))
+    .then(() => Helper.saveDocURL(logArrey))
     .then((result) => res.json({ status: "yes", data: result }))
     .catch((err) => {
       console.log(`catch in main loop...\n ${err}`);
       res.json({ status: "no", data: err });
     });
 });
+app.post(
+  "/api/initvalidate",
+  Helper.authenticateToken,
+  async function (req, res) {
+    const { usserDbname, usserPrivetKey, usserServerName } = await req.body;
+    console.log("********************* DATA IN REQUEST **********************");
+    console.table({ usserDbname, usserPrivetKey, usserServerName });
+    try {
+      documentCreator
+        .validateInitialData(usserDbname, usserPrivetKey, usserServerName)
+        .then((result) => res.send(result))
+        .catch((e) => {
+          console.log(e);
+          res.send(e);
+        });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+);
 
 // app.post("/api/createdoc", Helper.authenticateTokenTest, async (req, res) => {
-//   var Action = req.body.Action;
+//   var ssAction = rsseq.body.Action;
 
 //   // res.end({ status: "yes", data: "עובד על הקבצים אח שלי" });
 //   let [docData, docID] = req.body.data;

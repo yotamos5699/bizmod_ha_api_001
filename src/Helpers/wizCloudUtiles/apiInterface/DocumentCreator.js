@@ -4,6 +4,19 @@ const wizlib = require("wizcloud-api");
 const getCredential = require("../helpers/getCred");
 var fs = require("fs");
 
+const validateInitialData = async (
+  usserDbname,
+  usserPrivetKey,
+  usserServerName
+) => {
+  try {
+    return await showDocument(usserDbname, usserPrivetKey, usserServerName);
+  } catch (e) {
+    console.log("&&&&&&&&&&&&&&& in validate e $$$$$$$$$$$$$", e);
+    return e;
+  }
+};
+
 async function createDoc(docData, index) {
   console.log(
     `creat doC startS doC num"${index}" data:\n ${JSON.stringify(docData)}`
@@ -40,6 +53,7 @@ async function createDoc(docData, index) {
 module.exports.createDoc = createDoc;
 module.exports.delDocument = delDocument;
 module.exports.showDocument = showDocument;
+module.exports.validateInitialData = validateInitialData;
 
 async function issueDoc() {
   let apiRes = await wizlib.issueDoc(myDBname, {
@@ -53,11 +67,27 @@ async function delDocument() {
   });
   console.log(apiRes);
 }
-async function showDocument() {
-  let apiRes = await wizlib.showDocument(myDBname, {
-    DocumentID: "1",
-    stockID: 67,
-  });
+async function showDocument(myDBname, usserPrivetKey, usserServerName) {
+  console.table({ myDBname, usserServerName, usserPrivetKey });
+  console.log("DBnAME &&&&&&&&&&&&", myDBname);
 
-  console.log(apiRes);
+  try {
+    wizlib.init(usserPrivetKey, usserServerName);
+  } catch (e) {
+    console.log(" ************* E in INIT ***********  ", e);
+    return { status: "no", result: e };
+  }
+
+  try {
+    let result = await wizlib.auth(myDBname);
+    console.log(result);
+    let apiRes = await wizlib.showDocument(myDBname, {
+      DocumentID: "1",
+    });
+    console.log("****** api res in show document ******", apiRes);
+    return apiRes;
+  } catch (e) {
+    console.log("****** error in show document ******", e);
+    return { status: "no", result: e };
+  }
 }

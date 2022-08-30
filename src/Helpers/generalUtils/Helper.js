@@ -3,6 +3,34 @@ const fs = require("fs");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
+const dbUrl = "http://localhost:5000";
+const axios = require("axios");
+
+const fetchData = async (data, reqUrl) => {
+  let options = {
+    url: `${dbUrl}${reqUrl}`,
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json;charset=UTF-8",
+    },
+    data: data,
+  };
+  return axios(options).then((result) => result.data);
+};
+
+const saveDocURL = async (docsArrey) => {
+  console.log(
+    "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ in matrix ui erp config $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ ",
+    docsArrey
+  );
+  return await fetchData(docsArrey, "/api/saveDocs")
+    .then((result) => {
+      console.log("result in fetch %%%%", result);
+      let resultData = result;
+      return { resultData };
+    })
+    .catch((e) => e);
+};
 
 const authenticateTokenTest = (req, res, next) => {
   const authHeader = req.headers["authorization"];
@@ -213,6 +241,7 @@ const sortReportData = (reportData, sortKey) => {
   return updatedData;
 };
 
+module.exports.saveDocURL = saveDocURL;
 module.exports.authenticateToken = authenticateToken;
 module.exports.constructNewUserCred = constructNewUserCred;
 module.exports.constructUsserCred = constructUsserCred;
