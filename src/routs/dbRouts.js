@@ -1,10 +1,17 @@
 const express = require("express");
 const DBrouter = express.Router();
+const cors = require(`cors`);
 const bodyParser = require("body-parser");
 require("dotenv").config();
 const dbUrl = "http://localhost:5000";
 const axios = require("axios");
 const Helper = require("../Helpers/generalUtils/Helper");
+
+DBrouter.use(
+  cors({
+    origin: "*",
+  })
+);
 
 console.log(dbUrl);
 DBrouter.use(express.json());
