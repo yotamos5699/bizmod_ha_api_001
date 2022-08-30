@@ -9,7 +9,7 @@ const defultReports = require("./filencryption");
 
 //const defultReports = Helper.readJsonFILE('wizCloudUtiles/apiInterface/filencryption');
 //const defultReports = undefined;
-console.log(defultReports);
+//console.log(defultReports);
 
 let docHash = {};
 try {
@@ -39,7 +39,7 @@ async function exportRecords(reqData, privetKey) {
   // jsondata = await reportsCreator.exportRecords(userKey, req.body.TID)
 
   let fileData = reqData.TID;
-  console.log("file data  DDFDFDFDFD   " + JSON.stringify(fileData));
+  // console.log("file data  DDFDFDFDFD   " + JSON.stringify(fileData));
   let sortKey = await reqData.sortKey;
   let Warehouse = "";
   fileData == "1" ? (Warehouse = reqData.Warehouse) : (Warehouse = null);
@@ -47,7 +47,7 @@ async function exportRecords(reqData, privetKey) {
   const { usserDbname, usserServerName, usserPrivetKey } =
     await getCredential.getCastumersCred("1111");
 
-  console.log({ usserDbname, usserServerName, usserPrivetKey });
+  //console.log({ usserDbname, usserServerName, usserPrivetKey });
 
   let myDBname = usserDbname;
   try {
@@ -84,8 +84,8 @@ async function exportRecords(reqData, privetKey) {
   let resArrey = [];
   if (fileData == "1") {
     treeData = JSON.parse(treeData);
-    console.log(JSON.stringify(treeData, null, 2));
-    console.log(JSON.stringify(apiRes, null, 2));
+    // console.log(JSON.stringify(treeData, null, 2));
+    // console.log(JSON.stringify(apiRes, null, 2));
     // console.log(treeData.repdata)
 
     treeData.repdata.forEach((treeDataRow) => {

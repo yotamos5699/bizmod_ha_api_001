@@ -76,7 +76,6 @@ DBrouter.post("/api/Register", Helper.authenticateToken, async (req, res) => {
     .catch((e) => res.send(e));
 });
 
-
 DBrouter.post("/api/setConfig", Helper.authenticateToken, async (req, res) => {
   const testMsg = req.testMsg;
   const data = await req.body;
@@ -139,8 +138,19 @@ DBrouter.post(
   }
 );
 
-module.exports = DBrouter;
+const saveDocURL = async (docsArrey) => {
+  console.log("in matrix ui erp config ", data);
+  return fetchData(docsArrey, "/api/saveDoc", actionHeader)
+    .then((result) => {
+      console.log("result in fetch %%%%", result);
+      let resultData = result.data;
+      return { resultData };
+    })
+    .catch((e) => e);
+};
 
+module.exports.saveDocURL = saveDocURL;
+module.exports = DBrouter;
 
 // const uri =
 //   "mongodb+srv://yotamos:linux6926@cluster0.zj6wiy3.mongodb.net/mtxlog?retryWrites=true&w=majority";

@@ -13,7 +13,7 @@ const loadCastumersConfigData = async () => {
 
 const getCastumersCred = async (key) => {
   let castumersConfig = aa;
-  console.log(castumersConfig);
+  //console.log(castumersConfig);
   let usserCred = {};
   castumersConfig.forEach((usser) => {
     if (usser.Key == key) {

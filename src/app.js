@@ -8,14 +8,15 @@ const PORT = process.env.PORT || 3000;
 const cors = require(`cors`);
 const bodyParser = require("body-parser");
 const DBrouter = require("./routs/dbRouts");
+const { saveDocURL } = require("./routs/dbRouts");
 const tableSorting = require("./Helpers/wizCloudUtiles/helpers/tablesorting");
 const documentCreator = require(`./Helpers/wizCloudUtiles/apiInterface/DocumentCreator`);
 const reportsCreator = require("./Helpers/wizCloudUtiles/apiInterface/flexDoc");
 const Helper = require("./Helpers/generalUtils/Helper");
 const calcki = require("./Helpers/wizCloudUtiles/helpers/calcKi");
-
-// app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(bodyParser.json());
+const matrixesHandeler = require("./Helpers/wizCloudUtiles/helpers/calcKi");
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(express.json());
 app.use(DBrouter);
 
@@ -38,36 +39,67 @@ app.post("/api/generatekey", async (req, res) => {
   res.send({ key: crypto.randomBytes(32).toString("hex") });
 });
 
-app.post("/api/createdoc", Helper.authenticateTokenTest, async (req, res) => {
-  var Action = req.body.Action;
-
-  // res.end({ status: "yes", data: "עובד על הקבצים אח שלי" });
-  let [docData, docID] = req.body.data;
+app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
+  console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
+  const matrixesData = await req.body;
+  // console.log(matrixesData);
+  let Action;
   let logArrey = [];
-  tableSorting
-    .jsonToInvoice(docData)
-    .then(async (sortedTable) => {
-      for (let i = 0; i <= sortedTable.length - 1; i++) {
+
+  matrixesHandeler
+    .prererMatixesData(matrixesData)
+    .then(async (result) => {
+      Action = result.ActionID;
+      let data = result.data.docData;
+      console.log("************* data length **************\n", data.length);
+      for (let i = 0; i <= data.length - 1; i++) {
         await documentCreator
-          .createDoc(JSON.parse(sortedTable[i]), docID, i)
-          .then(
-            async (docOutPut) =>
-              await Helper.createRetJson(docOutPut, i, Action)
-          )
+          .createDoc(data[i], i)
+          .then(async (docOutPut) => {
+            console.log("DOC OUT PUT ", docOutPut);
+            await Helper.createRetJson(docOutPut, i, Action);
+          })
           .then((docResult) => logArrey.push(docResult));
       }
     })
-    .then(() => mgHelper.saveDocURL(logArrey))
+    .then(() => saveDocURL(logArrey))
     .then((result) => res.json({ status: "yes", data: result }))
-
     .catch((err) => {
       console.log(`catch in main loop...\n ${err}`);
-      res.json({
-        status: "no",
-        data: err,
-      });
+      res.json({ status: "no", data: err });
     });
 });
+
+// app.post("/api/createdoc", Helper.authenticateTokenTest, async (req, res) => {
+//   var Action = req.body.Action;
+
+//   // res.end({ status: "yes", data: "עובד על הקבצים אח שלי" });
+//   let [docData, docID] = req.body.data;
+//   let logArrey = [];
+//   tableSorting
+//     .jsonToInvoice(docData)
+//     .then(async (sortedTable) => {
+//       for (let i = 0; i <= sortedTable.length - 1; i++) {
+//         await documentCreator
+//           .createDoc(JSON.parse(sortedTable[i]), docID, i)
+//           .then(
+//             async (docOutPut) =>
+//               await Helper.createRetJson(docOutPut, i, Action)
+//           )
+//           .then((docResult) => logArrey.push(docResult));
+//       }
+//     })
+//     .then(() => mgHelper.saveDocURL(logArrey))
+//     .then((result) => res.json({ status: "yes", data: result }))
+
+//     .catch((err) => {
+//       console.log(`catch in main loop...\n ${err}`);
+//       res.json({
+//         status: "no",
+//         data: err,
+//       });
+//     });
+// });
 
 app.post(
   "/api/getrecords",
