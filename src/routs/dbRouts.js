@@ -17,12 +17,16 @@ console.log(dbUrl);
 DBrouter.use(express.json());
 DBrouter.use(bodyParser.urlencoded({ extended: true }));
 DBrouter.use(bodyParser.json());
-const fetchData = async (data, reqUrl, actionHeader) => {
+
+const fetchData = async (req, reqUrl, actionHeader) => {
+  const data = await req.body;
+  const authHeader = req.headers["authorization"];
   let options = {
     url: `${dbUrl}${reqUrl}`,
     method: "POST",
     headers: {
       "Content-Type": "application/json;charset=UTF-8",
+      Authorization: authHeader,
       ForcedAction: actionHeader ? actionHeader : null,
     },
     data: data,
@@ -35,9 +39,8 @@ DBrouter.post(
   Helper.authenticateToken,
   async (req, res) => {
     const testMsg = req.testMsg;
-    const data = await req.body;
 
-    fetchData(data, "/api/loadmatrixes")
+    fetchData(req, "/api/loadmatrixes")
       .then((result) => res.send(testMsg ? { result, testMsg } : { result }))
       .catch((e) => res.send(e));
   }
@@ -45,9 +48,8 @@ DBrouter.post(
 
 DBrouter.post("/api/saveMatrix", Helper.authenticateToken, async (req, res) => {
   const testMsg = req.testMsg;
-  const data = await req.body;
 
-  fetchData(data, "/api/savematrix")
+  fetchData(req, "/api/savematrix")
     .then((result) => res.send(testMsg ? { result, testMsg } : { result }))
     .catch((e) => res.send(e));
 });
@@ -58,9 +60,8 @@ DBrouter.post(
   Helper.authenticateToken,
   async (req, res) => {
     const testMsg = req.testMsg;
-    const data = await req.body;
 
-    fetchData(data, "/api/loadDocUrls")
+    fetchData(req, "/api/loadDocUrls")
       .then((result) => res.send(testMsg ? { result, testMsg } : { result }))
       .catch((e) => res.send(e));
   }
@@ -68,27 +69,26 @@ DBrouter.post(
 
 DBrouter.post("/api/getData", Helper.authenticateToken, async (req, res) => {
   const testMsg = req.testMsg;
-  const data = await req.body;
 
-  fetchData(data, "/api/getdata")
+  fetchData(req, "/api/getdata")
     .then((result) => res.send(testMsg ? { result, testMsg } : { result }))
     .catch((e) => res.send(e));
 });
 
 DBrouter.post("/api/Register", Helper.authenticateToken, async (req, res) => {
   const testMsg = req.testMsg;
-  const data = await req.body;
-  fetchData(data, "/api/register")
+
+  fetchData(req, "/api/register")
     .then((result) => res.send(testMsg ? { result, testMsg } : { result }))
     .catch((e) => res.send(e));
 });
 
 DBrouter.post("/api/setConfig", Helper.authenticateToken, async (req, res) => {
   const testMsg = req.testMsg;
-  const data = await req.body;
+
   const actionHeader = req.headers["forcedaction"];
   console.log("in matrix ui set config", data);
-  fetchData(data, "/api/setConfig", actionHeader)
+  fetchData(req, "/api/setConfig", actionHeader)
     .then((result) => {
       console.log("result in fetch %%%%", result);
       let resultData = result;
@@ -102,10 +102,10 @@ DBrouter.post(
   Helper.authenticateToken,
   async (req, res) => {
     const testMsg = req.testMsg;
-    const data = await req.body;
+
     const actionHeader = req.headers["forcedaction"];
     console.log("in matrix ui erp config ", data);
-    fetchData(data, "/api/setErpConfig", actionHeader)
+    fetchData(req, "/api/setErpConfig", actionHeader)
       .then((result) => {
         console.log("result in fetch %%%%", result);
         let resultData = result.data;

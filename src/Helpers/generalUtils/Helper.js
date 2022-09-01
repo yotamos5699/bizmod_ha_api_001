@@ -40,10 +40,23 @@ const authenticateTokenTest = (req, res, next) => {
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
     if (err) return res.sendStatus(403);
-    req.user = user;
+    req.user =  user ;
     next();
   });
 };
+// {
+//   fetchedData: {
+//     status: 'yes',
+//     configObj: {
+//       usserID: [Object],
+//       DefaultDriver: [Object],
+//       DocumentDef: [Object],
+//       PremissionMtx: [Object]
+//     },
+//     userID: '62fd0ceeedbc87baf3979757'
+//   },
+//   iat: 1662022559
+// }
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
@@ -63,22 +76,25 @@ const authenticateToken = (req, res, next) => {
         status: 403,
         msg: "***** in test mode ***** no token in header",
       };
+      console.log(user);
       next();
       return;
     }
     req.testMsg = { status: 200 };
-    req.user = user;
+    req.user =  user;
+    console.log(user);
     next();
   });
 };
 
-const createRetJson = async (answer, index, Action) => {
+const createRetJson = async (answer, index, Action, userID) => {
   console.log(
     `CreateRetJson function !! \n number doc ${index} \n ${JSON.stringify(
       answer
     )}`
   );
   ret = {
+    userID: userID,
     DocumentIssuedStatus: answer[0]["DocumentIssuedStatus"],
     ValueDate: answer[0]["DocumentDetails"][0][0]["ValueDate"],
     DocumentDefID: answer[0]["DocumentDetails"][0][0]["DocumentID"],
