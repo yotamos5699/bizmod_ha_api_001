@@ -6,6 +6,7 @@ var fs = require("fs");
 const path = require("path");
 const Helper = require("../../generalUtils/Helper");
 const defultReports = require("./filencryption");
+const e = require("express");
 
 //const defultReports = Helper.readJsonFILE('wizCloudUtiles/apiInterface/filencryption');
 //const defultReports = undefined;
@@ -26,20 +27,14 @@ try {
   };
 } catch (err) {
   console.dir(err);
+  return err;
 }
 
 async function exportRecords(reqData, privetKey) {
   console.log("~~~~~~~~~~~~~~~~~ in flex docs ~~~~~~~~~~~~~~~~~~");
-  if (defultReports == undefined)
-    return {
-      Detailes: "error in fetching defultReports data",
-    };
-
-  //console.log("filedata" + fileData);
-  // jsondata = await reportsCreator.exportRecords(userKey, req.body.TID)
+  if (defultReports == undefined) return "error in fetching defultReports data";
 
   let fileData = reqData.TID;
-  // console.log("file data  DDFDFDFDFD   " + JSON.stringify(fileData));
   let sortKey = await reqData.sortKey;
   let Warehouse = "";
   fileData == "1" ? (Warehouse = reqData.Warehouse) : (Warehouse = null);
@@ -47,13 +42,11 @@ async function exportRecords(reqData, privetKey) {
   const { usserDbname, usserServerName, usserPrivetKey } =
     await getCredential.getCastumersCred("1111");
 
-  //console.log({ usserDbname, usserServerName, usserPrivetKey });
-
   let myDBname = usserDbname;
   try {
     wizlib.init(usserPrivetKey, usserServerName);
   } catch (e) {
-    console.log(e);
+    return e;
   }
 
   let reportCod, parameters;
@@ -83,10 +76,11 @@ async function exportRecords(reqData, privetKey) {
 
   let resArrey = [];
   if (fileData == "1") {
-    treeData = JSON.parse(treeData);
-    // console.log(JSON.stringify(treeData, null, 2));
-    // console.log(JSON.stringify(apiRes, null, 2));
-    // console.log(treeData.repdata)
+    try {
+      treeData = JSON.parse(treeData);
+    } catch (e) {
+      return e;
+    }
 
     treeData.repdata.forEach((treeDataRow) => {
       let record = {};
@@ -123,17 +117,7 @@ async function exportRecords(reqData, privetKey) {
   });
 
   let jsondata = resArrey.length > 0 ? newArrey : apiRes.repdata;
-
-  // console.log(jsondata)
-  // console.log("jsondata " + jsondata)
   const data = JSON.stringify(jsondata, null, 2);
-
-  // fs.writeFile(path.resolve(__dirname, "./lastItemsCall.json"), data, (err) => {
-  //   if (err) throw err;
-  //   // console.log(err, "See resaults in myApiRes.txt");
-  // });
-
-  // console.log("json.res  " + JSON.stringify(jsondata, null, 2))
 
   if (sortKey) {
     try {

@@ -39,8 +39,21 @@ app.post("/api/generatekey", async (req, res) => {
   res.send({ key: crypto.randomBytes(32).toString("hex") });
 });
 
+const progressBar = async (text, gotStats, currentDoc, totalDocs) => {
+  return {
+    stageName: text,
+    gotStats: gotStats,
+    stats: {
+      amountFinished: currentDoc ? currentDoc : 0,
+      totalToProcess: totalDocs ? totalDocs : 0,
+    },
+  };
+};
+
 app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
+  res.setHeader("Content-Type", "application/json");
+  let progressData = {};
   const matrixesData = await req.body;
   // console.log(matrixesData);
   const userID = await req.user.fetchedData.userID;
@@ -48,29 +61,72 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   let Action;
   let logArrey = [];
 
+  // progress bar
+  progressData = progressBar("מכין מטריצה לעיבוד", false);
+  res.status(202).write(JSON.stringify(progressData));
+
   matrixesHandeler
     .prererMatixesData(matrixesData)
     .then(async (result) => {
+      progressData = await progressBar("שומר תוכן מטריצות במסד נתונים", false);
+      res.status(202).write(JSON.stringify(progressData));
+      const dataToSave = await matrixesHandeler.constructMatrixToDbObjB(
+        matrixesData,
+        userID
+      );
+      const saveStatus = await Helper.saveMatrixesToDB(dataToSave);
+      console.log("save status !!!!!!!!!!!!!!!!\n", saveStatus);
+      const statusMsg =
+        saveStatus.resultData.status == "yes"
+          ? "נשמר בהצלחה"
+          : "תקלה בתהליך השמירה ";
+
+      progressData = await progressBar(statusMsg, false);
+      res.status(202).write(JSON.stringify(progressData));
+      return result;
+    })
+    .then(async (result) => {
       Action = result.ActionID;
       let data = result.data.docData;
-      console.log("************* data length **************\n", data.length);
+      const dataLength = data.length;
+      console.log("************* data length **************\n", dataLength);
       for (let i = 0; i <= data.length - 1; i++) {
         await documentCreator
           .createDoc(data[i], i)
-          .then(
-            async (docOutPut) =>
-              await Helper.createRetJson(docOutPut, i, Action, userID)
-          )
+          .then(async (docOutPut) => {
+            progressData = await progressBar(
+              "מפיק מסמך",
+              true,
+              i + 1,
+              dataLength
+            );
+            res.status(202).write(JSON.stringify(progressData));
+
+            return await Helper.createRetJson(docOutPut, i, Action, userID);
+          })
           .then((docResult) => logArrey.push(docResult));
       }
     })
-    .then(() => Helper.saveDocURL(logArrey))
-    .then((result) => res.json({ status: "yes", data: result }))
+    .then(async () => {
+      // progress bar
+      progressData = await progressBar("שומר תוצאות במסד הנתונים", false);
+      res.status(202).write(JSON.stringify(progressData));
+      // _______________________________________________________________//
+      return Helper.saveDocURL(logArrey);
+    })
+    .then((result) => {
+      res.status(200);
+      res.write(JSON.stringify({ status: "yes", data: result }));
+      res.end();
+    })
     .catch((err) => {
       console.log(`catch in main loop...\n ${err}`);
-      res.json({ status: "no", data: err });
+      res.status(200);
+      res.write(JSON.stringify({ status: "no", data: err }));
+      res.end();
     });
 });
+
 app.post(
   "/api/initvalidate",
   Helper.authenticateToken,
@@ -91,37 +147,6 @@ app.post(
     }
   }
 );
-
-// app.post("/api/createdoc", Helper.authenticateTokenTest, async (req, res) => {
-//   var ssAction = rsseq.body.Action;
-
-//   // res.end({ status: "yes", data: "עובד על הקבצים אח שלי" });
-//   let [docData, docID] = req.body.data;
-//   let logArrey = [];
-//   tableSorting
-//     .jsonToInvoice(docData)
-//     .then(async (sortedTable) => {
-//       for (let i = 0; i <= sortedTable.length - 1; i++) {
-//         await documentCreator
-//           .createDoc(JSON.parse(sortedTable[i]), docID, i)
-//           .then(
-//             async (docOutPut) =>
-//               await Helper.createRetJson(docOutPut, i, Action)
-//           )
-//           .then((docResult) => logArrey.push(docResult));
-//       }
-//     })
-//     .then(() => mgHelper.saveDocURL(logArrey))
-//     .then((result) => res.json({ status: "yes", data: result }))
-
-//     .catch((err) => {
-//       console.log(`catch in main loop...\n ${err}`);
-//       res.json({
-//         status: "no",
-//         data: err,
-//       });
-//     });
-// });
 
 app.post(
   "/api/getrecords",
@@ -156,11 +181,15 @@ app.post(
     if (jsondata) {
       validationMsg = Helper.checkDataValidation(jsondata, [1, 2]);
     }
-    res.json({
-      status: jsondata ? "yes" : "no",
-      data: JSON.stringify(jsondata),
-      validationError: validationMsg ? validationMsg : null,
-    });
+    res
+      .json({
+        status: jsondata ? "yes" : "no",
+        data: JSON.stringify(jsondata),
+        validationError: validationMsg ? validationMsg : null,
+      })
+      .catch((e) => {
+        res.send({ status: "no", data: e });
+      });
   }
 );
 

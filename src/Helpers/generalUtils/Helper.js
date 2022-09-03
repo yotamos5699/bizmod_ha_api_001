@@ -20,7 +20,7 @@ const fetchData = async (data, reqUrl) => {
 
 const saveDocURL = async (docsArrey) => {
   console.log(
-    "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ in matrix ui erp config $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ ",
+    "$$$$$$$$$$$$$$$$$ in saveDocURLg $$$$$$$$$$$$$$$$$$\n ",
     docsArrey
   );
   return await fetchData(docsArrey, "/api/saveDocs")
@@ -32,6 +32,16 @@ const saveDocURL = async (docsArrey) => {
     .catch((e) => e);
 };
 
+const saveMatrixesToDB = async (obj) => {
+  console.log("$$$$$$$$$$$$$$$ in  saveMatrixesToDB $$$$$$$$$$$$$$$\n", obj);
+  return await fetchData(obj, "/api/saveMatrix")
+    .then((result) => {
+      console.log("result in fetch %%%%", result);
+      let resultData = result;
+      return { resultData };
+    })
+    .catch((e) => e);
+};
 const authenticateTokenTest = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -40,7 +50,7 @@ const authenticateTokenTest = (req, res, next) => {
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
     if (err) return res.sendStatus(403);
-    req.user =  user ;
+    req.user = user;
     next();
   });
 };
@@ -81,7 +91,7 @@ const authenticateToken = (req, res, next) => {
       return;
     }
     req.testMsg = { status: 200 };
-    req.user =  user;
+    req.user = user;
     console.log(user);
     next();
   });
@@ -257,6 +267,8 @@ const sortReportData = (reportData, sortKey) => {
   return updatedData;
 };
 
+
+module.exports.saveMatrixesToDB = saveMatrixesToDB
 module.exports.saveDocURL = saveDocURL;
 module.exports.authenticateToken = authenticateToken;
 module.exports.constructNewUserCred = constructNewUserCred;
