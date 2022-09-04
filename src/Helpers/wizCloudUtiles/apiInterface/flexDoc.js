@@ -56,6 +56,7 @@ async function exportRecords(reqData, privetKey) {
     [reportCod, parameters] = docHash[fileData][0];
   } else if (fileData == "2") {
     [reportCod, parameters] = docHash[fileData];
+    console.log("file data ", fileData);
   }
 
   let apiRes = await wizlib.exportDataRecords(myDBname, {
