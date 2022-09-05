@@ -61,7 +61,7 @@ DBrouter.post(
   async (req, res) => {
     const testMsg = req.testMsg;
 
-    fetchData(req, "/api/loadmatrixes")
+    fetchData(req, "/api/deleteData")
       .then((result) => res.send(testMsg ? { result, testMsg } : { result }))
       .catch((e) => res.send(e));
   }
