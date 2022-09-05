@@ -32,8 +32,10 @@ const saveDocURL = async (docsArrey) => {
     .catch((e) => e);
 };
 
-const saveMatrixesToDB = async (obj) => {
+const saveMatrixesToDB = async (obj, isbi) => {
   console.log("$$$$$$$$$$$$$$$ in  saveMatrixesToDB $$$$$$$$$$$$$$$\n", obj);
+  obj.isBI = await isbi;
+  console.log(obj);
   return await fetchData(obj, "/api/saveMatrix")
     .then((result) => {
       console.log("result in fetch %%%%", result);
@@ -267,8 +269,7 @@ const sortReportData = (reportData, sortKey) => {
   return updatedData;
 };
 
-
-module.exports.saveMatrixesToDB = saveMatrixesToDB
+module.exports.saveMatrixesToDB = saveMatrixesToDB;
 module.exports.saveDocURL = saveDocURL;
 module.exports.authenticateToken = authenticateToken;
 module.exports.constructNewUserCred = constructNewUserCred;

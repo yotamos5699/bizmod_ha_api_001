@@ -74,7 +74,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
         matrixesData,
         userID
       );
-      const saveStatus = await Helper.saveMatrixesToDB(dataToSave);
+      const saveStatus = await Helper.saveMatrixesToDB(dataToSave,true);
       console.log("save status !!!!!!!!!!!!!!!!\n", saveStatus);
       const statusMsg =
         saveStatus.resultData.status == "yes"

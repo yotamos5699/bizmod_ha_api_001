@@ -1,11 +1,18 @@
 //const {mainMatrix, changesMatrix} = require('../../../mockData')
-
+// {
+//   Date: '2022-09-05T12:49:41.284Z',
+//   matrixID: '126aattttt634',
+//   martixName: '126aattttt634',
+//   userID: '62fd0ceeedbc87baf3979757',
+//   matrixesData: '{"mainMatrix":{"matrixID":"126aattttt634","ActionID":321,"AccountKey":["6259","6304"],"DocumentID":[1,1],"DriverID":["6259","62594"],"ActionAutho":["Default","Default"],"itemsHeaders":["HI250SA","HI250SA","BB100SA","XP100SA"],"cellsData":[[0,2,4,6],[3,5,1,7]]},"changesMatrix":{"matrixConfig":null,"matrixGlobalData":null,"cellsData":[[null,{"DiscountPrc":3},null,null],[null,null,null,null]],"docData":[{"Remarks":"לתשלום עד ה 3.4.23","Address":"מנחם בגין 169"},{"Details":"בדיקה ל DETAILES"}],"metaData":[{"Details":"לקוח לא משלם במסירה"},null]}}',
+//   counter: 0,
+//   _id: '6315f0653ae43a29edc09c46',
+//   innerLog: [],
+//   createdAt: '2022-09-05T12:49:41.535Z',
+//   updatedAt: '2022-09-05T12:49:41.535Z',
+//   __v: 0
+// }
 const constructMatrixToDbObj = async ({ matrixesData }, userID, martixName) => {
-  const mData = [
-    JSON.stringify(matrixesData.mainMatrix),
-    JSON.stringify(matrixesData.changesMatrix),
-  ];
-
   console.log(
     "&&&&&&&&&&&&&&&&&& matrixes data in constructor &&&&&&&&&&&&&&&&&&&&\n",
     matrixesData.mainMatrix
@@ -16,7 +23,7 @@ const constructMatrixToDbObj = async ({ matrixesData }, userID, martixName) => {
     matrixID: matrixesData.mainMatrix.matrixID,
     martixName: martixName ? martixName : matrixesData.mainMatrix.matrixID,
     userID: userID,
-    matrixesData: mData,
+    matrixesData: matrixesData,
   };
 };
 

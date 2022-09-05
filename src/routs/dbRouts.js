@@ -6,6 +6,7 @@ require("dotenv").config();
 const dbUrl = "http://localhost:5000";
 const axios = require("axios");
 const Helper = require("../Helpers/generalUtils/Helper");
+const matrixesHandeler = require("../Helpers/wizCloudUtiles/helpers/calcKi");
 
 DBrouter.use(
   cors({
@@ -20,7 +21,14 @@ DBrouter.use(bodyParser.json());
 
 const fetchData = async (req, reqUrl, actionHeader) => {
   const data = await req.body;
+  if (reqUrl == "/api/saveMatrix") {
+    console.log(" in save matrix @@@@@@@@@@@@@@@@@@@@@@@")(
+      ({ data } = await matrixesHandeler.prererMatixesData({data}))
+    );
+  }
+
   const authHeader = req.headers["authorization"];
+  const Type = req.headers["type"]
   let options = {
     url: `${dbUrl}${reqUrl}`,
     method: "POST",
