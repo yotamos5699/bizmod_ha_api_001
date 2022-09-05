@@ -54,6 +54,18 @@ DBrouter.post(
   }
 );
 
+
+DBrouter.post(
+  "/api/deleteData",
+  Helper.authenticateToken,
+  async (req, res) => {
+    const testMsg = req.testMsg;
+
+    fetchData(req, "/api/loadmatrixes")
+      .then((result) => res.send(testMsg ? { result, testMsg } : { result }))
+      .catch((e) => res.send(e));
+  }
+);
 DBrouter.post("/api/saveMatrix", Helper.authenticateToken, async (req, res) => {
   const testMsg = req.testMsg;
 

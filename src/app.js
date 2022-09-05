@@ -52,7 +52,19 @@ const progressBar = async (text, gotStats, currentDoc, totalDocs) => {
 
 app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
-  res.setHeader("Content-Type", "application/json");
+
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream; charset=UTF-8",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+    "Transfer-Encoding": "chunked",
+  });
+  // res.setHeader("Content-Type", "application/json",
+
+  // 'Cache-Control': 'no-cache',
+  //   'Connection': 'keep-alive',
+  //   'Transfer-Encoding': 'chunked'
+  // );
   let progressData = {};
   const matrixesData = await req.body;
   // console.log(matrixesData);
@@ -74,7 +86,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
         matrixesData,
         userID
       );
-      const saveStatus = await Helper.saveMatrixesToDB(dataToSave,true);
+      const saveStatus = await Helper.saveMatrixesToDB(dataToSave, true);
       console.log("save status !!!!!!!!!!!!!!!!\n", saveStatus);
       const statusMsg =
         saveStatus.resultData.status == "yes"
