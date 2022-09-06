@@ -15,6 +15,12 @@ const reportsCreator = require("./Helpers/wizCloudUtiles/apiInterface/flexDoc");
 const Helper = require("./Helpers/generalUtils/Helper");
 const calcki = require("./Helpers/wizCloudUtiles/helpers/calcKi");
 const matrixesHandeler = require("./Helpers/wizCloudUtiles/helpers/calcKi");
+app.use(
+  cors({
+    origin: "*",
+  })
+);
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.json());
@@ -24,11 +30,7 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.use(
-  cors({
-    origin: "*",
-  })
-);
+
 
 app.use(express.json());
 app.listen(PORT, (err) =>
