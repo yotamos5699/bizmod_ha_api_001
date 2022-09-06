@@ -1,4 +1,4 @@
-node_modules
+node_modules/
 apiConfig.js
 src/examples
 myApiRes.txt
