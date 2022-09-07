@@ -8,12 +8,12 @@ const PORT = process.env.PORT || 3000;
 const cors = require(`cors`);
 const bodyParser = require("body-parser");
 const DBrouter = require("./routs/dbRouts");
-const db = require("./routs/dbRouts");
-const tableSorting = require("./Helpers/wizCloudUtiles/helpers/tablesorting");
+//const db = require("./routs/dbRouts");
+//const tableSorting = require("./Helpers/wizCloudUtiles/helpers/tablesorting");
 const documentCreator = require(`./Helpers/wizCloudUtiles/apiInterface/DocumentCreator`);
 const reportsCreator = require("./Helpers/wizCloudUtiles/apiInterface/flexDoc");
 const Helper = require("./Helpers/generalUtils/Helper");
-const calcki = require("./Helpers/wizCloudUtiles/helpers/calcKi");
+//const calcki = require("./Helpers/wizCloudUtiles/helpers/calcKi");
 const matrixesHandeler = require("./Helpers/wizCloudUtiles/helpers/calcKi");
 app.use(
   cors({
