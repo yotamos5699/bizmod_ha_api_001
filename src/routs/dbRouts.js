@@ -3,7 +3,10 @@ const DBrouter = express.Router();
 const cors = require(`cors`);
 const bodyParser = require("body-parser");
 require("dotenv").config();
-const dbUrl = "http://localhost:5000";
+const dbUrl =
+  process.env.DBport ||
+  "https://bizmod-db-server.herokuapp.com" ||
+  "http://localhost:5000";
 const axios = require("axios");
 const Helper = require("../Helpers/generalUtils/Helper");
 const matrixesHandeler = require("../Helpers/wizCloudUtiles/helpers/calcKi");
@@ -23,12 +26,12 @@ const fetchData = async (req, reqUrl, actionHeader) => {
   const data = await req.body;
   if (reqUrl == "/api/saveMatrix") {
     console.log(" in save matrix @@@@@@@@@@@@@@@@@@@@@@@")(
-      ({ data } = await matrixesHandeler.prererMatixesData({data}))
+      ({ data } = await matrixesHandeler.prererMatixesData({ data }))
     );
   }
 
   const authHeader = req.headers["authorization"];
-  const Type = req.headers["type"]
+  const Type = req.headers["type"];
   let options = {
     url: `${dbUrl}${reqUrl}`,
     method: "POST",
@@ -54,18 +57,13 @@ DBrouter.post(
   }
 );
 
+DBrouter.post("/api/deleteData", Helper.authenticateToken, async (req, res) => {
+  const testMsg = req.testMsg;
 
-DBrouter.post(
-  "/api/deleteData",
-  Helper.authenticateToken,
-  async (req, res) => {
-    const testMsg = req.testMsg;
-
-    fetchData(req, "/api/deleteData")
-      .then((result) => res.send(testMsg ? { result, testMsg } : { result }))
-      .catch((e) => res.send(e));
-  }
-);
+  fetchData(req, "/api/deleteData")
+    .then((result) => res.send(testMsg ? { result, testMsg } : { result }))
+    .catch((e) => res.send(e));
+});
 DBrouter.post("/api/saveMatrix", Helper.authenticateToken, async (req, res) => {
   const testMsg = req.testMsg;
 

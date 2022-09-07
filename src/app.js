@@ -8,13 +8,19 @@ const PORT = process.env.PORT || 4001;
 const cors = require(`cors`);
 const bodyParser = require("body-parser");
 const DBrouter = require("./routs/dbRouts");
-const db = require("./routs/dbRouts");
-const tableSorting = require("./Helpers/wizCloudUtiles/helpers/tablesorting");
+//const db = require("./routs/dbRouts");
+//const tableSorting = require("./Helpers/wizCloudUtiles/helpers/tablesorting");
 const documentCreator = require(`./Helpers/wizCloudUtiles/apiInterface/DocumentCreator`);
 const reportsCreator = require("./Helpers/wizCloudUtiles/apiInterface/flexDoc");
 const Helper = require("./Helpers/generalUtils/Helper");
-const calcki = require("./Helpers/wizCloudUtiles/helpers/calcKi");
+//const calcki = require("./Helpers/wizCloudUtiles/helpers/calcKi");
 const matrixesHandeler = require("./Helpers/wizCloudUtiles/helpers/calcKi");
+app.use(
+  cors({
+    origin: "*",
+  })
+);
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.json());
@@ -24,11 +30,7 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.use(
-  cors({
-    origin: "*",
-  })
-);
+
 
 app.use(express.json());
 app.listen(PORT, (err) =>
