@@ -198,12 +198,16 @@ const updateJsonFILE = async (fileName, newData) => {
   return data;
 };
 
-const checkDataValidation = (jsonData, columArrey) => {
+const checkDataValidation = async (jsonData, columArrey) => {
   let errorLog = [];
   let error = {};
   columArrey = [1, 2, 3];
-  let headers = Object.keys(jsonData[0]);
-
+  let headers;
+  try {
+    headers = Object.keys(jsonData[0]);
+  } catch (e) {
+    return e;
+  }
   jsonData.forEach((row, outindex) => {
     let rowIndex = [];
     columArrey.forEach((column, index) => {
@@ -234,7 +238,7 @@ const checkDataValidation = (jsonData, columArrey) => {
   console.log(
     `**************************** Error Log ****************************\n `
   );
-  console.table(res);
+  //console.table(res);
 
   return res;
 };

@@ -2,19 +2,37 @@
 const crypto = require("crypto");
 const express = require("express");
 const app = express();
-//const mgHelper = require("../not in use files/DBs/dbFiles/mgHelper");
 const fs = require("fs");
 const PORT = process.env.PORT || 3000;
 const cors = require(`cors`);
 const bodyParser = require("body-parser");
 const DBrouter = require("./routs/dbRouts");
-//const db = require("./routs/dbRouts");
-//const tableSorting = require("./Helpers/wizCloudUtiles/helpers/tablesorting");
 const documentCreator = require(`./Helpers/wizCloudUtiles/apiInterface/DocumentCreator`);
 const reportsCreator = require("./Helpers/wizCloudUtiles/apiInterface/flexDoc");
 const Helper = require("./Helpers/generalUtils/Helper");
-//const calcki = require("./Helpers/wizCloudUtiles/helpers/calcKi");
 const matrixesHandeler = require("./Helpers/wizCloudUtiles/helpers/calcKi");
+const uri =
+  "mongodb+srv://yotamos:linux6926@cluster0.zj6wiy3.mongodb.net/mtxlog?retryWrites=true&w=majority";
+const mongoose = require("mongoose");
+const { report } = require("./routs/dbRouts");
+const MGoptions = { useNewUrlParser: true, useUnifiedTopology: true };
+mongoose
+  .connect(uri, MGoptions)
+  .then((res) => console.log("conected to mongo...."))
+  .catch((e) => console.log(e));
+
+const storedReports = new mongoose.Schema(
+  {
+    userID: String,
+    Date: Date,
+    ID: String,
+    Report: Object,
+  },
+  { timestamps: true, strict: true, strictQuery: false }
+);
+
+const StoredReports = mongoose.model("StoredReports", storedReports);
+
 app.use(
   cors({
     origin: "*",
@@ -29,8 +47,6 @@ app.use(DBrouter);
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
-
-
 
 app.use(express.json());
 app.listen(PORT, (err) =>
@@ -61,21 +77,14 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
     Connection: "keep-alive",
     "Transfer-Encoding": "chunked",
   });
-  // res.setHeader("Content-Type", "application/json",
 
-  // 'Cache-Control': 'no-cache',
-  //   'Connection': 'keep-alive',
-  //   'Transfer-Encoding': 'chunked'
-  // );
   let progressData = {};
   const matrixesData = await req.body;
-  // console.log(matrixesData);
   const userID = await req.user.fetchedData.userID;
   console.log("sssssssssssssssssssssssssssssssssssssssssssss", userID);
   let Action;
   let logArrey = [];
 
-  // progress bar
   progressData = progressBar("מכין מטריצה לעיבוד", false);
   res.status(202).write(JSON.stringify(progressData));
 
@@ -167,39 +176,87 @@ app.post(
   Helper.authenticateToken,
   async function (req, res) {
     console.log("~~~~~~~~~~~~~ getrecords ~~~~~~~~~~~~~~~~~");
-    let jsondata;
+    const userID = await req.user.fetchedData.userID;
+    let searchData;
+    let isNew;
+    let isSended = false;
     let reportData = await req.body;
+
+    StoredReports.find({ ID: JSON.stringify(reportData), userID: userID })
+      .then(async (report) => {
+        report.length == 0 ? (isNew = true) : (isNew = false);
+        searchData = report;
+        console.log("sssssssssssssssssssssssssssssssssss\n", report[0]._doc);
+        const currentTime = new Date().getTime();
+        const reportTime = new Date(report[0]._doc.Date).getTime();
+        console.table({ currentTime, reportTime });
+        if (currentTime - reportTime < 1000 * 1800) {
+          isSended = true;
+          let validationMsg = await Helper.checkDataValidation(
+            report[0]._doc.Report.jsondata,
+            [1, 2]
+          );
+          res.send({
+            status: report[0].Report ? "yes from fast DB" : "no",
+            data: JSON.stringify(report[0]._doc.Report.jsondata),
+            validationError: validationMsg ? validationMsg : null,
+          });
+        }
+      })
+      .catch((e) => console.log(e));
     console.log(reportData);
     let userKey = req.headers.authorization;
-    // if (userKey == "Bearer 1111") {
-    console.log("passs if");
-    try {
-      console.log(reportData.TID);
-      reportData.TID != "4"
-        ? (jsondata = await reportsCreator.exportRecords(reportData, userKey))
-        : (jsondata = await reportsCreator.exportRecords(reportData, userKey));
-    } catch (err) {
-      console.dir(
-        `error on prosses  ${err} \n request info \n ${JSON.stringify(
-          req.body
-        )}`
-      );
-      console.debug(err);
-      res.send({ status: "no", data: e });
-    }
 
-    let validationMsg = null;
-    if (jsondata) {
-      validationMsg = Helper.checkDataValidation(jsondata, [1, 2]);
-    }
-    res.send({
-      status: jsondata ? "yes" : "no",
-      data: JSON.stringify(jsondata),
-      validationError: validationMsg ? validationMsg : null,
-    });
-    // .catch((e) => {
-    //   res.send({ status: "no", data: e });
-    // });
+    console.log(reportData.TID);
+    if (reportData.TID != "4")
+      reportsCreator
+        .exportRecords(reportData, userKey)
+        .then(async (jsondata) => {
+          // console.log(jsondata);
+          let validationMsg = await Helper.checkDataValidation(
+            jsondata,
+            [1, 2]
+          );
+          return { jsondata, validationMsg };
+        })
+        .then((jsondata, validationMsg) => {
+          const reportObject = {
+            userID: userID,
+            Date: new Date(),
+            ID: JSON.stringify(reportData),
+            Report: jsondata,
+          };
+          const report = new StoredReports(reportObject);
+          //  console.log(`SEARCH Daa ++ \n ${searchData}`);
+          isNew
+            ? report
+                .save()
+                .then((data) => {
+                  console.log(" is new save ", data);
+                })
+                .catch((e) => {
+                  console.log(e);
+                })
+            : StoredReports.updateOne(
+                { ID: JSON.stringify(reportData) },
+                {
+                  $set: { ...reportObject, id: searchData._id },
+                }
+              )
+                .then((result) => console.log(result))
+                .catch((e) => console.log(e));
+          !isSended
+            ? res.send({
+                status: jsondata ? "yes from slow DB" : "no",
+                data: JSON.stringify(jsondata),
+                validationError: validationMsg ? validationMsg : null,
+              })
+            : console.log("updating report");
+        })
+        .catch((e) => {
+          console.debug(e);
+          !isSended && res.send({ status: "no", data: e });
+        });
   }
 );
 
@@ -213,185 +270,3 @@ app.post("/api/test", async function (req, res) {
     console.dir(err);
   }
 });
-
-// app.post("/api/calcki", async function (req, res) {
-//   let reqData = await req.body;
-//   if (reqData.FID == "1") {
-//     console.log(`print if pass${reqData.FID}`);
-//     try {
-//       let table = await calcki.joinMatrixes(
-//         JSON.parse(reqData.matrixesData),
-//         reqData.trimData
-//       );
-//       res.json(JSON.stringify(table));
-//     } catch (err) {
-//       console.log(`error on prosses  ${err} \n request info }`);
-//     }
-//   } else if (reqData.Type == "2") {
-//     try {
-//       let documents = await tableSorting.jsonToInvoice(reqData.data);
-//       res.json(JSON.stringify(documents));
-//     } catch (err) {
-//       console.log(
-//         `error on prosses  ${err} \n request info \n ${JSON.stringify(req)}`
-//       );
-//     }
-//   }
-// });
-// let obj = {
-//   "NewDocumentStockID": 776,
-//   "DocumentIssuedStatus": "OK",
-//   "DocumentDetails": [
-//     [{
-//       "StockID": 776,
-//       "DocumentID": 1,
-//       "DocNumber": 2134,
-//       "status": 1,
-//       "AccountKey": "200090",
-//       "accountname": "אלזם אור",
-//       "Address": "מנחם בגין 63",
-//       "City": null,
-//       "Phone": null,
-//       "batch": 9999,
-//       "ValueDate": "2022-06-21",
-//       "duedate": "2022-06-21",
-//       "paydate": "2022-06-21",
-//       "copies": 2,
-//       "DiscountPrc": 0,
-//       "Tftal": 93.6,
-//       "vatprc": 17,
-//       "tftalvatfree": 0,
-//       "tftalvat": 80,
-//       "reference": null,
-//       "remarks": null,
-//       "printstyle": 1,
-//       "Details": null,
-//       "Agent": 0,
-//       "currency": "ש\"ח",
-//       "rate": null,
-//       "mainrate": 1,
-//       "issuedate": "2022-06-21"
-//     }],
-//     [{
-//       "StockID": 776,
-//       "moveid": 1594,
-//       "itemkey": "BB100SA",
-//       "itemname": "גת בייבי",
-//       "Warehouse": 1,
-//       "Agent": 0,
-//       "Details": null,
-//       "duedate": "2022-06-21",
-//       "status": 1,
-//       "CurrencyCode": "ש\"ח",
-//       "rate": 1,
-//       "Price": 40,
-//       "Quantity": 1,
-//       "Tftal": 40,
-//       "DiscountPrc": 0
-//     },
-//     {
-//       "StockID": 776,
-//       "moveid": 1595,
-//       "itemkey": "XR100SA",
-//       "itemname": "גת XR",
-//       "Warehouse": 1,
-//       "Agent": 0,
-//       "Details": null,
-//       "duedate": "2022-06-21",
-//       "status": 1,
-//       "CurrencyCode": "ש\"ח",
-//       "rate": 1,
-//       "Price": 40,
-//       "Quantity": 1,
-//       "Tftal": 40,
-//       "DiscountPrc": 0
-//     },
-//     {
-//       "StockID": 776,
-//       "moveid": 1596,
-//       "itemkey": "XP",
-//       "itemname": "גת XP מוצר אב",
-//       "Warehouse": 1,
-//       "Agent": 0,
-//       "Details": null,
-//       "duedate": "2022-06-21",
-//       "status": 1,
-//       "CurrencyCode": "ש\"ח",
-//       "rate": 1,
-//       "Price": 200,
-//       "Quantity": 0.1,
-//       "Tftal": 20,
-//       "DiscountPrc": 0
-//     },
-//     {
-//       "StockID": 776,
-//       "moveid": 1597,
-//       "itemkey": "BAGXP",
-//       "itemname": "שקית לגת XP",
-//       "Warehouse": 1,
-//       "Agent": 0,
-//       "Details": null,
-//       "duedate": "2022-06-21",
-//       "status": 1,
-//       "CurrencyCode": "ש\"ח",
-//       "rate": 1,
-//       "Price": 20,
-//       "Quantity": 1,
-//       "Tftal": 20,
-//       "DiscountPrc": 0
-//     }
-//     ]
-//   ],
-//   "urlDoc": "https://hash11n3.wizcloud.co.il/IWIZ/HTM8D4_wizdb2394n5_776_2927829802.pdf"
-// }
-
-// // function myFunction() {
-
-// //   let ret = {
-// //     "NewDocumentStockID": obj.NewDocumentStockID,
-// //     "DocumentIssuedStatus": obj.DocumentIssuedStatus,
-// //     "AccountKey": obj.DocumentDetails[0][0].AccountKey,
-// //     "accountname": obj.DocumentDetails[0][0].accountname,
-// //     "urldoc": obj.urlDoc
-
-// //   }
-
-// //   Logger.log(ret)
-// // }
-
-// let data =
-// [{ "AccountKey": 6107, "ItemKey": "BB100SA", "Quantity": 2 },
-//  { "AccountKey": 6107, "ItemKey": "XP100SA", "Quantity": 4 },
-//   { "AccountKey": 6107, "ItemKey": "XR100SA", "Quantity": 3 },
-//    { "AccountKey": 6107, "ItemKey": "SP250SA", "Quantity": 4 },
-// { "AccountKey": 6201, "ItemKey": "HI250SA", "Quantity": 5 },
-//  { "AccountKey": 6201, "ItemKey": "KI250SA", "Quantity": 10 }]
-// var options = {
-//   // If omitted there is no default timeout on endpoints
-//   timeout: 3000,
-
-//   // Optional. This function will be called on a timeout and it MUST
-//   // terminate the request.
-//   // If omitted the module will end the request with a default 503 error.
-
-//   onTimeout: function (req, res) {
-//     res.status(503).send("Service unavailable. Please retry.");
-//   },
-//   onDelayedResponse: function (req, method, args, requestTime) {
-//     console.log(`Attempted to call ${method} after timeout`);
-//   },
-//   disable: ["write", "setHeaders", "send", "json", "end"],
-// };
-// let logMsg = docReturnArrey
-// ? "*********** Doc Arrey is 'OK' ************"
-// : "*********** Doc Arre is 'NULL' ***********";
-
-// console.log(`************************Doc response arrey*********************
-//        \n  ***************************************************************\n
-//        ${logMsg}`);
-// try {
-// rr = await Helper.updateJsonFILE("castumersInvoiceUrls", docReturnArrey);
-// } catch (e) {
-// console.log(e);
-// }
-// console.log(JSON.stringify(rr));
