@@ -176,21 +176,31 @@ app.post(
   Helper.authenticateToken,
   async function (req, res) {
     console.log("~~~~~~~~~~~~~ getrecords ~~~~~~~~~~~~~~~~~");
-    const userID = await req.user.fetchedData.userID;
+    console.log(req.user);
+
+    let userID;
+    try {
+      userID = await req.user.fetchedData.userID;
+    } catch (e) {
+      
+      return res.send({ status: "no", data: e });
+    }
+
     let searchData;
     let isNew;
     let isSended = false;
-    let reportData = await req.body;
-
+    const reportData = await req.body;
+    const UPDATE_TIME_INTERVAL = 1000 * 1800;
     StoredReports.find({ ID: JSON.stringify(reportData), userID: userID })
       .then(async (report) => {
         report.length == 0 ? (isNew = true) : (isNew = false);
         searchData = report;
         console.log("sssssssssssssssssssssssssssssssssss\n", report[0]._doc);
+
         const currentTime = new Date().getTime();
         const reportTime = new Date(report[0]._doc.Date).getTime();
         console.table({ currentTime, reportTime });
-        if (currentTime - reportTime < 1000 * 1800) {
+        if (currentTime - reportTime < UPDATE_TIME_INTERVAL) {
           isSended = true;
           let validationMsg = await Helper.checkDataValidation(
             report[0]._doc.Report.jsondata,
@@ -207,56 +217,57 @@ app.post(
     console.log(reportData);
     let userKey = req.headers.authorization;
 
-    console.log(reportData.TID);
-    if (reportData.TID != "4")
-      reportsCreator
-        .exportRecords(reportData, userKey)
-        .then(async (jsondata) => {
-          // console.log(jsondata);
-          let validationMsg = await Helper.checkDataValidation(
-            jsondata,
-            [1, 2]
-          );
-          return { jsondata, validationMsg };
-        })
-        .then((jsondata, validationMsg) => {
-          const reportObject = {
-            userID: userID,
-            Date: new Date(),
-            ID: JSON.stringify(reportData),
-            Report: jsondata,
-          };
-          const report = new StoredReports(reportObject);
-          //  console.log(`SEARCH Daa ++ \n ${searchData}`);
-          isNew
-            ? report
-                .save()
-                .then((data) => {
-                  console.log(" is new save ", data);
+    reportData.TID != "4"
+      ? reportsCreator
+          .exportRecords(reportData, userKey)
+          .then(async (jsondata) => {
+            // console.log(jsondata);
+            let validationMsg = await Helper.checkDataValidation(
+              jsondata,
+              [1, 2]
+            );
+            return { jsondata, validationMsg };
+          })
+          .then((jsondata, validationMsg) => {
+            const reportObject = {
+              userID: userID,
+              Date: new Date(),
+              ID: JSON.stringify(reportData),
+              Report: jsondata,
+            };
+            const report = new StoredReports(reportObject);
+
+            isNew
+              ? report
+                  .save()
+                  .then((data) => {
+                    console.log(" is new save ", data);
+                  })
+                  .catch((e) => {
+                    console.log(e);
+                  })
+              : StoredReports.updateOne(
+                  { ID: JSON.stringify(reportData) },
+                  {
+                    $set: { ...reportObject, id: searchData._id },
+                  }
+                )
+                  .then((result) => console.log(result))
+                  .catch((e) => console.log(e));
+
+            !isSended
+              ? res.send({
+                  status: jsondata ? "yes from slow DB" : "no",
+                  data: JSON.stringify(jsondata),
+                  validationError: validationMsg ? validationMsg : null,
                 })
-                .catch((e) => {
-                  console.log(e);
-                })
-            : StoredReports.updateOne(
-                { ID: JSON.stringify(reportData) },
-                {
-                  $set: { ...reportObject, id: searchData._id },
-                }
-              )
-                .then((result) => console.log(result))
-                .catch((e) => console.log(e));
-          !isSended
-            ? res.send({
-                status: jsondata ? "yes from slow DB" : "no",
-                data: JSON.stringify(jsondata),
-                validationError: validationMsg ? validationMsg : null,
-              })
-            : console.log("updating report");
-        })
-        .catch((e) => {
-          console.debug(e);
-          !isSended && res.send({ status: "no", data: e });
-        });
+              : console.log("updating report");
+          })
+          .catch((e) => {
+            console.debug(e);
+            !isSended && res.send({ status: "no", data: e });
+          })
+      : console.log("*** castum Reports Section ***");
   }
 );
 
