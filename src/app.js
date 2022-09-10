@@ -177,6 +177,7 @@ app.post(
   async function (req, res) {
     console.log("~~~~~~~~~~~~~ getrecords ~~~~~~~~~~~~~~~~~");
     console.log("req is", req)
+    console.log("req.user", req.user)
     const userID = await req.user.fetchedData.userID;
     let searchData;
     let isNew;

@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const dbUrl =
   process.env.DBport ||
-  "https://bizmod-db-server.herokuapp.com" ||
+  // "https://bizmod-db-server.herokuapp.com" ||
   "http://localhost:5000";
 const axios = require("axios");
 
