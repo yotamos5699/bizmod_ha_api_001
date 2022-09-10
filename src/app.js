@@ -176,14 +176,17 @@ app.post(
   Helper.authenticateToken,
   async function (req, res) {
     console.log("~~~~~~~~~~~~~ getrecords ~~~~~~~~~~~~~~~~~");
-    console.log(req.user);
+    console.log("^^^^user^^^\n ", req.user);
+    console.log("^^^^user.user id \n ", req.user.userID);
 
     let userID;
     try {
-      userID = await req.user.fetchedData.userID;
+      userID = (await req.user?.fetchedData?.userID)
+        ? req.user.fetchedData.userID
+        : req.user.userID;
+      console.log("userID", userID);
     } catch (e) {
-      
-      return res.send({ status: "no", data: e });
+      return res.send({ status: "no", data: JSON.stringify(e) });
     }
 
     let searchData;
@@ -236,7 +239,7 @@ app.post(
               Report: jsondata,
             };
             const report = new StoredReports(reportObject);
-
+            console.log("&&& searchData &&&& \n", searchData);
             isNew
               ? report
                   .save()
