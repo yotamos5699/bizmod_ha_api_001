@@ -80,16 +80,22 @@ const progressBar = async (text, gotStats, currentDoc, totalDocs) => {
 app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
 
-  res.writeHead(200, {
-    // "Content-Type": "text/event-stream; charset=UTF-8",
-    // "Cache-Control": "no-cache",
-    // Connection: "keep-alive",
-    // "Transfer-Encoding": "chunked",
-  });
+  res.setHeader("content-type", "application/json");
 
   let progressData = {};
   const matrixesData = await req.body;
-  const userID = await req.user.fetchedData.userID;
+  let userID;
+  try {
+    userID = (await req.user?.fetchedData?.userID)
+      ? req.user.fetchedData.userID
+      : req.user.userID;
+    console.log("userID", userID);
+  } catch (e) {
+    return res.send({
+      status: `no, user id invalid value ${userID}`,
+      data: JSON.stringify(e),
+    });
+  }
   console.log("sssssssssssssssssssssssssssssssssssssssssssss", userID);
   let Action;
   let logArrey = [];
