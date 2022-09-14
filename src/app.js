@@ -227,14 +227,16 @@ app.post(
             report[0]._doc.Report.jsondata,
             [1, 2]
           );
-          console.log("data sended to lient !!!!!!!!!!!!!!!!!!!!!!!!!!!");
-          res.send({
-            status: report[0].Report
-              ? "yes from fast DB"
-              : `no, report data invalid value ${report[0].Report} `,
-            data: JSON.stringify(report[0]._doc.Report.jsondata),
-            validationError: validationMsg ? validationMsg : null,
-          });
+          console.log("data sended to client ");
+          if (!isNew) {
+            res.send({
+              status: report[0].Report
+                ? "yes from fast DB"
+                : `no, report data invalid value ${report[0].Report} `,
+              data: JSON.stringify(report[0]._doc.Report.jsondata),
+              validationError: validationMsg ? validationMsg : null,
+            });
+          }
         }
       })
       .catch((e) => console.log(e));
