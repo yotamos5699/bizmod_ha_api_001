@@ -90,6 +90,7 @@ DBrouter.post("/api/getData", Helper.authenticateToken, async (req, res) => {
 
   fetchData(req, "/api/getdata")
     .then((result) => res.send(testMsg ? { result, testMsg } : { result }))
+
     .catch((e) => res.send(e));
 });
 
