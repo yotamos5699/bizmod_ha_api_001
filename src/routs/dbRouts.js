@@ -3,10 +3,8 @@ const DBrouter = express.Router();
 const cors = require(`cors`);
 const bodyParser = require("body-parser");
 require("dotenv").config();
-const dbUrl =
-  process.env.DBport ||
-  // "https://bizmod-db-server.herokuapp.com" ||
-  "http://localhost:5000";
+
+const dbUrl = process.env.DBport || "http://localhost:5000";
 const axios = require("axios");
 const Helper = require("../Helpers/generalUtils/Helper");
 const matrixesHandeler = require("../Helpers/wizCloudUtiles/helpers/calcKi");
@@ -87,7 +85,6 @@ DBrouter.post(
 
 DBrouter.post("/api/getData", Helper.authenticateToken, async (req, res) => {
   const testMsg = req.testMsg;
-
   fetchData(req, "/api/getdata")
     .then((result) => res.send(testMsg ? { result, testMsg } : { result }))
     .catch((e) => res.send(e));

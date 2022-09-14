@@ -1,4 +1,13 @@
 // *************** MAIN APP SERVER *************ss**
+/*
+++ remove db call in bi data. insted deliver the items names from ui
+++ regular async functions on start
+   
+   * update items/castumers report
+   * check prems
+
+
+*/
 const crypto = require("crypto");
 const express = require("express");
 const app = express();
@@ -72,10 +81,10 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
 
   res.writeHead(200, {
-    "Content-Type": "text/event-stream; charset=UTF-8",
-    "Cache-Control": "no-cache",
-    Connection: "keep-alive",
-    "Transfer-Encoding": "chunked",
+    // "Content-Type": "text/event-stream; charset=UTF-8",
+    // "Cache-Control": "no-cache",
+    // Connection: "keep-alive",
+    // "Transfer-Encoding": "chunked",
   });
 
   let progressData = {};
@@ -186,7 +195,10 @@ app.post(
         : req.user.userID;
       console.log("userID", userID);
     } catch (e) {
-      return res.send({ status: "no", data: JSON.stringify(e) });
+      return res.send({
+        status: `no, user id invalid value ${userID}`,
+        data: JSON.stringify(e),
+      });
     }
 
     let searchData;
@@ -209,8 +221,11 @@ app.post(
             report[0]._doc.Report.jsondata,
             [1, 2]
           );
+          console.log("data sended to lient !!!!!!!!!!!!!!!!!!!!!!!!!!!");
           res.send({
-            status: report[0].Report ? "yes from fast DB" : "no",
+            status: report[0].Report
+              ? "yes from fast DB"
+              : `no, report data invalid value ${report[0].Report} `,
             data: JSON.stringify(report[0]._doc.Report.jsondata),
             validationError: validationMsg ? validationMsg : null,
           });
@@ -260,7 +275,9 @@ app.post(
 
             !isSended
               ? res.send({
-                  status: jsondata ? "yes from slow DB" : "no",
+                  status: jsondata
+                    ? "yes from slow DB"
+                    : `no, NO JSON DATA IN SLOW DB VALUE ${jsondata}`,
                   data: JSON.stringify(jsondata),
                   validationError: validationMsg ? validationMsg : null,
                 })
@@ -268,7 +285,7 @@ app.post(
           })
           .catch((e) => {
             console.debug(e);
-            !isSended && res.send({ status: "no", data: e });
+            !isSended && res.send({ status: "no, IN CALL END ", data: e });
           })
       : console.log("*** castum Reports Section ***");
   }
