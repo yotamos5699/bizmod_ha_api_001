@@ -3,8 +3,12 @@ const DBrouter = express.Router();
 const cors = require(`cors`);
 const bodyParser = require("body-parser");
 require("dotenv").config();
+<<<<<<< HEAD
 
 const dbUrl = process.env.DBport || "http://localhost:4000";
+=======
+const dbUrl = "http://localhost:5000" //|| process.env.DBport;
+>>>>>>> ef27560e913a9750096f9c5d551cc9dd21948248
 const axios = require("axios");
 const Helper = require("../Helpers/generalUtils/Helper");
 const matrixesHandeler = require("../Helpers/wizCloudUtiles/helpers/calcKi");
