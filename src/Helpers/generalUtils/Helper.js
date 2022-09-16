@@ -100,7 +100,7 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-const createRetJson = async (answer, index, Action, userID) => {
+const createRetJson = async (answer, index, Action, userID, addedValue) => {
   console.log(
     `CreateRetJson function !! \n number doc ${index} \n ${JSON.stringify(
       answer
@@ -119,7 +119,7 @@ const createRetJson = async (answer, index, Action, userID) => {
     Address: answer[0]["DocumentDetails"][0][0]["Address"],
     DocumentDetails: answer[0]["DocumentDetails"][0][0]["Phone"],
     DocUrl: answer[0]["urlDoc"],
-    Action: Action,
+    Action: Action + addedValue,
     SigStat: { isSigned: false },
   };
   return ret;

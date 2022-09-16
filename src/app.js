@@ -82,6 +82,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
 
   res.setHeader("content-type", "application/json");
 
+  let addedValue;
   let progressData = {};
   const matrixesData = await req.body;
   let userID;
@@ -132,6 +133,8 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
         await documentCreator
           .createDoc(data[i], i)
           .then(async (docOutPut) => {
+            if (i == 0)
+              addedValue = docOutPut[0]["DocumentDetails"][0][0]["DocNumber"];
             progressData = await progressBar(
               "מפיק מסמך",
               true,
@@ -140,7 +143,13 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
             );
             res.status(202).write(JSON.stringify(progressData));
 
-            return await Helper.createRetJson(docOutPut, i, Action, userID);
+            return await Helper.createRetJson(
+              docOutPut,
+              i,
+              Action,
+              userID,
+              addedValue
+            );
           })
           .then((docResult) => logArrey.push(docResult));
       }
