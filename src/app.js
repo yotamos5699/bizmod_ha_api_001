@@ -221,7 +221,7 @@ app.post(
     let isSended = false;
     const reportData = await req.body;
     const UPDATE_TIME_INTERVAL = 1000 * 1800;
-    StoredReports.find({ ID: JSON.stringify(reportData), userID: userID })
+    await StoredReports.find({ ID: JSON.stringify(reportData), userID: userID })
       .then(async (report) => {
         report.length == 0 ? (isNew = true) : (isNew = false);
         searchData = report;
@@ -238,11 +238,12 @@ app.post(
           );
           console.log("data sended to client ");
           if (!isNew) {
+            let jsonData = report[0]._doc.Report.jsondata;
             res.send({
               status: report[0].Report
                 ? "yes from fast DB"
                 : `no, report data invalid value ${report[0].Report} `,
-              data: JSON.stringify(report[0]._doc.Report.jsondata),
+              data: jsonData,
               validationError: validationMsg ? validationMsg : null,
             });
           }
@@ -295,7 +296,7 @@ app.post(
                   status: jsondata
                     ? "yes from slow DB"
                     : `no, NO JSON DATA IN SLOW DB VALUE ${jsondata}`,
-                  data: JSON.stringify(jsondata),
+                  data: jsondata.jsondata,
                   validationError: validationMsg ? validationMsg : null,
                 })
               : console.log("updating report");

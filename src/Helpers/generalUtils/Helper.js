@@ -3,8 +3,8 @@ const fs = require("fs");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const dbUrl =
-  process.env.DBport ||  "http://localhost:4000";
+
+const dbUrl = process.env.DBport || "http://localhost:4000";
 const axios = require("axios");
 
 const fetchData = async (data, reqUrl) => {
