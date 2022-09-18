@@ -85,6 +85,7 @@ async function exportRecords(reqData, privetKey) {
 
     treeData.repdata.forEach((treeDataRow) => {
       let record = {};
+      
       apiRes.repdata.forEach((itemsDataRow) => {
         if (itemsDataRow["מפתח פריט"] == treeDataRow["מפתח פריט אב"]) {
           record = itemsDataRow;

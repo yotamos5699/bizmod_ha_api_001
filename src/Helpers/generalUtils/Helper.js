@@ -32,9 +32,12 @@ const saveDocURL = async (docsArrey) => {
     .catch((e) => e);
 };
 
-const saveMatrixesToDB = async (obj, isbi) => {
+const saveMatrixesToDB = async (obj, isTrue) => {
   console.log("$$$$$$$$$$$$$$$ in  saveMatrixesToDB $$$$$$$$$$$$$$$\n", obj);
-  obj.isBI = await isbi;
+  let bool = await isTrue;
+  obj.isProduced = bool;
+  obj.isInitiated = bool;
+  obj.isBI = bool;
   console.log(obj);
   return await fetchData(obj, "/api/saveMatrix")
     .then((result) => {
@@ -238,7 +241,6 @@ const checkDataValidation = async (jsonData, columnToValidate) => {
       }
     });
   });
-
 
   return errorLog ? errorLog : "no errors to show";
 };

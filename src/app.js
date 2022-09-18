@@ -200,8 +200,7 @@ app.post(
   Helper.authenticateToken,
   async function (req, res) {
     console.log("~~~~~~~~~~~~~ getrecords ~~~~~~~~~~~~~~~~~");
-    console.log("^^^^user^^^\n ", req.user);
-    console.log("^^^^user.user id \n ", req.user.userID);
+
 const columnToValidate =await req.body.columnToValidate
     let userID;
     try {
