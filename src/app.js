@@ -59,7 +59,7 @@ app.get("/", (req, res) => {
 
 app.use(express.json());
 app.listen(PORT, (err) =>
-  console.log(`server ${err ? " on" : "listening"} port` + PORT)
+  console.log(`matrix UI server ${err ? " on" : "listening"} port ${PORT}`)
 );
 //close cyrcle function
 app.post("/api/generatekey", async (req, res) => {
@@ -202,7 +202,7 @@ app.post(
     console.log("~~~~~~~~~~~~~ getrecords ~~~~~~~~~~~~~~~~~");
     console.log("^^^^user^^^\n ", req.user);
     console.log("^^^^user.user id \n ", req.user.userID);
-
+const columnToValidate =await req.body.columnToValidate
     let userID;
     try {
       userID = (await req.user?.fetchedData?.userID)
@@ -216,6 +216,7 @@ app.post(
       });
     }
 
+
     let searchData;
     let isNew;
     let isSended = false;
@@ -226,7 +227,7 @@ app.post(
         report.length == 0 ? (isNew = true) : (isNew = false);
         searchData = report;
         const DATA_TO_log = report[0]._doc;
-        console.log({ DATA_TO_log });
+       // console.log({ DATA_TO_log });
 
         if (!isNew) {
           const currentTime = new Date().getTime();
@@ -236,7 +237,7 @@ app.post(
             isSended = true;
             let validationMsg = await Helper.checkDataValidation(
               report[0]._doc.Report.jsondata,
-              [1, 2]
+              columnToValidate
             );
             console.log("data sended to client ");
 
@@ -252,7 +253,7 @@ app.post(
         }
       })
       .catch((e) => console.log(e));
-    console.log(reportData);
+   // console.log(reportData);
 
     let userKey = req.headers.authorization;
     reportData.TID != "4"
@@ -273,7 +274,7 @@ app.post(
               Report: jsondata,
             };
             const report = new StoredReports(reportObject);
-            console.log("&&& searchData &&&& \n", searchData);
+         //   console.log("&&& searchData &&&& \n", searchData);
             isNew
               ? report
                   .save()

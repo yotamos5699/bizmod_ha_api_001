@@ -1,2 +1,11 @@
 {
+    "explorer.compactFolders": true,
+    "explorer.confirmDragAndDrop": true,
+    "explorer.decorations.badges": true,
+    "explorer.enableDragAndDrop": true,
+    "explorer.expandSingleFolderWorkspaces": true,
+    "explorer.fileNesting.expand": true,
+    "vscode-postgres.showExplorer": true,
+    "testing.followRunningTest": true,
+    "git.decorations.enabled": true
 }

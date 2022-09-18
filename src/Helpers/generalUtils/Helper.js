@@ -195,49 +195,52 @@ const updateJsonFILE = async (fileName, newData) => {
   return data;
 };
 
-const checkDataValidation = async (jsonData, columArrey) => {
+const checkDataValidation = async (jsonData, columnToValidate) => {
   let errorLog = [];
   let error = {};
-  columArrey = [1, 2, 3];
+  columArrey = await columnToValidate;
   let headers;
   try {
     headers = Object.keys(jsonData[0]);
   } catch (e) {
     return e;
   }
-  jsonData.forEach((row, outindex) => {
-    let rowIndex = [];
-    columArrey.forEach((column, index) => {
-      jsonData.forEach((inrow, inindex) => {
-        if (outindex != index) {
-          if (row[headers[column - 1]] == inrow[headers[column - 1]]) {
-            rowIndex
-              ? rowIndex.push(inindex)
-              : rowIndex.push(outindex, inindex);
-          }
+
+  if (!columArrey) return null;
+  jsonData.forEach((tableRecord, tableRecoedIndex) => {
+    let rowsIndexes = [];
+
+    columArrey.forEach((columnNumber) => {
+      for (let i = tableRecoedIndex + 1; i <= jsonData.length - 1; i++) {
+        //  let length = jsonData.length;
+        //     console.log({ i, tableRecoedIndex, length });
+        //  let j = jsonData[i];
+
+        // console.log({ tableRecord, j });
+        if (
+          tableRecord[headers[columnNumber - 1]] ==
+            jsonData[i][headers[columnNumber - 1]] &&
+          tableRecord[headers[columnNumber - 1]] != null
+        ) {
+          rowsIndexes.length > 0
+            ? rowsIndexes.push(i)
+            : rowsIndexes.push(tableRecoedIndex, i);
         }
-      });
-      if (rowIndex.length > 1) {
+      }
+      if (rowsIndexes.length > 0) {
         error = {
           "סוג תקלה": "תקלת כפל מידע",
-          "בשורות ": `${rowIndex} `,
-          "בכותרת ": ` ${headers[column - 1]}`,
-          "ערך ": `${row[headers[column - 1]]}`,
+          "בשורות ": `${rowsIndexes} `,
+          "בכותרת ": ` ${headers[columnNumber - 1]}`,
+          "ערך ": `${tableRecord[headers[columnNumber - 1]]}`,
         };
         errorLog.push(error);
       }
-      rowIndex = [];
     });
   });
 
-  let res = errorLog ? errorLog : null;
 
-  console.log(
-    `**************************** Error Log ****************************\n `
-  );
-  //console.table(res);
-
-  return res;
+  return errorLog ? errorLog : "no errors to show";
 };
 
 //checkDataValidation();
