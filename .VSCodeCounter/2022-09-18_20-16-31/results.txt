@@ -1,0 +1,46 @@
+Date : 2022-09-18 20:16:31
+Directory : c:\Users\win-10\Desktop\code\hashavhevet api\src
+Total : 15 files,  1443 codes, 210 comments, 183 blanks, all 1836 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| JavaScript |         10 |      1,207 |        210 |        171 |      1,588 |
+| JSON       |          5 |        236 |          0 |         12 |        248 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++---------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                    | files      | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                       |         15 |      1,443 |        210 |        183 |      1,836 |
+| Helpers                                                                                                 |         10 |        730 |        100 |        115 |        945 |
+| Helpers\generalUtils                                                                                    |          1 |        239 |         21 |         32 |        292 |
+| Helpers\wizCloudUtiles                                                                                  |          9 |        491 |         79 |         83 |        653 |
+| Helpers\wizCloudUtiles\apiInterface                                                                     |          5 |        255 |         45 |         47 |        347 |
+| Helpers\wizCloudUtiles\helpers                                                                          |          4 |        236 |         34 |         36 |        306 |
+| routs                                                                                                   |          2 |        152 |         84 |         32 |        268 |
++---------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++---------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                                                | language   | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| c:\Users\win-10\Desktop\code\hashavhevet api\src\Helpers\generalUtils\Helper.js                         | JavaScript |        239 |         21 |         32 |        292 |
+| c:\Users\win-10\Desktop\code\hashavhevet api\src\Helpers\wizCloudUtiles\apiInterface\DocumentCreator.js | JavaScript |         73 |         10 |         11 |         94 |
+| c:\Users\win-10\Desktop\code\hashavhevet api\src\Helpers\wizCloudUtiles\apiInterface\castum_reports.js  | JavaScript |         31 |         11 |          7 |         49 |
+| c:\Users\win-10\Desktop\code\hashavhevet api\src\Helpers\wizCloudUtiles\apiInterface\filencryption.json | JSON       |         40 |          0 |          6 |         46 |
+| c:\Users\win-10\Desktop\code\hashavhevet api\src\Helpers\wizCloudUtiles\apiInterface\flexDoc.js         | JavaScript |        111 |         24 |         22 |        157 |
+| c:\Users\win-10\Desktop\code\hashavhevet api\src\Helpers\wizCloudUtiles\apiInterface\lastItemsCall.json | JSON       |          0 |          0 |          1 |          1 |
+| c:\Users\win-10\Desktop\code\hashavhevet api\src\Helpers\wizCloudUtiles\helpers\apiConfig.json          | JSON       |         24 |          0 |          5 |         29 |
+| c:\Users\win-10\Desktop\code\hashavhevet api\src\Helpers\wizCloudUtiles\helpers\calcKi.js               | JavaScript |        110 |         16 |         12 |        138 |
+| c:\Users\win-10\Desktop\code\hashavhevet api\src\Helpers\wizCloudUtiles\helpers\getCred.js              | JavaScript |         44 |          4 |          9 |         57 |
+| c:\Users\win-10\Desktop\code\hashavhevet api\src\Helpers\wizCloudUtiles\helpers\tablesorting.js         | JavaScript |         58 |         14 |         10 |         82 |
+| c:\Users\win-10\Desktop\code\hashavhevet api\src\app.js                                                 | JavaScript |        282 |         16 |         25 |        323 |
+| c:\Users\win-10\Desktop\code\hashavhevet api\src\castumersInvoiceUrls.json                              | JSON       |        159 |          0 |          0 |        159 |
+| c:\Users\win-10\Desktop\code\hashavhevet api\src\mockData.js                                            | JavaScript |        120 |         10 |         11 |        141 |
+| c:\Users\win-10\Desktop\code\hashavhevet api\src\routs\dbRouts.js                                       | JavaScript |        139 |         84 |         32 |        255 |
+| c:\Users\win-10\Desktop\code\hashavhevet api\src\routs\matrixDbJson.json                                | JSON       |         13 |          0 |          0 |         13 |
+| Total                                                                                                   |            |      1,443 |        210 |        183 |      1,836 |
++---------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
