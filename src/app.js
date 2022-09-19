@@ -59,7 +59,7 @@ app.get("/", (req, res) => {
 
 app.use(express.json());
 app.listen(PORT, (err) =>
-  console.log(`server ${err ? " on" : "listening"} port` + PORT)
+  console.log(`matrix UI server ${err ? " on" : "listening"} port ${PORT}`)
 );
 //close cyrcle function
 app.post("/api/generatekey", async (req, res) => {
@@ -200,9 +200,8 @@ app.post(
   Helper.authenticateToken,
   async function (req, res) {
     console.log("~~~~~~~~~~~~~ getrecords ~~~~~~~~~~~~~~~~~");
-    console.log("^^^^user^^^\n ", req.user);
-    console.log("^^^^user.user id \n ", req.user.userID);
 
+const columnToValidate =await req.body.columnToValidate
     let userID;
     try {
       userID = (await req.user?.fetchedData?.userID)
@@ -216,6 +215,7 @@ app.post(
       });
     }
 
+
     let searchData;
     let isNew;
     let isSended = false;
@@ -225,19 +225,21 @@ app.post(
       .then(async (report) => {
         report.length == 0 ? (isNew = true) : (isNew = false);
         searchData = report;
-        console.log("sssssssssssssssssssssssssssssssssss\n", report[0]._doc);
+        const DATA_TO_log = report[0]._doc;
+       // console.log({ DATA_TO_log });
 
-        const currentTime = new Date().getTime();
-        const reportTime = new Date(report[0]._doc.Date).getTime();
-        console.table({ currentTime, reportTime });
-        if (currentTime - reportTime < UPDATE_TIME_INTERVAL) {
-          isSended = true;
-          let validationMsg = await Helper.checkDataValidation(
-            report[0]._doc.Report.jsondata,
-            [1, 2]
-          );
-          console.log("data sended to client ");
-          if (!isNew) {
+        if (!isNew) {
+          const currentTime = new Date().getTime();
+          const reportTime = new Date(report[0]._doc.Date).getTime();
+          console.table({ currentTime, reportTime });
+          if (currentTime - reportTime < UPDATE_TIME_INTERVAL) {
+            isSended = true;
+            let validationMsg = await Helper.checkDataValidation(
+              report[0]._doc.Report.jsondata,
+              columnToValidate
+            );
+            console.log("data sended to client ");
+
             let jsonData = report[0]._doc.Report.jsondata;
             res.send({
               status: report[0].Report
@@ -250,21 +252,20 @@ app.post(
         }
       })
       .catch((e) => console.log(e));
-    console.log(reportData);
-    let userKey = req.headers.authorization;
+   // console.log(reportData);
 
+    let userKey = req.headers.authorization;
     reportData.TID != "4"
       ? reportsCreator
           .exportRecords(reportData, userKey)
           .then(async (jsondata) => {
-            // console.log(jsondata);
             let validationMsg = await Helper.checkDataValidation(
               jsondata,
               [1, 2]
             );
             return { jsondata, validationMsg };
           })
-          .then((jsondata, validationMsg) => {
+          .then(async (jsondata, validationMsg) => {
             const reportObject = {
               userID: userID,
               Date: new Date(),
@@ -272,7 +273,7 @@ app.post(
               Report: jsondata,
             };
             const report = new StoredReports(reportObject);
-            console.log("&&& searchData &&&& \n", searchData);
+         //   console.log("&&& searchData &&&& \n", searchData);
             isNew
               ? report
                   .save()
@@ -293,7 +294,7 @@ app.post(
 
             !isSended
               ? res.send({
-                  status: jsondata
+                  status: (await jsondata)
                     ? "yes from slow DB"
                     : `no, NO JSON DATA IN SLOW DB VALUE ${jsondata}`,
                   data: jsondata.jsondata,
