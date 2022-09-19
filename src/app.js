@@ -8,6 +8,11 @@
 
 
 */
+//const axios = require()
+//const Buffer = require("buffer");
+//const Buffer = require("node:buffer");
+const download = require("download");
+
 const crypto = require("crypto");
 const express = require("express");
 const app = express();
@@ -20,10 +25,13 @@ const documentCreator = require(`./Helpers/wizCloudUtiles/apiInterface/DocumentC
 const reportsCreator = require("./Helpers/wizCloudUtiles/apiInterface/flexDoc");
 const Helper = require("./Helpers/generalUtils/Helper");
 const matrixesHandeler = require("./Helpers/wizCloudUtiles/helpers/calcKi");
+const PDFMerger = require("pdf-merger-js");
 const uri =
   "mongodb+srv://yotamos:linux6926@cluster0.zj6wiy3.mongodb.net/mtxlog?retryWrites=true&w=majority";
 const mongoose = require("mongoose");
 const { report } = require("./routs/dbRouts");
+const { default: axios } = require("axios");
+const { Blob } = require("buffer");
 const MGoptions = { useNewUrlParser: true, useUnifiedTopology: true };
 mongoose
   .connect(uri, MGoptions)
@@ -48,10 +56,53 @@ app.use(
   })
 );
 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(DBrouter);
+
+app.post("/api/mergepdfs", Helper.authenticateToken, async (req, res) => {
+  console.log("%%%%%%%%%%% merge pdfs%%%%%%%%%");
+  res.contentType("application/pdf");
+  const pdfsObject = await req.body;
+  const Urls = await pdfsObject.map((doc) => doc.DocUrl);
+  const merger = new PDFMerger();
+  let Errors = [];
+
+  for (let i = 0; i <= Urls.length - 1; i++) {
+    console.log(Urls[i], typeof Urls[i]);
+
+    const url = Urls[i];
+
+    try {
+      fs.unlinkSync(`./${i}.pdf`);
+    } catch (err) {
+      console.log(err);
+    }
+    fs.writeFileSync(`./${i}.pdf`, await download(url));
+
+    try {
+      await merger.add(`./${i}.pdf`);
+    } catch (e) {
+      console.log(e);
+      Errors.push({
+        msg: e,
+        DocNumber: pdfsObject[i].DocNumber,
+      });
+    }
+  }
+  console.log(Errors);
+  // await merger.save("merged.pdf"); //save under given name and reset the internal document
+  await merger
+    .saveAsBuffer()
+    .then((mergedPdfBuffer) => {
+      fs.writeFileSync("./merged.pdf", mergedPdfBuffer);
+    })
+    .then(() => {
+      let Files = fs.readFileSync("./merged.pdf");
+      res.send(Files).end({ errors: Errors });
+    });
+});
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -201,7 +252,7 @@ app.post(
   async function (req, res) {
     console.log("~~~~~~~~~~~~~ getrecords ~~~~~~~~~~~~~~~~~");
 
-const columnToValidate =await req.body.columnToValidate
+    const columnToValidate = await req.body.columnToValidate;
     let userID;
     try {
       userID = (await req.user?.fetchedData?.userID)
@@ -215,7 +266,6 @@ const columnToValidate =await req.body.columnToValidate
       });
     }
 
-
     let searchData;
     let isNew;
     let isSended = false;
@@ -226,7 +276,7 @@ const columnToValidate =await req.body.columnToValidate
         report.length == 0 ? (isNew = true) : (isNew = false);
         searchData = report;
         const DATA_TO_log = report[0]._doc;
-       // console.log({ DATA_TO_log });
+        // console.log({ DATA_TO_log });
 
         if (!isNew) {
           const currentTime = new Date().getTime();
@@ -252,7 +302,7 @@ const columnToValidate =await req.body.columnToValidate
         }
       })
       .catch((e) => console.log(e));
-   // console.log(reportData);
+    // console.log(reportData);
 
     let userKey = req.headers.authorization;
     reportData.TID != "4"
@@ -273,7 +323,7 @@ const columnToValidate =await req.body.columnToValidate
               Report: jsondata,
             };
             const report = new StoredReports(reportObject);
-         //   console.log("&&& searchData &&&& \n", searchData);
+            //   console.log("&&& searchData &&&& \n", searchData);
             isNew
               ? report
                   .save()
