@@ -32,6 +32,7 @@ const mongoose = require("mongoose");
 const { report } = require("./routs/dbRouts");
 const { default: axios } = require("axios");
 const { Blob } = require("buffer");
+const { fileURLToPath } = require("url");
 const MGoptions = { useNewUrlParser: true, useUnifiedTopology: true };
 mongoose
   .connect(uri, MGoptions)
@@ -64,25 +65,36 @@ app.use(DBrouter);
 app.post("/api/mergepdfs", Helper.authenticateToken, async (req, res) => {
   console.log("%%%%%%%%%%% merge pdfs%%%%%%%%%");
   res.contentType("application/pdf");
-  const pdfsObject = await req.body;
+  let pdfsObject;
+  try {
+    pdfsObject = await req.body;
+  } catch (err) {
+    return res.send(err);
+  }
   const Urls = await pdfsObject.map((doc) => doc.DocUrl);
   const merger = new PDFMerger();
   let Errors = [];
 
   for (let i = 0; i <= Urls.length - 1; i++) {
     console.log(Urls[i], typeof Urls[i]);
-
-    const url = Urls[i];
-
-    try {
-      fs.unlinkSync(`./${i}.pdf`);
-    } catch (err) {
-      console.log(err);
+    let urlIsBrocken = false;
+    let Err;
+    await download(Urls[i])
+      .then((file) => {
+        fs.writeFileSync(`./${i}.pdf`, file);
+      })
+      .catch((err) => {
+        console.log(err);
+        Err = err;
+        urlIsBrocken = true;
+      });
+    if (urlIsBrocken) {
+      return res.send({ status: "no", data: "urls brocken getting 404" });
     }
-    fs.writeFileSync(`./${i}.pdf`, await download(url));
 
     try {
       await merger.add(`./${i}.pdf`);
+      fs.unlinkSync(`./${i}.pdf`);
     } catch (e) {
       console.log(e);
       Errors.push({
@@ -91,8 +103,8 @@ app.post("/api/mergepdfs", Helper.authenticateToken, async (req, res) => {
       });
     }
   }
-  console.log(Errors);
-  // await merger.save("merged.pdf"); //save under given name and reset the internal document
+  console.log("errors 2222222", Errors);
+
   await merger
     .saveAsBuffer()
     .then((mergedPdfBuffer) => {
@@ -100,8 +112,11 @@ app.post("/api/mergepdfs", Helper.authenticateToken, async (req, res) => {
     })
     .then(() => {
       let Files = fs.readFileSync("./merged.pdf");
-      res.send(Files).end({ errors: Errors });
-    });
+      console.log("after save merger !!!!!");
+      res.setHeader("errors", Errors);
+      res.send(Files);
+    })
+    .catch((err) => res.send({ status: "no", data: err }));
 });
 
 app.get("/", (req, res) => {
