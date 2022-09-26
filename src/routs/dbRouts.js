@@ -4,7 +4,7 @@ const cors = require(`cors`);
 const bodyParser = require("body-parser");
 require("dotenv").config();
 
-const dbUrl = process.env.DBport || "http://localhost:4000";
+const dbUrl = "http://localhost:4000" || process.env.DBport;
 const axios = require("axios");
 const Helper = require("../Helpers/generalUtils/Helper");
 const matrixesHandeler = require("../Helpers/wizCloudUtiles/helpers/calcKi");

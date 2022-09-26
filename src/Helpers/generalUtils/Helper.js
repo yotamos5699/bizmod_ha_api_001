@@ -4,15 +4,16 @@ const path = require("path");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-const dbUrl = process.env.DBport || "http://localhost:4000";
+const dbUrl = "http://localhost:4000" || process.env.DBport;
 const axios = require("axios");
 
-const fetchData = async (data, reqUrl) => {
+const fetchData = async (data, reqUrl, oauth) => {
   let options = {
     url: `${dbUrl}${reqUrl}`,
     method: "POST",
     headers: {
       "Content-Type": "application/json;charset=UTF-8",
+      authorization: oauth,
     },
     data: data,
   };
@@ -33,14 +34,14 @@ const saveDocURL = async (docsArrey) => {
     .catch((e) => e);
 };
 
-const saveMatrixesToDB = async (obj, isTrue) => {
+const saveMatrixesToDB = async (obj, isTrue, oauth) => {
   console.log("$$$$$$$$$$$$$$$ in  saveMatrixesToDB $$$$$$$$$$$$$$$\n", obj);
   let bool = await isTrue;
   obj.isProduced = bool;
   obj.isInitiated = bool;
   obj.isBI = bool;
   console.log(obj);
-  return await fetchData(obj, "/api/saveMatrix")
+  return await fetchData(obj, "/api/saveMatrix", oauth)
     .then((result) => {
       console.log("result in fetch %%%%", result);
       let resultData = result;
