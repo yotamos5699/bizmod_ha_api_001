@@ -13,7 +13,7 @@ const fetchData = async (data, reqUrl, oauth) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json;charset=UTF-8",
-      authorization: oauth,
+      authorization: oauth ? oauth : null,
     },
     data: data,
   };

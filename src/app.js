@@ -147,7 +147,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
 
   res.setHeader("content-type", "application/json");
-
+  let oauth = req.headers["authorization"];
   let addedValue;
   let progressData = {};
   const matrixesData = await req.body;
@@ -179,7 +179,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
         matrixesData,
         userID
       );
-      const saveStatus = await Helper.saveMatrixesToDB(dataToSave, true,req.headers["authorization"]);
+      const saveStatus = await Helper.saveMatrixesToDB(dataToSave, true, oauth);
       console.log("save status !!!!!!!!!!!!!!!!\n", saveStatus);
       const statusMsg =
         saveStatus.resultData.status == "yes"
