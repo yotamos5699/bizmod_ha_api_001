@@ -26,6 +26,7 @@ const reportsCreator = require("./Helpers/wizCloudUtiles/apiInterface/flexDoc");
 const Helper = require("./Helpers/generalUtils/Helper");
 const matrixesHandeler = require("./Helpers/wizCloudUtiles/helpers/calcKi");
 const PDFMerger = require("pdf-merger-js");
+const utfZone = "en";
 const uri =
   "mongodb+srv://yotamos:linux6926@cluster0.zj6wiy3.mongodb.net/mtxlog?retryWrites=true&w=majority";
 const mongoose = require("mongoose");
@@ -294,8 +295,12 @@ app.post(
         // console.log({ DATA_TO_log });
 
         if (!isNew) {
-          const currentTime = new Date().getTime();
-          const reportTime = new Date(report[0]._doc.Date).getTime();
+          const currentTime = new Date()
+            .toLocaleString(utfZone, { timeZone: "Asia/Jerusalem" })
+            .getTime();
+          const reportTime = new Date(report[0]._doc.Date)
+            .toLocaleString(utfZone, { timeZone: "Asia/Jerusalem" })
+            .getTime();
           console.table({ currentTime, reportTime });
           if (currentTime - reportTime < UPDATE_TIME_INTERVAL) {
             isSended = true;
@@ -333,7 +338,7 @@ app.post(
           .then(async (jsondata, validationMsg) => {
             const reportObject = {
               userID: userID,
-              Date: new Date(),
+              Date: new Date().toLocaleString(utfZone, { timeZone: "Asia/Jerusalem" }),
               ID: JSON.stringify(reportData),
               Report: jsondata,
             };
