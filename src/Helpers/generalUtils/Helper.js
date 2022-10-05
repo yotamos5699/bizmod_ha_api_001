@@ -3,45 +3,69 @@ const fs = require("fs");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-
+let utfZone = "en";
 const dbUrl = "http://localhost:4000" || process.env.DBport;
 const axios = require("axios");
 
-const fetchData = async (data, reqUrl, oauth) => {
+const fetchData = async (data, reqUrl) => {
   let options = {
     url: `${dbUrl}${reqUrl}`,
     method: "POST",
     headers: {
       "Content-Type": "application/json;charset=UTF-8",
-      authorization: oauth ? oauth : null,
+      authorization: data.headers?.authorization
+        ? data.headers.authorization
+        : null,
     },
-    data: data,
+    data: data.body ? data.body : data,
   };
   return axios(options).then((result) => result.data);
 };
 
-const saveDocURL = async (docsArrey) => {
-  console.log(
-    "$$$$$$$$$$$$$$$$$ in saveDocURLg $$$$$$$$$$$$$$$$$$\n ",
-    docsArrey
-  );
-  return await fetchData(docsArrey, "/api/saveDocs")
+const saveDocURL = async (docsArrey, oauth) => {
+  console.log({ docsArrey });
+  let body = await docsArrey;
+  let Oauth = await oauth;
+
+  let Req = {
+    headers: {
+      authorization: Oauth,
+    },
+    body: body,
+  };
+
+  return await fetchData(Req, "/api/saveDocs")
     .then((result) => {
       console.log("result in fetch %%%%", result);
       let resultData = result;
+      console.log({ resultData });
       return { resultData };
     })
-    .catch((e) => e);
+    .catch((e) => {
+      console.log("error in save doc url");
+      console.log(e);
+    });
 };
 
-const saveMatrixesToDB = async (obj, isTrue, oauth) => {
-  console.log("$$$$$$$$$$$$$$$ in  saveMatrixesToDB $$$$$$$$$$$$$$$\n", obj);
+const saveMatrixesToDB = async (req, isTrue) => {
+  //console.log("$$$$$$$$$$$$$$$ in  saveMatrixesToDB $$$$$$$$$$$$$$$\n", obj);
+  let body = await req.body;
+  console.log("!!! body in saveMatrixesToDB !!!", body);
+  let headers = await req.headers;
+  console.log("!!! headers in saveMatrixesToDB !!!", headers);
   let bool = await isTrue;
-  obj.isProduced = bool;
-  obj.isInitiated = bool;
-  obj.isBI = bool;
-  console.log(obj);
-  return await fetchData(obj, "/api/saveMatrix", oauth)
+  body["Date"] = new Date().toLocaleString(utfZone, {
+    timeZone: "Asia/Jerusalem",
+  });
+  body["isProduced"] = bool;
+  body["isInitiated"] = bool;
+  body["isBI"] = bool;
+
+  let Req = {};
+  Req["body"] = body;
+  Req["headers"] = headers;
+  console.log(Req);
+  return await fetchData(Req, "/api/saveMatrix")
     .then((result) => {
       console.log("result in fetch %%%%", result);
       let resultData = result;

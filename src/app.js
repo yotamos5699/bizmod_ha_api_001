@@ -176,11 +176,13 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
     .then(async (result) => {
       progressData = await progressBar("שומר תוכן מטריצות במסד נתונים", false);
       res.status(202).write(JSON.stringify(progressData));
-      const dataToSave = await matrixesHandeler.constructMatrixToDbObjB(
-        matrixesData,
-        userID
-      );
-      const saveStatus = await Helper.saveMatrixesToDB(dataToSave, true, oauth);
+      // const dataToSave = await matrixesHandeler.constructMatrixToDbObjB(
+      //   matrixesData,
+      //   userID
+      // );
+      const dataToSave = await matrixesHandeler.constructMatrixToDbObjB(req);
+      // console.log({ dataToSave });
+      const saveStatus = await Helper.saveMatrixesToDB(dataToSave, true);
       console.log("save status !!!!!!!!!!!!!!!!\n", saveStatus);
       const statusMsg =
         saveStatus.resultData.status == "yes"
@@ -226,7 +228,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
       progressData = await progressBar("שומר תוצאות במסד הנתונים", false);
       res.status(202).write(JSON.stringify(progressData));
       // _______________________________________________________________//
-      return Helper.saveDocURL(logArrey);
+      return await Helper.saveDocURL(logArrey, oauth);
     })
     .then((result) => {
       res.status(200);
@@ -338,7 +340,9 @@ app.post(
           .then(async (jsondata, validationMsg) => {
             const reportObject = {
               userID: userID,
-              Date: new Date().toLocaleString(utfZone, { timeZone: "Asia/Jerusalem" }),
+              Date: new Date().toLocaleString(utfZone, {
+                timeZone: "Asia/Jerusalem",
+              }),
               ID: JSON.stringify(reportData),
               Report: jsondata,
             };
