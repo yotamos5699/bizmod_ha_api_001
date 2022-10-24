@@ -85,19 +85,7 @@ const authenticateTokenTest = (req, res, next) => {
     next();
   });
 };
-// {
-//   fetchedData: {
-//     status: 'yes',
-//     configObj: {
-//       usserID: [Object],
-//       DefaultDriver: [Object],
-//       DocumentDef: [Object],
-//       PremissionMtx: [Object]
-//     },
-//     userID: '62fd0ceeedbc87baf3979757'
-//   },
-//   iat: 1662022559
-// }
+
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
