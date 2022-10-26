@@ -2,8 +2,8 @@
 //Must to configure private data on apiConfig.js file
 const wizlib = require("wizcloud-api");
 const getCredential = require("../helpers/getCred");
+const realUserID = "6358f8717dd95eceee53eac3";
 var fs = require("fs");
-
 const validateInitialData = async (
   usserDbname,
   usserPrivetKey,
@@ -17,12 +17,18 @@ const validateInitialData = async (
   }
 };
 
-async function createDoc(docData, index) {
+async function createDoc(docData, index, userID) {
   console.log(
     `creat doC startS doC num"${index}" data:\n ${JSON.stringify(docData)}`
   );
+
+  let ID;
+  if (userID == realUserID) {
+    console.log("ofek is connected");
+    ID = realUserID;
+  } else ID = "1111";
   const { usserDbname, usserServerName, usserPrivetKey } =
-    await getCredential.getCastumersCred("1111");
+    await getCredential.getCastumersCred(ID);
 
   // console.log(`usser db name++\n ${usserDbname} usser server name ++\n ${usserServerName} usser privet key ++\n ${usserPrivetKey}`)
 

@@ -1,15 +1,7 @@
 const crypto = require("crypto");
 const fs = require("fs");
-const { userInfo } = require("os");
-const path = require("path");
 const Helper = require("../../../Helpers/generalUtils/Helper");
 const aa = require("./apiConfig.json");
-// const mongoose = require("mongoose");
-// const { MtxLog, Users } = require("../../../../not in use files/DBs/dbObjects/MGschemas");
-
-const loadCastumersConfigData = async () => {
-  return JSON.parse(fs.readFileSync(path.resolve(__dirname, "")));
-};
 
 const getCastumersCred = async (key) => {
   let castumersConfig = aa;

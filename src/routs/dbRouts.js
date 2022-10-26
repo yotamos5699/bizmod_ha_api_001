@@ -90,7 +90,7 @@ DBrouter.post("/api/getData", Helper.authenticateToken, async (req, res) => {
     .catch((e) => res.send(e));
 });
 
-DBrouter.post("/api/Register", Helper.authenticateToken, async (req, res) => {
+DBrouter.post("/api/Register",  async (req, res) => {
   const testMsg = req.testMsg;
 
   fetchData(req, "/api/register")

@@ -200,7 +200,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
       console.log("************* data length **************\n", dataLength);
       for (let i = 0; i <= data.length - 1; i++) {
         await documentCreator
-          .createDoc(data[i], i)
+          .createDoc(data[i], i, userID)
           .then(async (docOutPut) => {
             if (i == 0)
               addedValue = docOutPut[0]["DocumentDetails"][0][0]["DocNumber"];
