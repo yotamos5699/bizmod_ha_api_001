@@ -294,15 +294,15 @@ app.post(
         report.length == 0 ? (isNew = true) : (isNew = false);
         searchData = report;
         const DATA_TO_log = report[0]._doc;
-        // console.log({ DATA_TO_log });
-
+        console.log("date in report", DATA_TO_log.Date);
+        
         if (!isNew) {
-          const currentTime = new Date()
-            .toLocaleString(utfZone, { timeZone: "Asia/Jerusalem" })
-            .getTime();
-          const reportTime = new Date(report[0]._doc.Date)
-            .toLocaleString(utfZone, { timeZone: "Asia/Jerusalem" })
-            .getTime();
+          const currentTime = new Date().getTime();
+          //.toLocaleString(utfZone, {
+          //   timeZone: "Asia/Jerusalem",
+          // }).getTime();
+
+          const reportTime = new Date(report[0]._doc.Date).getTime();
           console.table({ currentTime, reportTime });
           if (currentTime - reportTime < UPDATE_TIME_INTERVAL) {
             isSended = true;
@@ -326,10 +326,9 @@ app.post(
       .catch((e) => console.log(e));
     // console.log(reportData);
 
-    let userKey = req.headers.authorization;
     reportData.TID != "4"
       ? reportsCreator
-          .exportRecords(reportData, userKey)
+          .exportRecords(reportData, userID)
           .then(async (jsondata) => {
             let validationMsg = await Helper.checkDataValidation(
               jsondata,

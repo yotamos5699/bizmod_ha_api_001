@@ -7,7 +7,7 @@ const path = require("path");
 const Helper = require("../../generalUtils/Helper");
 const defultReports = require("./filencryption");
 const e = require("express");
-
+const realUserID = "6358f8717dd95eceee53eac3";
 //const defultReports = Helper.readJsonFILE('wizCloudUtiles/apiInterface/filencryption');
 //const defultReports = undefined;
 //console.log(defultReports);
@@ -30,7 +30,7 @@ try {
   return err;
 }
 
-async function exportRecords(reqData, privetKey) {
+async function exportRecords(reqData, userID) {
   console.log("~~~~~~~~~~~~~~~~~ in flex docs ~~~~~~~~~~~~~~~~~~");
   if (defultReports == undefined) return "error in fetching defultReports data";
 
@@ -39,8 +39,11 @@ async function exportRecords(reqData, privetKey) {
   let Warehouse = "";
   fileData == "1" ? (Warehouse = reqData.Warehouse) : (Warehouse = null);
 
+  let ID = (await userID) == realUserID ? realUserID : "1111";
+  if (ID != "1111") console.log("ofek is connected");
+  console.log({ID});
   const { usserDbname, usserServerName, usserPrivetKey } =
-    await getCredential.getCastumersCred("1111");
+    await getCredential.getCastumersCred(ID);
 
   let myDBname = usserDbname;
   try {
@@ -85,7 +88,7 @@ async function exportRecords(reqData, privetKey) {
 
     treeData.repdata.forEach((treeDataRow) => {
       let record = {};
-      
+
       apiRes.repdata.forEach((itemsDataRow) => {
         if (itemsDataRow["מפתח פריט"] == treeDataRow["מפתח פריט אב"]) {
           record = itemsDataRow;
