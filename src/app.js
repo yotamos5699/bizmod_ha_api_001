@@ -295,7 +295,7 @@ app.post(
         searchData = report;
         const DATA_TO_log = report[0]._doc;
         console.log("date in report", DATA_TO_log.Date);
-        
+
         if (!isNew) {
           const currentTime = new Date().getTime();
           //.toLocaleString(utfZone, {
