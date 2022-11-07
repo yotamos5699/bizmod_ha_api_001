@@ -41,7 +41,7 @@ async function exportRecords(reqData, userID) {
 
   let ID = (await userID) == realUserID ? realUserID : "1111";
   if (ID != "1111") console.log("ofek is connected");
-  console.log({ID});
+  console.log({ ID });
   const { usserDbname, usserServerName, usserPrivetKey } =
     await getCredential.getCastumersCred(ID);
 
@@ -85,11 +85,11 @@ async function exportRecords(reqData, userID) {
     } catch (e) {
       return e;
     }
-
-    treeData.repdata.forEach((treeDataRow) => {
+    console.log(treeData.repdata);
+    treeData.status.repdata.forEach((treeDataRow) => {
       let record = {};
 
-      apiRes.repdata.forEach((itemsDataRow) => {
+      apiRes.status.repdata.forEach((itemsDataRow) => {
         if (itemsDataRow["מפתח פריט"] == treeDataRow["מפתח פריט אב"]) {
           record = itemsDataRow;
           record["מפתח פריט אב"] = treeDataRow["מפתח פריט"];
@@ -108,10 +108,11 @@ async function exportRecords(reqData, userID) {
   }
 
   let newArrey = [];
+
   resArrey.forEach((resRow) => {
     let record = {};
 
-    apiRes.repdata.forEach((tableRow) => {
+    apiRes.status.repdata.forEach((tableRow) => {
       if (resRow["מפתח פריט אב"] == tableRow["מפתח פריט"]) {
         record = resRow;
         record["שם פריט אב"] = tableRow["שם פריט"];
@@ -120,8 +121,12 @@ async function exportRecords(reqData, userID) {
       }
     });
   });
-
-  let jsondata = resArrey.length > 0 ? newArrey : apiRes.repdata;
+  console.log({ apiRes });
+  console.log("res keys", Object.keys(apiRes.status));
+  console.log("RES.REPDATA", apiRes.status.repdata);
+  console.log({ newArrey });
+  let jsondata = resArrey.length > 0 ? newArrey : apiRes.status.repdata;
+  console.log({ jsondata });
   const data = JSON.stringify(jsondata, null, 2);
 
   if (sortKey) {

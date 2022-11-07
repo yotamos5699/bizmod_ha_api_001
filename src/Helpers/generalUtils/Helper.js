@@ -86,7 +86,6 @@ const authenticateTokenTest = (req, res, next) => {
   });
 };
 
-
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -270,7 +269,9 @@ const sortReportData = (reportData, sortKey) => {
   } catch (err) {
     console.log("keys and sheet ", err);
   }
-
+  console.log({ reportData });
+  console.log({ Keys });
+  console.log({ Values });
   let newSortedData;
   let updatedData = reportData;
 
