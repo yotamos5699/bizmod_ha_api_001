@@ -292,7 +292,7 @@ app.post(
 
         if (!isNew) {
           const currentTime = new Date().getTime();
-          //.toLocaleString(utfZone, {
+          //.toLocaleStrinutfZone, {
           //   timeZone: "Asia/Jerusalem",
           // }).getTime();
 
