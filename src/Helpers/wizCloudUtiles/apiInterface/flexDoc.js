@@ -85,7 +85,7 @@ async function exportRecords(reqData, userID) {
     } catch (e) {
       return e;
     }
-    console.log(treeData.repdata);
+
     treeData.status.repdata.forEach((treeDataRow) => {
       let record = {};
 
@@ -121,12 +121,12 @@ async function exportRecords(reqData, userID) {
       }
     });
   });
-  console.log({ apiRes });
-  console.log("res keys", Object.keys(apiRes.status));
-  console.log("RES.REPDATA", apiRes.status.repdata);
-  console.log({ newArrey });
+  //console.log({ apiRes });
+  // console.log("res keys", Object.keys(apiRes.status));
+  //console.log("RES.REPDATA", apiRes.status.repdata);
+  //  console.log({ newArrey });
   let jsondata = resArrey.length > 0 ? newArrey : apiRes.status.repdata;
-  console.log({ jsondata });
+  // console.log({ jsondata });
   const data = JSON.stringify(jsondata, null, 2);
 
   if (sortKey) {

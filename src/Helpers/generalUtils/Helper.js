@@ -21,6 +21,24 @@ const fetchData = async (data, reqUrl) => {
   };
   return axios(options).then((result) => result.data);
 };
+const getUsserID = async (req) => {
+  let userID;
+  try {
+    userID = (await req.user?.fetchedData?.userID)
+      ? req.user.fetchedData.userID
+      : req.user.userID;
+    console.log("userID", userID);
+  } catch (e) {
+    return {
+      status: false,
+      data: `no, user id invalid value ${userID} ${JSON.stringify(e)}`,
+    };
+  }
+  return {
+    status: true,
+    data: userID,
+  };
+};
 
 const saveDocURL = async (docsArrey, oauth) => {
   console.log({ docsArrey });
@@ -269,9 +287,7 @@ const sortReportData = (reportData, sortKey) => {
   } catch (err) {
     console.log("keys and sheet ", err);
   }
-  console.log({ reportData });
-  console.log({ Keys });
-  console.log({ Values });
+
   let newSortedData;
   let updatedData = reportData;
 
@@ -293,6 +309,7 @@ const sortReportData = (reportData, sortKey) => {
   return updatedData;
 };
 
+module.exports.getUsserID = getUsserID;
 module.exports.saveMatrixesToDB = saveMatrixesToDB;
 module.exports.saveDocURL = saveDocURL;
 module.exports.authenticateToken = authenticateToken;

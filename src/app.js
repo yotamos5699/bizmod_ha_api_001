@@ -271,26 +271,20 @@ app.post(
     console.log("~~~~~~~~~~~~~ getrecords ~~~~~~~~~~~~~~~~~");
 
     const columnToValidate = await req.body.columnToValidate;
-    let userID;
-    try {
-      userID = (await req.user?.fetchedData?.userID)
-        ? req.user.fetchedData.userID
-        : req.user.userID;
-      console.log("userID", userID);
-    } catch (e) {
-      return res.send({
-        status: `no, user id invalid value ${userID}`,
-        data: JSON.stringify(e),
-      });
-    }
+
+    let checkUserID = await Helper.getUsserID(req);
+    if (checkUserID.status == false) return res.send(checkUserID.data);
+    let userID = checkUserID.data;
 
     let searchData;
     let isNew;
     let isSended = false;
     const reportData = await req.body;
-    const UPDATE_TIME_INTERVAL = 1000 * 1800;
+    const UPDATE_TIME_INTERVAL = 1000 * 12;
     await StoredReports.find({ ID: JSON.stringify(reportData), userID: userID })
       .then(async (report) => {
+        let len = report.length;
+        console.log({ len });
         report.length == 0 ? (isNew = true) : (isNew = false);
         searchData = report;
         const DATA_TO_log = report[0]._doc;
@@ -311,7 +305,7 @@ app.post(
               columnToValidate
             );
             console.log("data sended to client ");
-
+            isNew = false;
             let jsonData = report[0]._doc.Report.jsondata;
             res.send({
               status: report[0].Report
