@@ -27,8 +27,7 @@ const Helper = require("./Helpers/generalUtils/Helper");
 const matrixesHandeler = require("./Helpers/wizCloudUtiles/helpers/calcKi");
 const PDFMerger = require("pdf-merger-js");
 const utfZone = "en";
-const uri =
-  "mongodb+srv://yotamos:linux6926@cluster0.zj6wiy3.mongodb.net/mtxlog?retryWrites=true&w=majority";
+const uri = "mongodb+srv://yotamos:linux6926@cluster0.zj6wiy3.mongodb.net/mtxlog?retryWrites=true&w=majority";
 const mongoose = require("mongoose");
 const { report } = require("./routs/dbRouts");
 const { default: axios } = require("axios");
@@ -125,9 +124,7 @@ app.get("/", (req, res) => {
 });
 
 app.use(express.json());
-app.listen(PORT, (err) =>
-  console.log(`matrix UI server ${err ? " on" : "listening"} port ${PORT}`)
-);
+app.listen(PORT, (err) => console.log(`matrix UI server ${err ? " on" : "listening"} port ${PORT}`));
 //close cyrcle function
 app.post("/api/generatekey", async (req, res) => {
   res.send({ key: crypto.randomBytes(32).toString("hex") });
@@ -154,9 +151,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   const matrixesData = await req.body;
   let userID;
   try {
-    userID = (await req.user?.fetchedData?.userID)
-      ? req.user.fetchedData.userID
-      : req.user.userID;
+    userID = (await req.user?.fetchedData?.userID) ? req.user.fetchedData.userID : req.user.userID;
     console.log("userID", userID);
   } catch (e) {
     return res.send({
@@ -184,10 +179,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
       // console.log({ dataToSave });
       const saveStatus = await Helper.saveMatrixesToDB(dataToSave, true);
       console.log("save status !!!!!!!!!!!!!!!!\n", saveStatus);
-      const statusMsg =
-        saveStatus.resultData.status == "yes"
-          ? "נשמר בהצלחה"
-          : "תקלה בתהליך השמירה ";
+      const statusMsg = saveStatus.resultData.status == "yes" ? "נשמר בהצלחה" : "תקלה בתהליך השמירה ";
 
       progressData = await progressBar(statusMsg, false);
       res.status(202).write(JSON.stringify(progressData));
@@ -202,23 +194,11 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
         await documentCreator
           .createDoc(data[i], i, userID)
           .then(async (docOutPut) => {
-            if (i == 0)
-              addedValue = docOutPut[0]["DocumentDetails"][0][0]["DocNumber"];
-            progressData = await progressBar(
-              "מפיק מסמך",
-              true,
-              i + 1,
-              dataLength
-            );
+            if (i == 0) addedValue = docOutPut[0]["DocumentDetails"][0][0]["DocNumber"];
+            progressData = await progressBar("מפיק מסמך", true, i + 1, dataLength);
             res.status(202).write(JSON.stringify(progressData));
 
-            return await Helper.createRetJson(
-              docOutPut,
-              i,
-              Action,
-              userID,
-              addedValue
-            );
+            return await Helper.createRetJson(docOutPut, i, Action, userID, addedValue);
           })
           .then((docResult) => logArrey.push(docResult));
       }
@@ -243,139 +223,121 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
     });
 });
 
-app.post(
-  "/api/initvalidate",
-  Helper.authenticateToken,
-  async function (req, res) {
-    const { usserDbname, usserPrivetKey, usserServerName } = await req.body;
-    console.log("********************* DATA IN REQUEST **********************");
-    console.table({ usserDbname, usserPrivetKey, usserServerName });
-    try {
-      documentCreator
-        .validateInitialData(usserDbname, usserPrivetKey, usserServerName)
-        .then((result) => res.send(result))
-        .catch((e) => {
-          console.log(e);
-          res.send(e);
-        });
-    } catch (e) {
-      console.log(e);
-    }
+app.post("/api/initvalidate", Helper.authenticateToken, async function (req, res) {
+  const { usserDbname, usserPrivetKey, usserServerName } = await req.body;
+  console.log("********************* DATA IN REQUEST **********************");
+  console.table({ usserDbname, usserPrivetKey, usserServerName });
+  try {
+    documentCreator
+      .validateInitialData(usserDbname, usserPrivetKey, usserServerName)
+      .then((result) => res.send(result))
+      .catch((e) => {
+        console.log(e);
+        res.send(e);
+      });
+  } catch (e) {
+    console.log(e);
   }
-);
+});
 
-app.post(
-  "/api/getrecords",
-  Helper.authenticateToken,
-  async function (req, res) {
-    console.log("~~~~~~~~~~~~~ getrecords ~~~~~~~~~~~~~~~~~");
+app.post("/api/getrecords", Helper.authenticateToken, async function (req, res) {
+  console.log("~~~~~~~~~~~~~ getrecords ~~~~~~~~~~~~~~~~~");
 
-    const columnToValidate = await req.body.columnToValidate;
+  const columnToValidate = await req.body.columnToValidate;
 
-    let checkUserID = await Helper.getUsserID(req);
-    if (checkUserID.status == false) return res.send(checkUserID.data);
-    let userID = checkUserID.data;
+  let checkUserID = await Helper.getUsserID(req);
+  if (checkUserID.status == false) return res.send(checkUserID.data);
+  let userID = checkUserID.data;
 
-    let searchData;
-    let isNew;
-    let isSended = false;
-    const reportData = await req.body;
-    const UPDATE_TIME_INTERVAL = 1000 * 12;
-    await StoredReports.find({ ID: JSON.stringify(reportData), userID: userID })
-      .then(async (report) => {
-        let len = report.length;
-        console.log({ len });
-        report.length == 0 ? (isNew = true) : (isNew = false);
-        searchData = report;
-        const DATA_TO_log = report[0]._doc;
-        console.log("date in report", DATA_TO_log.Date);
+  let searchData;
+  let isNew;
+  let isSended = false;
+  const reportData = await req.body;
+  const UPDATE_TIME_INTERVAL = 1000 * 12;
+  await StoredReports.find({ ID: JSON.stringify(reportData), userID: userID })
+    .then(async (report) => {
+      let len = report.length;
+      console.log({ len });
+      report.length == 0 ? (isNew = true) : (isNew = false);
+      searchData = report;
+      const DATA_TO_log = report[0]._doc;
+      console.log("date in report", DATA_TO_log.Date);
 
-        if (!isNew) {
-          const currentTime = new Date().getTime();
-          //.toLocaleStrinutfZone, {
-          //   timeZone: "Asia/Jerusalem",
-          // }).getTime();
+      if (!isNew) {
+        const currentTime = new Date().getTime();
+        //.toLocaleStrinutfZone, {
+        //   timeZone: "Asia/Jerusalem",
+        // }).getTime();
 
-          const reportTime = new Date(report[0]._doc.Date).getTime();
-          console.table({ currentTime, reportTime });
-          if (currentTime - reportTime < UPDATE_TIME_INTERVAL) {
-            isSended = true;
-            let validationMsg = await Helper.checkDataValidation(
-              report[0]._doc.Report.jsondata,
-              columnToValidate
-            );
-            console.log("data sended to client ");
-            isNew = false;
-            let jsonData = report[0]._doc.Report.jsondata;
-            res.send({
-              status: report[0].Report
-                ? "yes from fast DB"
-                : `no, report data invalid value ${report[0].Report} `,
-              data: jsonData,
-              validationError: validationMsg ? validationMsg : null,
-            });
-          }
+        const reportTime = new Date(report[0]._doc.Date).getTime();
+        console.table({ currentTime, reportTime });
+        if (currentTime - reportTime < UPDATE_TIME_INTERVAL) {
+          isSended = true;
+          let validationMsg = await Helper.checkDataValidation(report[0]._doc.Report.jsondata, columnToValidate);
+          console.log("data sended to client ");
+          isNew = false;
+          let jsonData = report[0]._doc.Report.jsondata;
+          res.send({
+            status: report[0].Report ? "yes from fast DB" : `no, report data invalid value ${report[0].Report} `,
+            data: jsonData,
+            validationError: validationMsg ? validationMsg : null,
+          });
         }
-      })
-      .catch((e) => console.log(e));
-    // console.log(reportData);
+      }
+    })
+    .catch((e) => console.log(e));
+  // console.log(reportData);
 
-    reportData.TID != "4"
-      ? reportsCreator
-          .exportRecords(reportData, userID)
-          .then(async (jsondata) => {
-            let validationMsg = await Helper.checkDataValidation(
-              jsondata,
-              [1, 2]
-            );
-            return { jsondata, validationMsg };
-          })
-          .then(async (jsondata, validationMsg) => {
-            const reportObject = {
-              userID: userID,
-              Date: new Date().toLocaleString(utfZone, {
-                timeZone: "Asia/Jerusalem",
-              }),
-              ID: JSON.stringify(reportData),
-              Report: jsondata,
-            };
-            const report = new StoredReports(reportObject);
-            //   console.log("&&& searchData &&&& \n", searchData);
-            isNew
-              ? report
-                  .save()
-                  .then((data) => {
-                    console.log(" is new save ", data);
-                  })
-                  .catch((e) => {
-                    console.log(e);
-                  })
-              : StoredReports.updateOne(
-                  { ID: JSON.stringify(reportData) },
-                  {
-                    $set: { ...reportObject, id: searchData._id },
-                  }
-                )
-                  .then((result) => console.log(result))
-                  .catch((e) => console.log(e));
-
-            !isSended
-              ? res.send({
-                  status: (await jsondata)
-                    ? "yes from slow DB"
-                    : `no, NO JSON DATA IN SLOW DB VALUE ${jsondata}`,
-                  data: jsondata.jsondata,
-                  validationError: validationMsg ? validationMsg : null,
+  reportData.TID != "4"
+    ? reportsCreator
+        .exportRecords(reportData, userID)
+        .then(async (jsondata) => {
+          let validationMsg = await Helper.checkDataValidation(jsondata, [1, 2]);
+          return { jsondata, validationMsg };
+        })
+        .then(async (jsondata, validationMsg) => {
+          const reportObject = {
+            userID: userID,
+            Date: new Date().toLocaleString(utfZone, {
+              timeZone: "Asia/Jerusalem",
+            }),
+            ID: JSON.stringify(reportData),
+            Report: jsondata,
+          };
+          const report = new StoredReports(reportObject);
+          //   console.log("&&& searchData &&&& \n", searchData);
+          isNew
+            ? report
+                .save()
+                .then((data) => {
+                  console.log(" is new save ", data);
                 })
-              : console.log("updating report");
-          })
-          .catch((e) => {
-            console.debug(e);
-            !isSended && res.send({ status: "no, IN CALL END ", data: e });
-          })
-      : console.log("*** castum Reports Section ***");
-  }
-);
+                .catch((e) => {
+                  console.log(e);
+                })
+            : StoredReports.updateOne(
+                { ID: JSON.stringify(reportData) },
+                {
+                  $set: { ...reportObject, id: searchData._id },
+                }
+              )
+                .then((result) => console.log(result))
+                .catch((e) => console.log(e));
+
+          !isSended
+            ? res.send({
+                status: (await jsondata) ? "yes from slow DB" : `no, NO JSON DATA IN SLOW DB VALUE ${jsondata}`,
+                data: jsondata.jsondata,
+                validationError: validationMsg ? validationMsg : null,
+              })
+            : console.log("updating report");
+        })
+        .catch((e) => {
+          console.debug(e);
+          !isSended && res.send({ status: "no, IN CALL END ", data: e });
+        })
+    : console.log("*** castum Reports Section ***");
+});
 
 app.post("/api/test", async function (req, res) {
   try {
