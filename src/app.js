@@ -205,7 +205,11 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
     })
     .then(async (result) => {
       Action = result.ActionID;
-      let data = result.data.docData;
+      let allData = result.data.docData;
+      let data = await allData.filter((row, idx) => {
+        if (matrixesData[idx].mainMatrix.ActionID == 1) return row;
+      });
+
       const dataLength = data.length;
       console.log("************* data length **************\n", dataLength);
       for (let i = 0; i <= data.length - 1; i++) {

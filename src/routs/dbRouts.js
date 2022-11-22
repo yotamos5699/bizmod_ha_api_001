@@ -22,6 +22,7 @@ DBrouter.use(bodyParser.json());
 
 const fetchData = async (req, reqUrl, actionHeader) => {
   const data = await req.body;
+  console.log("req headers .....", req.headers);
   if (reqUrl == "/api/saveMatrix") {
     console.log(" in save matrix @@@@@@@@@@@@@@@@@@@@@@@")(
       ({ data } = await matrixesHandeler.prererMatixesData({ data }))
