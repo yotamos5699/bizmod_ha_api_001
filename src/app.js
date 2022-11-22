@@ -12,7 +12,7 @@
 //const Buffer = require("buffer");
 //const Buffer = require("node:buffer");
 const download = require("download");
-
+const castumReports = require("./castumReports");
 const crypto = require("crypto");
 const express = require("express");
 const app = express();
@@ -61,6 +61,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(DBrouter);
+
+app.post("/api/showDocument", async (req, res) => {
+  let reso = await documentCreator.showDocument();
+  res.send(reso);
+});
 
 app.post("/api/mergepdfs", Helper.authenticateToken, async (req, res) => {
   console.log("%%%%%%%%%%% merge pdfs%%%%%%%%%");
@@ -130,8 +135,8 @@ app.post("/api/generatekey", async (req, res) => {
   res.send({ key: crypto.randomBytes(32).toString("hex") });
 });
 
-const progressBar = async (text, gotStats, currentDoc, totalDocs) => {
-  return {
+const progressBar = async (filename, text, gotStats, currentDoc, totalDocs) => {
+  const data = {
     stageName: text,
     gotStats: gotStats,
     stats: {
@@ -139,16 +144,35 @@ const progressBar = async (text, gotStats, currentDoc, totalDocs) => {
       totalToProcess: totalDocs ? totalDocs : 0,
     },
   };
+  let path = `progressFiles/${filename}.json`;
+  if (fs.existsSync(path)) fs.writeFileSync(path, content, { encoding: "utf8", flag: "w" });
+  else fs.writeFileSync(path, content, { encoding: "utf8" });
 };
+
+app.get("/api/getProgressData", async (req, res) => {
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+  });
+  const { id } = await req.body;
+  fs.watchFile(`progressFiles/${id}.json`, function () {
+    res.write("coos emek arssss");
+  });
+});
 
 app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
 
   res.setHeader("content-type", "application/json");
+
   let oauth = req.headers["authorization"];
   let addedValue;
   let progressData = {};
+  //console.log(req);
   const matrixesData = await req.body;
+  const filename = matrixesData.mainMatrix.matrixID.progressBar(filename, "מאתחל....", false);
+  console.log({ matrixesData });
   let userID;
   try {
     userID = (await req.user?.fetchedData?.userID) ? req.user.fetchedData.userID : req.user.userID;
@@ -163,26 +187,20 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   let Action;
   let logArrey = [];
 
-  progressData = progressBar("מכין מטריצה לעיבוד", false);
-  res.status(202).write(JSON.stringify(progressData));
+  progressBar(filename, "מכין מטריצה לעיבוד", false);
 
   matrixesHandeler
     .prererMatixesData(matrixesData)
     .then(async (result) => {
-      progressData = await progressBar("שומר תוכן מטריצות במסד נתונים", false);
-      res.status(202).write(JSON.stringify(progressData));
-      // const dataToSave = await matrixesHandeler.constructMatrixToDbObjB(
-      //   matrixesData,
-      //   userID
-      // );
+      progressBar(filename, "שומר תוכן מטריצות במסד נתונים", false);
+
       const dataToSave = await matrixesHandeler.constructMatrixToDbObjB(req);
       // console.log({ dataToSave });
       const saveStatus = await Helper.saveMatrixesToDB(dataToSave, true);
       console.log("save status !!!!!!!!!!!!!!!!\n", saveStatus);
       const statusMsg = saveStatus.resultData.status == "yes" ? "נשמר בהצלחה" : "תקלה בתהליך השמירה ";
 
-      progressData = await progressBar(statusMsg, false);
-      res.status(202).write(JSON.stringify(progressData));
+      progressBar(filename, statusMsg, false);
       return result;
     })
     .then(async (result) => {
@@ -195,8 +213,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
           .createDoc(data[i], i, userID)
           .then(async (docOutPut) => {
             if (i == 0) addedValue = docOutPut[0]["DocumentDetails"][0][0]["DocNumber"];
-            progressData = await progressBar("מפיק מסמך", true, i + 1, dataLength);
-            res.status(202).write(JSON.stringify(progressData));
+            progressBar(filename, "מפיק מסמך", true, i + 1, dataLength);
 
             return await Helper.createRetJson(docOutPut, i, Action, userID, addedValue);
           })
@@ -205,8 +222,8 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
     })
     .then(async () => {
       // progress bar
-      progressData = await progressBar("שומר תוצאות במסד הנתונים", false);
-      res.status(202).write(JSON.stringify(progressData));
+      progressBar(filename, "שומר תוצאות במסד הנתונים", false);
+
       // _______________________________________________________________//
       return await Helper.saveDocURL(logArrey, oauth);
     })
@@ -253,6 +270,7 @@ app.post("/api/getrecords", Helper.authenticateToken, async function (req, res) 
   let isNew;
   let isSended = false;
   const reportData = await req.body;
+  console.log(reportData);
   const UPDATE_TIME_INTERVAL = 1000 * 12;
   await StoredReports.find({ ID: JSON.stringify(reportData), userID: userID })
     .then(async (report) => {
@@ -337,6 +355,21 @@ app.post("/api/getrecords", Helper.authenticateToken, async function (req, res) 
           !isSended && res.send({ status: "no, IN CALL END ", data: e });
         })
     : console.log("*** castum Reports Section ***");
+});
+
+app.post("/api/flexdoc", async function (req, res) {
+  // console.log(`/n*************************Request details***********************\n
+  // ${JSON.stringify(req)}\n`)
+
+  let fileCod = await req.body;
+  console.log("reqqqqqq +++++ " + JSON.stringify(fileCod));
+
+  const jsdata = await castumReports.exportCastumersRecords(fileCod);
+  // consolgge.log(jsdata);
+  console.log(jsdata);
+  let parsed = await JSON.parse(jsdata);
+  fs.writeFileSync("jsonData.json", JSON.stringify(parsed.status.repdata, null, 2), (err) => console.log);
+  res.send(jsdata).end();
 });
 
 app.post("/api/test", async function (req, res) {
