@@ -135,43 +135,43 @@ app.post("/api/generatekey", async (req, res) => {
   res.send({ key: crypto.randomBytes(32).toString("hex") });
 });
 
-const progressBar = async (filename, text, gotStats, currentDoc, totalDocs) => {
-  const data = {
-    stageName: text,
-    gotStats: gotStats,
-    stats: {
-      amountFinished: currentDoc ? currentDoc : 0,
-      totalToProcess: totalDocs ? totalDocs : 0,
-    },
-  };
-  let path = `progressFiles/${filename}.json`;
-  if (fs.existsSync(path)) fs.writeFileSync(path, content, { encoding: "utf8", flag: "w" });
-  else fs.writeFileSync(path, content, { encoding: "utf8" });
-};
+// const progressBar = async (filename, text, gotStats, currentDoc, totalDocs) => {
+//   const data = {
+//     stageName: text,
+//     gotStats: gotStats,
+//     stats: {
+//       amountFinished: currentDoc ? currentDoc : 0,
+//       totalToProcess: totalDocs ? totalDocs : 0,
+//     },
+//   };
+//   let path = `progressFiles/${filename}.json`;
+//   if (fs.existsSync(path)) fs.writeFileSync(path, content, { encoding: "utf8", flag: "w" });
+//   else fs.writeFileSync(path, content, { encoding: "utf8" });
+// };
 
-app.get("/api/getProgressData", async (req, res) => {
-  res.writeHead(200, {
-    "Content-Type": "text/event-stream",
-    "Cache-Control": "no-cache",
-    Connection: "keep-alive",
-  });
-  const { id } = await req.body;
-  fs.watchFile(`progressFiles/${id}.json`, function () {
-    res.write("coos emek arssss");
-  });
-});
+// app.get("/api/getProgressData", async (req, res) => {
+//   res.writeHead(200, {
+//     "Content-Type": "text/event-stream",
+//     "Cache-Control": "no-cache",
+//     Connection: "keep-alive",
+//   });
+//   const { id } = await req.body;
+//   fs.watchFile(`progressFiles/${id}.json`, function () {
+//     res.write("coos emek arssss");
+//   });
+// });
 
 app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
 
   res.setHeader("content-type", "application/json");
-
+  res.write(JSON.stringify({ status: "ok" }));
   let oauth = req.headers["authorization"];
   let addedValue;
   let progressData = {};
   //console.log(req);
   const matrixesData = await req.body;
-  const filename = matrixesData.mainMatrix.matrixID.progressBar(filename, "מאתחל....", false);
+  //const filename = matrixesData.mainMatrix.matrixID.progressBar(filename, "מאתחל....", false);
   console.log({ matrixesData });
   let userID;
   try {
@@ -187,12 +187,12 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   let Action;
   let logArrey = [];
 
-  progressBar(filename, "מכין מטריצה לעיבוד", false);
+  // progressBar(filename, "מכין מטריצה לעיבוד", false);
 
   matrixesHandeler
     .prererMatixesData(matrixesData)
     .then(async (result) => {
-      progressBar(filename, "שומר תוכן מטריצות במסד נתונים", false);
+      // progressBar(filename, "שומר תוכן מטריצות במסד נתונים", false);
 
       const dataToSave = await matrixesHandeler.constructMatrixToDbObjB(req);
       // console.log({ dataToSave });
@@ -200,14 +200,15 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
       console.log("save status !!!!!!!!!!!!!!!!\n", saveStatus);
       const statusMsg = saveStatus.resultData.status == "yes" ? "נשמר בהצלחה" : "תקלה בתהליך השמירה ";
 
-      progressBar(filename, statusMsg, false);
+      //  progressBar(filename, statusMsg, false);
       return result;
     })
     .then(async (result) => {
       Action = result.ActionID;
       let allData = result.data.docData;
       let data = await allData.filter((row, idx) => {
-        if (matrixesData[idx].mainMatrix.ActionID == 1) return row;
+        console.log("matrixes data ", Object.keys(matrixesData));
+        if (matrixesData.matrixesData.mainMatrix.ActionID[idx] == 1) return row;
       });
 
       const dataLength = data.length;
@@ -217,7 +218,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
           .createDoc(data[i], i, userID)
           .then(async (docOutPut) => {
             if (i == 0) addedValue = docOutPut[0]["DocumentDetails"][0][0]["DocNumber"];
-            progressBar(filename, "מפיק מסמך", true, i + 1, dataLength);
+            //    progressBar(filename, "מפיק מסמך", true, i + 1, dataLength);
 
             return await Helper.createRetJson(docOutPut, i, Action, userID, addedValue);
           })
@@ -226,7 +227,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
     })
     .then(async () => {
       // progress bar
-      progressBar(filename, "שומר תוצאות במסד הנתונים", false);
+      //  progressBar(filename, "שומר תוצאות במסד הנתונים", false);
 
       // _______________________________________________________________//
       return await Helper.saveDocURL(logArrey, oauth);

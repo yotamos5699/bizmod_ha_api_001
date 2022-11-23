@@ -146,7 +146,7 @@ const createRetJson = async (answer, index, Action, userID, addedValue) => {
     Address: answer[0]["DocumentDetails"][0][0]["Address"],
     DocumentDetails: answer[0]["DocumentDetails"][0][0]["Phone"],
     DocUrl: answer[0]["urlDoc"],
-    Action: Action + addedValue,
+    Action: parseInt(Action + addedValue),
     SigStat: { isSigned: false },
   };
   return ret;
