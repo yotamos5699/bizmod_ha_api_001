@@ -133,22 +133,27 @@ const authenticateToken = (req, res, next) => {
 
 const createRetJson = async (answer, index, Action, userID, addedValue) => {
   console.log(`CreateRetJson function !! \n number doc ${index} \n ${JSON.stringify(answer)}`);
-  ret = {
-    userID: userID,
-    DocumentIssuedStatus: answer[0]["DocumentIssuedStatus"],
-    ValueDate: answer[0]["DocumentDetails"][0][0]["ValueDate"],
-    DocumentDefID: answer[0]["DocumentDetails"][0][0]["DocumentID"],
-    StockID: answer[0]["DocumentDetails"][0][0]["StockID"],
-    DocNumber: answer[0]["DocumentDetails"][0][0]["DocNumber"],
-    AccountKey: answer[0]["DocumentDetails"][0][0]["AccountKey"],
-    Accountname: answer[0]["DocumentDetails"][0][0]["accountname"],
-    TotalCost: answer[0]["DocumentDetails"][0][0]["Tftal"],
-    Address: answer[0]["DocumentDetails"][0][0]["Address"],
-    DocumentDetails: answer[0]["DocumentDetails"][0][0]["Phone"],
-    DocUrl: answer[0]["urlDoc"],
-    Action: parseInt(Action + addedValue),
-    SigStat: { isSigned: false },
-  };
+  try {
+    ret = {
+      userID: userID,
+      DocumentIssuedStatus: answer[0]["DocumentIssuedStatus"],
+      ValueDate: answer[0]["DocumentDetails"][0][0]["ValueDate"],
+      DocumentDefID: answer[0]["DocumentDetails"][0][0]["DocumentID"],
+      StockID: answer[0]["DocumentDetails"][0][0]["StockID"],
+      DocNumber: answer[0]["DocumentDetails"][0][0]["DocNumber"],
+      AccountKey: answer[0]["DocumentDetails"][0][0]["AccountKey"],
+      Accountname: answer[0]["DocumentDetails"][0][0]["accountname"],
+      TotalCost: answer[0]["DocumentDetails"][0][0]["Tftal"],
+      Address: answer[0]["DocumentDetails"][0][0]["Address"],
+      DocumentDetails: answer[0]["DocumentDetails"][0][0]["Phone"],
+      DocUrl: answer[0]["urlDoc"],
+      Action: parseInt(Action + addedValue),
+      SigStat: { isSigned: false },
+    };
+  } catch (err) {
+    console.error("create json ", err);
+    return { status: "no", data: err };
+  }
   return ret;
 };
 

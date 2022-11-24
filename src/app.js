@@ -17,7 +17,8 @@ const crypto = require("crypto");
 const express = require("express");
 const app = express();
 const fs = require("fs");
-const PORT = process.env.PORT || 3000;
+//const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 const cors = require(`cors`);
 const bodyParser = require("body-parser");
 const DBrouter = require("./routs/dbRouts");
@@ -68,12 +69,17 @@ app.post("/api/showDocument", async (req, res) => {
 });
 
 app.post("/api/mergepdfs", Helper.authenticateToken, async (req, res) => {
+  const Filename = req?.headers["filename"];
+  const pb = false;
+
+  pd && setProgressBar(Filename, { stageName: 1, text: "פונקציית mergePdf מתחילה לעבוד" }, false);
   console.log("%%%%%%%%%%% merge pdfs%%%%%%%%%");
   res.contentType("application/pdf");
   let pdfsObject;
   try {
     pdfsObject = await req.body;
   } catch (err) {
+    pb && setProgressBar(Filename, { stageName: 2, text: "תקלה" }, false);
     return res.send(err);
   }
   const Urls = await pdfsObject.map((doc) => doc.DocUrl);
@@ -86,6 +92,7 @@ app.post("/api/mergepdfs", Helper.authenticateToken, async (req, res) => {
     let Err;
     await download(Urls[i])
       .then((file) => {
+        pb && setProgressBar(Filename, { stageName: `a${i}`, text: "ממזג קןבץ " }, true, i + 1, Urls.length);
         fs.writeFileSync(`./${i}.pdf`, file);
       })
       .catch((err) => {
@@ -94,6 +101,8 @@ app.post("/api/mergepdfs", Helper.authenticateToken, async (req, res) => {
         urlIsBrocken = true;
       });
     if (urlIsBrocken) {
+      pb &&
+        setProgressBar(Filename, { stageName: `a${i}`, text: "קישור תקול", termenate: true }, true, i + 1, Urls.length);
       return res.send({ status: "no", data: "urls brocken getting 404" });
     }
 
@@ -119,9 +128,13 @@ app.post("/api/mergepdfs", Helper.authenticateToken, async (req, res) => {
       let Files = fs.readFileSync("./merged.pdf");
       console.log("after save merger !!!!!");
       res.setHeader("errors", Errors);
+      pb && setProgressBar(Filename, { stageName: `sc`, text: "סיים בהצלחה", termenate: true }, false);
       res.send(Files);
     })
-    .catch((err) => res.send({ status: "no", data: err }));
+    .catch((err) => {
+      pb && setProgressBar(Filename, { stageName: `sc`, text: "סיים בתקלה", termenate: true }, false);
+      res.send({ status: "no", data: err });
+    });
 });
 
 app.get("/", (req, res) => {
@@ -135,44 +148,41 @@ app.post("/api/generatekey", async (req, res) => {
   res.send({ key: crypto.randomBytes(32).toString("hex") });
 });
 
-// const progressBar = async (filename, text, gotStats, currentDoc, totalDocs) => {
-//   const data = {
-//     stageName: text,
-//     gotStats: gotStats,
-//     stats: {
-//       amountFinished: currentDoc ? currentDoc : 0,
-//       totalToProcess: totalDocs ? totalDocs : 0,
-//     },
-//   };
-//   let path = `progressFiles/${filename}.json`;
-//   if (fs.existsSync(path)) fs.writeFileSync(path, content, { encoding: "utf8", flag: "w" });
-//   else fs.writeFileSync(path, content, { encoding: "utf8" });
-// };
+const setProgressBar = async (filename, messageData, gotStats, currentDoc, totalDocs) => {
+  const data = {
+    termenate: messageData?.termenate ? true : false,
+    stageName: typeof messageData == "object" ? messageData.stageName : "in process",
+    msg: typeof messageData == "object" ? messageData.text : messageData,
+    gotStats: gotStats,
+    stats: {
+      amountFinished: currentDoc ? currentDoc : 0,
+      totalToProcess: totalDocs ? totalDocs : 0,
+    },
+  };
+  let path = `./${filename}.json`;
+  updateProgressBar(filename, data);
+};
 
-// app.get("/api/getProgressData", async (req, res) => {
-//   res.writeHead(200, {
-//     "Content-Type": "text/event-stream",
-//     "Cache-Control": "no-cache",
-//     Connection: "keep-alive",
-//   });
-//   const { id } = await req.body;
-//   fs.watchFile(`progressFiles/${id}.json`, function () {
-//     res.write("coos emek arssss");
-//   });
-// });
+const updateProgressBar = async (filename, progressData) => {
+  console.log("IN PROGRESS BAR --", { filename, progressData });
+  const data = progressData;
+  let path = "./" + filename + ".json";
+  if (fs.existsSync(path)) fs.writeFileSync(path, JSON.stringify(data), { encoding: "utf8", flag: "w" });
+  else fs.writeFileSync(path, JSON.stringify(data), { encoding: "utf8" });
+};
 
 app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
+  const Filename = req?.headers["filename"];
 
-  res.setHeader("content-type", "application/json");
-  res.write(JSON.stringify({ status: "ok" }));
   let oauth = req.headers["authorization"];
   let addedValue;
-  let progressData = {};
-  //console.log(req);
+
   const matrixesData = await req.body;
-  //const filename = matrixesData.mainMatrix.matrixID.progressBar(filename, "מאתחל....", false);
-  // console.log({ matrixesData });
+  console.log({ matrixesData });
+
+  setProgressBar(Filename, { stageName: "start", text: "מאתחל...." }, false);
+
   let userID;
   try {
     userID = (await req.user?.fetchedData?.userID) ? req.user.fetchedData.userID : req.user.userID;
@@ -183,26 +193,21 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
       data: JSON.stringify(e),
     });
   }
-  console.log("sssssssssssssssssssssssssssssssssssssssssssss", userID);
+
   let Action;
   let logArrey = [];
 
-  // progressBar(filename, "מכין מטריצה לעיבוד", false);
+  setProgressBar(Filename, { stageName: "a", text: "מכין מטריצה לעיבוד" }, false);
   console.log("sssssssssssssssssssssfadggasdgs", Object.keys(matrixesData));
   matrixesHandeler
     .prererMatixesData(matrixesData)
     .then(async (result) => {
-      // console.log({ matrixesData });
-      // console.log({ result });
-      // progressBar(filename, "שומר תוכן מטריצות במסד נתונים", false);
-
+      setProgressBar(Filename, { stageName: "b", text: "שומר תוכן מטריצות במסד נתונים" }, false);
       const dataToSave = await matrixesHandeler.constructMatrixToDbObjB(req);
-      // console.log({ dataToSave });
       const saveStatus = await Helper.saveMatrixesToDB(dataToSave, true);
-      console.log("save status !!!!!!!!!!!!!!!!\n", saveStatus);
       const statusMsg = saveStatus.resultData.status == "yes" ? "נשמר בהצלחה" : "תקלה בתהליך השמירה ";
 
-      //  progressBar(filename, statusMsg, false);
+      setProgressBar(Filename, { stageName: "c", text: statusMsg }, false);
       return result;
     })
     .then(async (result) => {
@@ -210,8 +215,6 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
       let allData = result.data.docData;
       console.log({ allData });
       let data = await allData.filter((row, idx) => {
-        //  console.log
-        //   console.log("matrixes data ", Object.keys(matrixesData));
         if (matrixesData.matrixesData.mainMatrix.ActionID[idx] == 1) return row;
       });
 
@@ -221,35 +224,36 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
         await documentCreator
           .createDoc(data[i], i, userID)
           .then(async (docOutPut) => {
-            //    console.log({ docOutPut });
+            setProgressBar(Filename, { stageName: `f${i}`, text: "מפיק מסמך" }, true, i + 1, dataLength);
+            console.log({ docOutPut });
+            if (docOutPut?.status == "no") {
+              setProgressBar(Filename, { stageName: "finish", text: "תקלה בהפקת מסמכים" });
+              return res.send({ status: "no", data: "error in docOutPut" });
+            }
             if (i == 0) addedValue = docOutPut[0]["DocumentDetails"][0][0]["DocNumber"];
-            //    progressBar(filename, "מפיק מסמך", true, i + 1, dataLength);
 
             return await Helper.createRetJson(docOutPut, i, Action, userID, addedValue);
           })
           .then(async (docResult) => {
-            //      console.log({ docResult });
             logArrey.push(docResult);
           });
       }
     })
     .then(async () => {
-      // progress bar
-      //  progressBar(filename, "שומר תוצאות במסד הנתונים", false);
+      setProgressBar(Filename, { stageName: "S", text: "שומר תוצאות במסד הנתונים" }, false);
 
       // _______________________________________________________________//
       return await Helper.saveDocURL(logArrey, oauth);
     })
     .then((result) => {
-      res.status(200);
-      res.write(JSON.stringify({ status: "yes", data: result }));
-      res.end();
+      setProgressBar(Filename, { stageName: "finish", text: "המסמכים הופקו", termenate: true }, false);
+      res.send(JSON.stringify({ status: "yes", data: result }));
     })
     .catch((err) => {
       console.log(`catch in main loop...\n ${err}`);
-      res.status(200);
-      res.write(JSON.stringify({ status: "no", data: err }));
-      res.end();
+      setProgressBar(Filename, { stageName: "finish", text: "תקלה בהפקת המטריצה" }, false);
+      // deleteProgressFile(Filename);
+      res.send(JSON.stringify({ status: "no", data: err }));
     });
 });
 
@@ -394,4 +398,56 @@ app.post("/api/test", async function (req, res) {
   } catch (err) {
     console.dir(err);
   }
+});
+
+app.post("/api/getProgressBar", async (req, res) => {
+  const Filename = req.headers["filename"];
+  const TimeLimit = parseInt(req.headers["timelimit"]);
+
+  console.log("IN GET PROGRESS DATA ", { Filename, TimeLimit });
+  let path = "./" + Filename + ".json";
+
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+  });
+  const { id } = await req.body;
+  res.status(200);
+  let runtime = 0;
+  let stageName = "";
+  let intervals = setInterval(() => {
+    console.log("IN GET PROGRESS DATA ", { Filename, TimeLimit, runtime });
+    let file_exist = fs.existsSync(path);
+    console.log({ file_exist });
+    if (file_exist) {
+      let result = JSON.parse(fs.readFileSync(path, { encoding: "utf8", flag: "r" }));
+      console.log("file exist");
+
+      if (result.stageName == "finish" || result?.termenate) {
+        toBreak = true;
+        clearInterval(intervals);
+        res.write("finish");
+        fs.unlinkSync(path);
+        return res.end();
+      }
+
+      if (result.stageName != stageName) {
+        stageName = result.stageName;
+        res.write(JSON.stringify(result));
+        console.log("file updated");
+      }
+    }
+
+    runtime += 1;
+
+    let limit = TimeLimit ? TimeLimit * 2 : 60;
+
+    if (runtime > limit) {
+      res.write("to long");
+      file_exist && fs.unlinkSync(path);
+      clearInterval(intervals);
+      return res.end(" out");
+    }
+  }, 500);
 });

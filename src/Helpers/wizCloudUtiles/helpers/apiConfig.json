@@ -48,13 +48,11 @@
         "matrixGlobalData": null,
         "cellsData": [
           [null, null, null],
-          [null, null, null],
-          [null, null, null],
-          [null, null, null],
           [null, null, null]
+
         ],
-        "docData": [null, null, null, null, null],
-        "metaData": [null, null, null, null, null]
+        "docData": [null, null],
+        "metaData": [null, null]
       }
     },
     "Date": "11/23/2022, 6:18:04 PM",
