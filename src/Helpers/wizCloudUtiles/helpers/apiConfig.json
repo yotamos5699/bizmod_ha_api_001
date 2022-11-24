@@ -25,5 +25,126 @@
     "WizcloudApiDBName": "wizdb2394n7"
 
 
+  }, {
+    "matrixID": "1b599270a11987656398ae233adc8c70cc369ec6233db2d52044944d26090ffc",
+    "matrixName": "מטריצה3",
+    "matrixesData": {
+      "mainMatrix": {
+        "matrixID": "1b599270a11987656398ae233adc8c70cc369ec6233db2d52044944d26090ffc",
+        "ActionID": [1, 1],
+        "AccountKey": ["6026", "6027"],
+        "DocumentID": [6, 3],
+        "DriverID": ["qewr135256edrfh", "qewr135256edrfh"],
+        "ActionAutho": [],
+        "itemsHeaders": ["HI250SA", "SX250SA", "AB500SA"],
+        "itemsNames": ["הרנה 250 גרם", "גת SPXP", "אבו מיסמר גדול"],
+        "cellsData": [
+          [3, 2, 1],
+          [1, 0, 0]
+        ]
+      },
+      "changesMatrix": {
+        "matrixConfig": null,
+        "matrixGlobalData": null,
+        "cellsData": [
+          [null, null, null],
+          [null, null, null],
+          [null, null, null],
+          [null, null, null],
+          [null, null, null]
+        ],
+        "docData": [null, null, null, null, null],
+        "metaData": [null, null, null, null, null]
+      }
+    },
+    "Date": "11/23/2022, 6:18:04 PM",
+    "isBI": true,
+    "isInitiated": true
+  }, {
+    "Date": null,
+    "matrixName": "jjjjjjjjjjjjjjjjjj",
+    "matrixID": "skljaaddffssddssfssdp;['-a0sd",
+    "isBI": false,
+    "isInitiated": true,
+    "matrixesUiData": "asdasdasdasda",
+
+    "matrixesData": {
+      "mainMatrix": {
+        "matrixID": "1234",
+        "ActionID": [1, 2],
+        "AccountKey": [
+          "6259",
+          "6304"
+        ],
+        "DocumentID": [
+          1,
+          1
+
+        ],
+        "DriverID": [
+          "6259",
+          "62594"
+        ],
+        "ActionAutho": [
+          "Default",
+          "Default"
+        ],
+        "itemsHeaders": [
+          "HI250SA",
+          "HI250SA",
+          "BB100SA",
+          "XP100SA"
+        ],
+        "cellsData": [
+          [
+            0,
+            2,
+            4,
+            6
+          ],
+          [
+            3,
+            5,
+            1,
+            7
+          ]
+        ]
+      },
+      "changesMatrix": {
+        "matrixConfig": null,
+        "matrixGlobalData": null,
+        "cellsData": [
+          [
+            null,
+            {
+              "DiscountPrc": 3
+            },
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null
+          ]
+        ],
+        "docData": [{
+            "Remarks": "לתשלום עד ה 3.4.23",
+            "Address": "מנחם בגין 169"
+          },
+
+          {
+            "Details": "בדיקה ל DETAILES"
+          }
+        ],
+        "metaData": [{
+            "Details": "לקוח לא משלם במסירה"
+          },
+          null
+
+        ]
+      }
+    }
   }
 ]

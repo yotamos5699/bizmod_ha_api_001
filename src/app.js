@@ -172,7 +172,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   //console.log(req);
   const matrixesData = await req.body;
   //const filename = matrixesData.mainMatrix.matrixID.progressBar(filename, "מאתחל....", false);
-  console.log({ matrixesData });
+  // console.log({ matrixesData });
   let userID;
   try {
     userID = (await req.user?.fetchedData?.userID) ? req.user.fetchedData.userID : req.user.userID;
@@ -188,10 +188,12 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   let logArrey = [];
 
   // progressBar(filename, "מכין מטריצה לעיבוד", false);
-
+  console.log("sssssssssssssssssssssfadggasdgs", Object.keys(matrixesData));
   matrixesHandeler
     .prererMatixesData(matrixesData)
     .then(async (result) => {
+      // console.log({ matrixesData });
+      // console.log({ result });
       // progressBar(filename, "שומר תוכן מטריצות במסד נתונים", false);
 
       const dataToSave = await matrixesHandeler.constructMatrixToDbObjB(req);
@@ -206,8 +208,10 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
     .then(async (result) => {
       Action = result.ActionID;
       let allData = result.data.docData;
+      console.log({ allData });
       let data = await allData.filter((row, idx) => {
-        console.log("matrixes data ", Object.keys(matrixesData));
+        //  console.log
+        //   console.log("matrixes data ", Object.keys(matrixesData));
         if (matrixesData.matrixesData.mainMatrix.ActionID[idx] == 1) return row;
       });
 
@@ -217,12 +221,16 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
         await documentCreator
           .createDoc(data[i], i, userID)
           .then(async (docOutPut) => {
+            //    console.log({ docOutPut });
             if (i == 0) addedValue = docOutPut[0]["DocumentDetails"][0][0]["DocNumber"];
             //    progressBar(filename, "מפיק מסמך", true, i + 1, dataLength);
 
             return await Helper.createRetJson(docOutPut, i, Action, userID, addedValue);
           })
-          .then((docResult) => logArrey.push(docResult));
+          .then(async (docResult) => {
+            //      console.log({ docResult });
+            logArrey.push(docResult);
+          });
       }
     })
     .then(async () => {
@@ -247,7 +255,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
 
 app.post("/api/initvalidate", Helper.authenticateToken, async function (req, res) {
   const { usserDbname, usserPrivetKey, usserServerName } = await req.body;
-  console.log("********************* DATA IN REQUEST **********************");
+  // console.log("********************* DATA IN REQUEST **********************");
   console.table({ usserDbname, usserPrivetKey, usserServerName });
   try {
     documentCreator
@@ -367,11 +375,11 @@ app.post("/api/flexdoc", async function (req, res) {
   // ${JSON.stringify(req)}\n`)
 
   let fileCod = await req.body;
-  console.log("reqqqqqq +++++ " + JSON.stringify(fileCod));
+  //console.log("reqqqqqq +++++ " + JSON.stringify(fileCod));
 
   const jsdata = await castumReports.exportCastumersRecords(fileCod);
   // consolgge.log(jsdata);
-  console.log(jsdata);
+  //console.log(jsdata);
   let parsed = await JSON.parse(jsdata);
   fs.writeFileSync("jsonData.json", JSON.stringify(parsed.status.repdata, null, 2), (err) => console.log);
   res.send(jsdata).end();

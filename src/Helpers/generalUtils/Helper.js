@@ -23,7 +23,7 @@ const getUsserID = async (req) => {
   let userID;
   try {
     userID = (await req.user?.fetchedData?.userID) ? req.user.fetchedData.userID : req.user.userID;
-    console.log("userID", userID);
+    //  console.log("userID", userID);
   } catch (e) {
     return {
       status: false,
@@ -37,22 +37,22 @@ const getUsserID = async (req) => {
 };
 
 const saveDocURL = async (docsArrey, oauth) => {
-  console.log({ docsArrey });
+  // console.log({ docsArrey });
   let body = await docsArrey;
-  let Oauth = await oauth;
 
   let Req = {
     headers: {
-      authorization: Oauth,
+      authorization: oauth,
     },
     body: body,
   };
 
+  console.log({ Req });
   return await fetchData(Req, "/api/saveDocs")
     .then((result) => {
-      console.log("result in fetch %%%%", result);
+      // console.log("result in fetch %%%%", result);
       let resultData = result;
-      console.log({ resultData });
+      //  console.log({ resultData });
       return { resultData };
     })
     .catch((e) => {
@@ -64,9 +64,9 @@ const saveDocURL = async (docsArrey, oauth) => {
 const saveMatrixesToDB = async (req, isTrue) => {
   //console.log("$$$$$$$$$$$$$$$ in  saveMatrixesToDB $$$$$$$$$$$$$$$\n", obj);
   let body = await req.body;
-  console.log("!!! body in saveMatrixesToDB !!!", body);
+  // console.log("!!! body in saveMatrixesToDB !!!", body);
   let headers = await req.headers;
-  console.log("!!! headers in saveMatrixesToDB !!!", headers);
+  // console.log("!!! headers in saveMatrixesToDB !!!", headers);
   let bool = await isTrue;
   body["Date"] = new Date().toLocaleString(utfZone, {
     timeZone: "Asia/Jerusalem",
@@ -78,10 +78,10 @@ const saveMatrixesToDB = async (req, isTrue) => {
   let Req = {};
   Req["body"] = body;
   Req["headers"] = headers;
-  console.log(Req);
+  // console.log(Req);
   return await fetchData(Req, "/api/saveMatrix")
     .then((result) => {
-      console.log("result in fetch %%%%", result);
+      //   console.log("result in fetch %%%%", result);
       let resultData = result;
       return { resultData };
     })
@@ -102,7 +102,7 @@ const authenticateTokenTest = (req, res, next) => {
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
-  console.log({ authHeader });
+  //  console.log({ authHeader });
   const token = authHeader && authHeader.split(" ")[1];
 
   console.log({ token });
@@ -120,7 +120,7 @@ const authenticateToken = (req, res, next) => {
         status: 403,
         msg: "***** in test mode ***** no token in header",
       };
-      console.log({ user });
+      //  console.log({ user });
       next();
       return;
     }
