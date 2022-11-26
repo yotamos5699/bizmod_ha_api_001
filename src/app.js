@@ -268,7 +268,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
       const dataToSave = await matrixesHandeler.constructMatrixToDbObjB(req);
 
       const saveStatus = await Helper.saveMatrixesToDB(dataToSave, true);
-      if (saveStatus?.status == "no")
+      if (saveStatus?.resultData?.status == "no")
         return res.send({ status: "no", data: "problem with matrix name" });
       const statusMsg =
         saveStatus?.resultData?.status == "yes"
