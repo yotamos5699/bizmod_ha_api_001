@@ -226,7 +226,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   const matrixesData = await req.body;
   const test = await createDocValidator.validate(matrixesData);
   if (validator) {
-    if (test.status == "no") return res.send(test);
+    if (test?.status == "no") return res.send(test);
   }
   console.log({ matrixesData });
 
@@ -266,9 +266,12 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
           false
         );
       const dataToSave = await matrixesHandeler.constructMatrixToDbObjB(req);
+
       const saveStatus = await Helper.saveMatrixesToDB(dataToSave, true);
+      if (saveStatus?.status == "no")
+        return res.send({ status: "no", data: "problem with matrix name" });
       const statusMsg =
-        saveStatus.resultData.status == "yes"
+        saveStatus?.resultData?.status == "yes"
           ? "נשמר בהצלחה"
           : "תקלה בתהליך השמירה ";
 

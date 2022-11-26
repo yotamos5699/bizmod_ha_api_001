@@ -30,8 +30,8 @@ const checkNull = (data) => {
         error: "no documents to make expecting 1 or more of types [1,3]",
       });
     if (
-      (innerMatrix.AccountKey.length != innerMatrix.DocumentID.length) !=
-      innerMatrix.ActionAutho.length
+      innerMatrix.AccountKey.length != innerMatrix.DocumentID.length ||
+      innerMatrix.AccountKey.length != innerMatrix.ActionAutho.length
     )
       checks.push({
         path: "matrixesData.mainMatrix",
