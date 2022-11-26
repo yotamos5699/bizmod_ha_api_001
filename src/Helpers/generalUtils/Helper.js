@@ -13,7 +13,9 @@ const fetchData = async (data, reqUrl) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json;charset=UTF-8",
-      authorization: data.headers?.authorization ? data.headers.authorization : null,
+      authorization: data.headers?.authorization
+        ? data.headers.authorization
+        : null,
     },
     data: data.body ? data.body : data,
   };
@@ -22,7 +24,9 @@ const fetchData = async (data, reqUrl) => {
 const getUsserID = async (req) => {
   let userID;
   try {
-    userID = (await req.user?.fetchedData?.userID) ? req.user.fetchedData.userID : req.user.userID;
+    userID = (await req.user?.fetchedData?.userID)
+      ? req.user.fetchedData.userID
+      : req.user.userID;
     //  console.log("userID", userID);
   } catch (e) {
     return {
@@ -77,7 +81,10 @@ const saveMatrixesToDB = async (req, isTrue) => {
 
   let Req = {};
   Req["body"] = body;
+
   Req["headers"] = headers;
+  console.log({ body, headers });
+
   // console.log(Req);
   return await fetchData(Req, "/api/saveMatrix")
     .then((result) => {
@@ -132,7 +139,11 @@ const authenticateToken = (req, res, next) => {
 };
 
 const createRetJson = async (answer, index, Action, userID, addedValue) => {
-  console.log(`CreateRetJson function !! \n number doc ${index} \n ${JSON.stringify(answer)}`);
+  console.log(
+    `CreateRetJson function !! \n number doc ${index} \n ${JSON.stringify(
+      answer
+    )}`
+  );
   try {
     ret = {
       userID: userID,
@@ -180,11 +191,14 @@ const constructNewUserCred = (usserData, generatedUsserKey) => {
 };
 
 const readJsonFILE = (fileName) => {
-  let docData = fs.readFileSync(path.resolve(__dirname, `../${fileName}.json`), (err) => {
-    if (err) throw err;
+  let docData = fs.readFileSync(
+    path.resolve(__dirname, `../${fileName}.json`),
+    (err) => {
+      if (err) throw err;
 
-    console.log(err, "See resaults in myApiRes.txt");
-  });
+      console.log(err, "See resaults in myApiRes.txt");
+    }
+  );
 
   return JSON.parse(docData);
 };
@@ -194,11 +208,14 @@ const updateJsonFILE = async (fileName, newData) => {
 
   //newData = dd
 
-  let data = fs.readFileSync(path.resolve(__dirname, `../${fileName}.json`), (err) => {
-    if (err) throw err;
+  let data = fs.readFileSync(
+    path.resolve(__dirname, `../${fileName}.json`),
+    (err) => {
+      if (err) throw err;
 
-    console.log(err, "See resaults in myApiRes.txt");
-  });
+      console.log(err, "See resaults in myApiRes.txt");
+    }
+  );
   console.log(data);
   data = await JSON.parse(data);
   console.log(data);
@@ -211,10 +228,14 @@ const updateJsonFILE = async (fileName, newData) => {
   console.log(typeof data);
   console.log(data);
 
-  fs.writeFileSync(path.resolve(__dirname, `../${fileName}.json`), JSON.stringify(data), (err) => {
-    if (err) throw err;
-    console.log(err, "See resaults in myApiRes.txt");
-  });
+  fs.writeFileSync(
+    path.resolve(__dirname, `../${fileName}.json`),
+    JSON.stringify(data),
+    (err) => {
+      if (err) throw err;
+      console.log(err, "See resaults in myApiRes.txt");
+    }
+  );
   return data;
 };
 
@@ -241,10 +262,13 @@ const checkDataValidation = async (jsonData, columnToValidate) => {
 
         // console.log({ tableRecord, j });
         if (
-          tableRecord[headers[columnNumber - 1]] == jsonData[i][headers[columnNumber - 1]] &&
+          tableRecord[headers[columnNumber - 1]] ==
+            jsonData[i][headers[columnNumber - 1]] &&
           tableRecord[headers[columnNumber - 1]] != null
         ) {
-          rowsIndexes.length > 0 ? rowsIndexes.push(i) : rowsIndexes.push(tableRecoedIndex, i);
+          rowsIndexes.length > 0
+            ? rowsIndexes.push(i)
+            : rowsIndexes.push(tableRecoedIndex, i);
         }
       }
       if (rowsIndexes.length > 0) {
