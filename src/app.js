@@ -32,14 +32,14 @@ const utfZone = "en";
 const uri =
   "mongodb+srv://yotamos:linux6926@cluster0.zj6wiy3.mongodb.net/mtxlog?retryWrites=true&w=majority";
 const mongoose = require("mongoose");
-const { report } = require("./routs/dbRouts");
-const { default: axios } = require("axios");
-const { Blob } = require("buffer");
-const { fileURLToPath } = require("url");
+//const { report } = require("./routs/dbRouts");
+//const { default: axios } = require("axios");
+//const { Blob } = require("buffer");
+//const { fileURLToPath } = require("url");
 const MGoptions = { useNewUrlParser: true, useUnifiedTopology: true };
 mongoose
   .connect(uri, MGoptions)
-  .then((res) => console.log("conected to mongo...."))
+  .then(() => console.log("conected to mongo...."))
   .catch((e) => console.log(e));
 
 const storedReports = new mongoose.Schema(
@@ -72,7 +72,7 @@ app.post("/api/showDocument", async (req, res) => {
 
 app.post("/api/mergepdfs", Helper.authenticateToken, async (req, res) => {
   const Filename = req?.headers["filename"];
-  const pb = false;
+  const progressBar = false;
 
   pd &&
     setProgressBar(
@@ -86,7 +86,8 @@ app.post("/api/mergepdfs", Helper.authenticateToken, async (req, res) => {
   try {
     pdfsObject = await req.body;
   } catch (err) {
-    pb && setProgressBar(Filename, { stageName: 2, text: "תקלה" }, false);
+    progressBar &&
+      setProgressBar(Filename, { stageName: 2, text: "תקלה" }, false);
     return res.send(err);
   }
   const Urls = await pdfsObject.map((doc) => doc.DocUrl);
@@ -99,7 +100,7 @@ app.post("/api/mergepdfs", Helper.authenticateToken, async (req, res) => {
     let Err;
     await download(Urls[i])
       .then((file) => {
-        pb &&
+        progressBar &&
           setProgressBar(
             Filename,
             { stageName: `a${i}`, text: "ממזג קןבץ " },
@@ -115,7 +116,7 @@ app.post("/api/mergepdfs", Helper.authenticateToken, async (req, res) => {
         urlIsBrocken = true;
       });
     if (urlIsBrocken) {
-      pb &&
+      progressBar &&
         setProgressBar(
           Filename,
           { stageName: `a${i}`, text: "קישור תקול", termenate: true },
@@ -148,7 +149,7 @@ app.post("/api/mergepdfs", Helper.authenticateToken, async (req, res) => {
       let Files = fs.readFileSync("./merged.pdf");
       console.log("after save merger !!!!!");
       res.setHeader("errors", Errors);
-      pb &&
+      progressBar &&
         setProgressBar(
           Filename,
           { stageName: `sc`, text: "סיים בהצלחה", termenate: true },
@@ -157,7 +158,7 @@ app.post("/api/mergepdfs", Helper.authenticateToken, async (req, res) => {
       res.send(Files);
     })
     .catch((err) => {
-      pb &&
+      progressBar &&
         setProgressBar(
           Filename,
           { stageName: `sc`, text: "סיים בתקלה", termenate: true },
@@ -217,17 +218,19 @@ const updateProgressBar = async (filename, progressData) => {
 app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
   const Filename = req?.headers["filename"];
-  const pb = false;
+  const progressBar = false;
+  const validator = true;
   let oauth = req.headers["authorization"];
   let addedValue;
 
   const matrixesData = await req.body;
   const test = await createDocValidator.validate(matrixesData);
-  if (test.status == "no") return res.send(test);
-
+  if (validator) {
+    if (test.status == "no") return res.send(test);
+  }
   console.log({ matrixesData });
 
-  pb &&
+  progressBar &&
     setProgressBar(Filename, { stageName: "start", text: "מאתחל...." }, false);
 
   let userID;
@@ -246,7 +249,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   let Action;
   let logArrey = [];
 
-  pb &&
+  progressBar &&
     setProgressBar(
       Filename,
       { stageName: "a", text: "מכין מטריצה לעיבוד" },
@@ -256,7 +259,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   matrixesHandeler
     .prererMatixesData(matrixesData)
     .then(async (result) => {
-      pb &&
+      progressBar &&
         setProgressBar(
           Filename,
           { stageName: "b", text: "שומר תוכן מטריצות במסד נתונים" },
@@ -269,7 +272,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
           ? "נשמר בהצלחה"
           : "תקלה בתהליך השמירה ";
 
-      pb &&
+      progressBar &&
         setProgressBar(Filename, { stageName: "c", text: statusMsg }, false);
       return result;
     })
@@ -287,7 +290,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
         await documentCreator
           .createDoc(data[i], i, userID)
           .then(async (docOutPut) => {
-            pb &&
+            progressBar &&
               setProgressBar(
                 Filename,
                 { stageName: `f${i}`, text: "מפיק מסמך" },
@@ -297,7 +300,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
               );
             console.log({ docOutPut });
             if (docOutPut?.status == "no") {
-              pb &&
+              progressBar &&
                 setProgressBar(Filename, {
                   stageName: "finish",
                   text: "תקלה בהפקת מסמכים",
@@ -321,7 +324,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
       }
     })
     .then(async () => {
-      pb &&
+      progressBar &&
         setProgressBar(
           Filename,
           { stageName: "S", text: "שומר תוצאות במסד הנתונים" },
@@ -332,7 +335,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
       return await Helper.saveDocURL(logArrey, oauth);
     })
     .then((result) => {
-      pb &&
+      progressBar &&
         setProgressBar(
           Filename,
           { stageName: "finish", text: "המסמכים הופקו", termenate: true },
@@ -342,7 +345,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
     })
     .catch((err) => {
       console.log(`catch in main loop...\n ${err}`);
-      pb &&
+      progressBar &&
         setProgressBar(
           Filename,
           { stageName: "finish", text: "תקלה בהפקת המטריצה" },
