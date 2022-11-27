@@ -18,8 +18,8 @@ const crypto = require("crypto");
 const express = require("express");
 const app = express();
 const fs = require("fs");
-//const PORT = process.env.PORT || 3000;
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+//const PORT = 3000;
 const cors = require(`cors`);
 const bodyParser = require("body-parser");
 const DBrouter = require("./routs/dbRouts");
@@ -32,6 +32,7 @@ const utfZone = "en";
 const uri =
   "mongodb+srv://yotamos:linux6926@cluster0.zj6wiy3.mongodb.net/mtxlog?retryWrites=true&w=majority";
 const mongoose = require("mongoose");
+const { options } = require("./routs/dbRouts");
 //const { report } = require("./routs/dbRouts");
 //const { default: axios } = require("axios");
 //const { Blob } = require("buffer");
@@ -222,9 +223,14 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   const validator = true;
   let oauth = req.headers["authorization"];
   let addedValue;
+  const userConfig = await req?.user;
 
   const matrixesData = await req.body;
-  const test = await createDocValidator.validate(matrixesData);
+  const test = await createDocValidator.validate(
+    matrixesData,
+    "default",
+    options
+  );
   if (validator) {
     if (test?.status == "no") return res.send(test);
   }
@@ -287,6 +293,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
         if (matrixesData.matrixesData.mainMatrix.ActionID[idx] == 1) return row;
       });
 
+      console.log({ data });
       const dataLength = data.length;
       console.log("************* data length **************\n", dataLength);
       for (let i = 0; i <= data.length - 1; i++) {
@@ -301,7 +308,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
                 i + 1,
                 dataLength
               );
-            console.log({ docOutPut });
+            console.log("aaaaasssssssssssssssssssss", { docOutPut });
             if (docOutPut?.status == "no") {
               progressBar &&
                 setProgressBar(Filename, {
@@ -312,7 +319,18 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
             }
             if (i == 0)
               addedValue = docOutPut[0]["DocumentDetails"][0][0]["DocNumber"];
+            let val = docOutPut;
 
+            console.log("doc output **", { val });
+            //   docOutPut[0][]
+            //     {
+            //       NewDocumentStockID: 3208,
+            //       DocumentIssuedStatus: 'IsError',
+            //       TempDocumentDeleted: 'No'
+            //     },
+            //     [ [Object], [Object] ]
+            //   ]
+            // }
             return await Helper.createRetJson(
               docOutPut,
               i,

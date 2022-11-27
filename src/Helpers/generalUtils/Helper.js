@@ -7,6 +7,8 @@ let utfZone = "en";
 const dbUrl = process.env.DBport || "http://localhost:4000";
 const axios = require("axios");
 
+
+
 const fetchData = async (data, reqUrl) => {
   let options = {
     url: `${dbUrl}${reqUrl}`,
