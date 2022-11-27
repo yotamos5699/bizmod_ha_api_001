@@ -7,28 +7,23 @@ let utfZone = "en";
 const dbUrl = process.env.DBport || "http://localhost:4000";
 const axios = require("axios");
 
-
-
 const fetchData = async (data, reqUrl) => {
   let options = {
     url: `${dbUrl}${reqUrl}`,
     method: "POST",
     headers: {
       "Content-Type": "application/json;charset=UTF-8",
-      authorization: data.headers?.authorization
-        ? data.headers.authorization
-        : null,
+      authorization: data.headers?.authorization ? data.headers.authorization : null,
     },
     data: data.body ? data.body : data,
   };
   return axios(options).then((result) => result.data);
 };
 const getUsserID = async (req) => {
+  let user = await req?.user;
   let userID;
   try {
-    userID = (await req.user?.fetchedData?.userID)
-      ? req.user.fetchedData.userID
-      : req.user.userID;
+    userID = user?.fetchedData?.userID ? user.fetchedData.userID : user.userID;
     //  console.log("userID", userID);
   } catch (e) {
     return {
@@ -39,6 +34,7 @@ const getUsserID = async (req) => {
   return {
     status: true,
     data: userID,
+    config: user?.configObj ? user.configObj : null,
   };
 };
 
@@ -141,11 +137,7 @@ const authenticateToken = (req, res, next) => {
 };
 
 const createRetJson = async (answer, index, Action, userID, addedValue) => {
-  console.log(
-    `CreateRetJson function !! \n number doc ${index} \n ${JSON.stringify(
-      answer
-    )}`
-  );
+  console.log(`CreateRetJson function !! \n number doc ${index} \n ${JSON.stringify(answer)}`);
   try {
     ret = {
       userID: userID,
@@ -193,14 +185,11 @@ const constructNewUserCred = (usserData, generatedUsserKey) => {
 };
 
 const readJsonFILE = (fileName) => {
-  let docData = fs.readFileSync(
-    path.resolve(__dirname, `../${fileName}.json`),
-    (err) => {
-      if (err) throw err;
+  let docData = fs.readFileSync(path.resolve(__dirname, `../${fileName}.json`), (err) => {
+    if (err) throw err;
 
-      console.log(err, "See resaults in myApiRes.txt");
-    }
-  );
+    console.log(err, "See resaults in myApiRes.txt");
+  });
 
   return JSON.parse(docData);
 };
@@ -210,14 +199,11 @@ const updateJsonFILE = async (fileName, newData) => {
 
   //newData = dd
 
-  let data = fs.readFileSync(
-    path.resolve(__dirname, `../${fileName}.json`),
-    (err) => {
-      if (err) throw err;
+  let data = fs.readFileSync(path.resolve(__dirname, `../${fileName}.json`), (err) => {
+    if (err) throw err;
 
-      console.log(err, "See resaults in myApiRes.txt");
-    }
-  );
+    console.log(err, "See resaults in myApiRes.txt");
+  });
   console.log(data);
   data = await JSON.parse(data);
   console.log(data);
@@ -230,14 +216,10 @@ const updateJsonFILE = async (fileName, newData) => {
   console.log(typeof data);
   console.log(data);
 
-  fs.writeFileSync(
-    path.resolve(__dirname, `../${fileName}.json`),
-    JSON.stringify(data),
-    (err) => {
-      if (err) throw err;
-      console.log(err, "See resaults in myApiRes.txt");
-    }
-  );
+  fs.writeFileSync(path.resolve(__dirname, `../${fileName}.json`), JSON.stringify(data), (err) => {
+    if (err) throw err;
+    console.log(err, "See resaults in myApiRes.txt");
+  });
   return data;
 };
 
@@ -264,13 +246,10 @@ const checkDataValidation = async (jsonData, columnToValidate) => {
 
         // console.log({ tableRecord, j });
         if (
-          tableRecord[headers[columnNumber - 1]] ==
-            jsonData[i][headers[columnNumber - 1]] &&
+          tableRecord[headers[columnNumber - 1]] == jsonData[i][headers[columnNumber - 1]] &&
           tableRecord[headers[columnNumber - 1]] != null
         ) {
-          rowsIndexes.length > 0
-            ? rowsIndexes.push(i)
-            : rowsIndexes.push(tableRecoedIndex, i);
+          rowsIndexes.length > 0 ? rowsIndexes.push(i) : rowsIndexes.push(tableRecoedIndex, i);
         }
       }
       if (rowsIndexes.length > 0) {
