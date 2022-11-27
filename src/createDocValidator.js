@@ -54,9 +54,9 @@ const checkNull = async (data) => {
         if (innerMatrix.ActionID[i] == 1 && !allowedDocs.find((ID) => ID == currentID)) {
           checks.push({
             path: "mainMatrix.DocumentID",
-            error: ` document of type ${documenDef[innerMatrix.DocumentID[i]]} on key ${
+            error: `document of type ${documenDef[innerMatrix.DocumentID[i]]} on key ${
               innerMatrix.DocumentID[i]
-            } in row ${i} `,
+            } in row ${i} not allowed`,
           });
         }
       }
