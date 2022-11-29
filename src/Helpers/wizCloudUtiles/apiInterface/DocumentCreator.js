@@ -3,7 +3,6 @@
 const wizlib = require("wizcloud-api");
 const getCredential = require("../helpers/getCred");
 const realUserID = "6358f8717dd95eceee53eac3";
-var fs = require("fs");
 
 const tempKey =
   "23e54b4b3e541261140bdeb257538ba11c5104620e61217d5d6735a3c9361a5aac67a7f85278e4e53f3008598d8927f68e89e3e16147c194f96976bdf3075d55";
@@ -29,8 +28,6 @@ async function createDoc(docData, index, userID) {
   } else ID = "1111";
   const { usserDbname, usserServerName, usserPrivetKey } = await getCredential.getCastumersCred(ID);
 
-  // console.log(`usser db name++\n ${usserDbname} usser server name ++\n ${usserServerName} usser privet key ++\n ${usserPrivetKey}`)
-
   let myDBname = usserDbname;
   try {
     wizlib.init(usserPrivetKey, usserServerName);
@@ -38,13 +35,7 @@ async function createDoc(docData, index, userID) {
     console.log(e);
   }
 
-  // console.log(stock);
-  // var doc = {
-  //   DocumentID: docID,
-  //   AccountKey: stock.AccountKey,
-  //   moves: stock.moves,
-  // };
-  console.log("DOC DATA  !!!!!!!!!", docData);
+  //console.log("DOC DATA  !!!!!!!!!", docData);
   let apiRes = await wizlib.createDocument(myDBname, {
     rows: docData,
     issueStock: true,
@@ -91,5 +82,4 @@ async function showDocument(myDBname = tempDbName, usserPrivetKey = tempKey, uss
 
   // ValueDate: "2021-12-25",
   return results;
-  console.log(results);
 }

@@ -1,26 +1,16 @@
-//////////////////SS/////////////////////////////////////////basic required code
-//Must to configure private data on apiConfig.js file
 const wizlib = require("wizcloud-api");
 const getCredential = require("../helpers/getCred");
-var fs = require("fs");
-const path = require("path");
 const Helper = require("../../generalUtils/Helper");
 const defultReports = require("./filencryption");
 const e = require("express");
 const realUserID = "6358f8717dd95eceee53eac3";
-//const defultReports = Helper.readJsonFILE('wizCloudUtiles/apiInterface/filencryption');
-//const defultReports = undefined;
-//console.log(defultReports);
 
 let docHash = {};
 try {
   docHash = {
     1: [
       [defultReports.stockEncrypt_reportData, defultReports.params_data_st],
-      [
-        defultReports.encrypt_treeItemsreportData,
-        defultReports.treeItemsParams_data,
-      ],
+      [defultReports.encrypt_treeItemsreportData, defultReports.treeItemsParams_data],
     ],
 
     2: [defultReports.castumersEncryptData, defultReports.params_data_ca],
@@ -42,8 +32,7 @@ async function exportRecords(reqData, userID) {
   let ID = (await userID) == realUserID ? realUserID : "1111";
   if (ID != "1111") console.log("ofek is connected");
   console.log({ ID });
-  const { usserDbname, usserServerName, usserPrivetKey } =
-    await getCredential.getCastumersCred(ID);
+  const { usserDbname, usserServerName, usserPrivetKey } = await getCredential.getCastumersCred(ID);
 
   let myDBname = usserDbname;
   try {

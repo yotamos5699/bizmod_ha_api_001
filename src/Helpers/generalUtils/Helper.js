@@ -20,9 +20,10 @@ const fetchData = async (data, reqUrl) => {
   return axios(options).then((result) => result.data);
 };
 const getUsserID = async (req) => {
+  let user = await req?.user;
   let userID;
   try {
-    userID = (await req.user?.fetchedData?.userID) ? req.user.fetchedData.userID : req.user.userID;
+    userID = user?.fetchedData?.userID ? user.fetchedData.userID : user.userID;
     //  console.log("userID", userID);
   } catch (e) {
     return {
@@ -33,6 +34,7 @@ const getUsserID = async (req) => {
   return {
     status: true,
     data: userID,
+    config: user?.configObj ? user.configObj : null,
   };
 };
 
@@ -76,7 +78,10 @@ const saveMatrixesToDB = async (req, isTrue) => {
 
   let Req = {};
   Req["body"] = body;
+
   Req["headers"] = headers;
+  console.log({ body, headers });
+
   // console.log(Req);
   return await fetchData(Req, "/api/saveMatrix")
     .then((result) => {
