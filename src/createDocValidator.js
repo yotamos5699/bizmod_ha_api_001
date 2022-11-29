@@ -52,6 +52,7 @@ const checkNull = async (data) => {
           error: `the object is ${typeof array.data}, needs to an Array`,
         });
     });
+    if (!Array.isArray(innerMatrix.ActionID)) return { status: "no", data: checks };
 
     if (!innerMatrix.ActionID.find((value) => value == 1) && !innerMatrix.ActionID.find((value) => value == 3)) {
       checks.push({
