@@ -38,10 +38,20 @@ const checkNull = async (data) => {
     };
 
   if (!data.matrixID) checks.push({ path: "matrixID", error: "missing" });
+
   if (!data.matrixesData.mainMatrix) {
     checks.push({ path: "matrixesData.mainMatrix", error: "missing" });
   } else {
     let innerMatrix = data.matrixesData.mainMatrix;
+    const nestedArrays = await getArrays(innerMatrix);
+
+    nestedArrays.forEach((array) => {
+      if (!Array.isArray(array.data))
+        checks.push({
+          path: `mainMatrix.${array.name}`,
+          error: `the object is ${typeof array.data}, needs to an Array`,
+        });
+    });
 
     if (!innerMatrix.ActionID.find((value) => value == 1) && !innerMatrix.ActionID.find((value) => value == 3)) {
       checks.push({
@@ -60,21 +70,120 @@ const checkNull = async (data) => {
           });
         }
       }
+      const type1 = innerMatrix.AccountKey.length;
+      const type2 = innerMatrix.itemsHeaders.length;
+      if (
+        innerMatrix.AccountKey.length != innerMatrix.DocumentID.length ||
+        innerMatrix.AccountKey.length != innerMatrix.ActionAutho.length
+      )
+        checks.push({
+          path: "matrixesData.mainMatrix",
+          error: "unequal arrays length",
+        });
     }
-
-    if (
-      innerMatrix.AccountKey.length != innerMatrix.DocumentID.length ||
-      innerMatrix.AccountKey.length != innerMatrix.ActionAutho.length
-    )
-      checks.push({
-        path: "matrixesData.mainMatrix",
-        error: "unequal arrays length",
-      });
-  }
-  if (checks?.length > 0) {
-    return { status: "no", data: checks };
+    if (checks?.length > 0) {
+      return { status: "no", data: checks };
+    }
   }
 };
+async function getArrays(ineerMatrix) {
+  return [
+    {
+      name: "AccountKey",
+      data: ineerMatrix.AccountKey,
+      type: 1,
+    },
+    {
+      name: "ActionAutho",
+      data: ineerMatrix.ActionAutho,
+      type: 1,
+    },
+    {
+      name: "ActionID",
+      data: ineerMatrix.ActionID,
+      type: 1,
+    },
+    {
+      name: "DocumentID",
+      data: ineerMatrix.DocumentID,
+      type: 1,
+    },
+    {
+      name: "DriverID",
+      data: ineerMatrix.DriverID,
+      type: 1,
+    },
+    {
+      name: "itemsHeaders",
+      data: ineerMatrix.itemsHeaders,
+      type: 2,
+    },
+    {
+      name: "itemsNames",
+      data: ineerMatrix.itemsNames,
+      type: 2,
+    },
+    {
+      name: "cellsData",
+      data: ineerMatrix.cellsData,
+      type: 2,
+    },
+  ];
+}
+
+//"ActionID": [
+// //                 1",
+// //                 1
+// //             ],
+// //             "AccountKey": [
+// //                 "6026",
+// //                 "6027"
+// //             ],
+// //             "DocumentID": [
+// //                 1,
+// //                 1
+// //             ],
+// //             "DriverID": [
+// //                 "qewr135256edrfh",
+// //                 "qewr135256edrfh"
+// //             ],
+// //             "ActionAutho": [
+// //                 "Default",
+// //                 "Default"
+// //             ],
+// //             "itemsHeaders": [
+// //                 "HI250SA",
+// //                 "SX250SA",
+// //                 "AB500SA"
+// //             ],
+// //             "itemsNames": [
+// //                 "הרנה 250 גרם",
+// //                 "גת SPXP",
+// //                 "אבו מיסמר גדול"
+// //             ],
+// //             "cellsData": [
+// //                 [
+// //                     3,
+// //                     2,
+// //                     1
+// //                 ],
+// //                 [
+// //                     1,
+// //                     0,
+// //                     0
+// //                 ]
+// //             ]
+// //         },
+// //         "changesMatrix": {
+// //             "matrixConfig": null,
+// //             "matrixGlobalData": null,
+// //             "cellsData": [
+// //                 [
+// //                     null,
+// //                     null,
+// //                     null
+// //                 ],
+// //                 [
 
 // 18:"	העברה בין מחסנים - יציאה",
 // 19:"	העברה בין מחסנים",
