@@ -81,7 +81,7 @@ const constractRows = async (mainMatrix, changesMatrix) => {
     //   )} \n ***** outer Data ***** \n ${JSON.stringify(constructedOuterScopeData)}`
     // );
 
-    console.log({ constractedDocumentRows });
+    //  console.log({ constractedDocumentRows });
     return [constractedDocumentRows, constructedOuterScopeData];
   } catch (err) {
     console.log("error !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", err);
@@ -104,18 +104,16 @@ const matrixObjectConstructor = async (docData, outerData, matrixesData) => {
 };
 
 const prererMatixesData = async ({ matrixesData }) => {
-  console.log("**************** prepere matrixes data ***************");
-  console.log("**************** matrixes data ***************\n ", matrixesData);
+  // console.log("**************** prepere matrixes data ***************");
+  //  console.log("**************** matrixes data ***************\n ", matrixesData);
   let [docData, outerData] = await constractRows(matrixesData.mainMatrix, matrixesData.changesMatrix);
-  console.log(
-    `************* doc Data ************** \n ${docData} \n *************** outer Data *************** \n ${outerData}`
-  );
+
   let mainObj;
   try {
     mainObj = await matrixObjectConstructor(docData, outerData, matrixesData);
-    console.log("************** main Obj ****************\n", JSON.stringify(mainObj.data.docData, null, 2));
+    // console.log("************** main Obj ****************\n", JSON.stringify(mainObj.data.docData, null, 2));
   } catch (e) {
-    console.log(e);
+    console.log("Helper=> prererMatixesData", e);
   }
   return mainObj;
 };
