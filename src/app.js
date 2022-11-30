@@ -70,7 +70,7 @@ app.post("/api/mergepdfs", Helper.authenticateToken, async (req, res) => {
   const Filename = req?.headers["filename"];
   const progressBar = false;
 
-  pd && setProgressBar(Filename, { stageName: 1, text: "פונקציית mergePdf מתחילה לעבוד" }, false);
+  progressBar && setProgressBar(Filename, { stageName: 1, text: "פונקציית mergePdf מתחילה לעבוד" }, false);
   console.log("%%%%%%%%%%% merge pdfs%%%%%%%%%");
   res.contentType("application/pdf");
   let pdfsObject;
