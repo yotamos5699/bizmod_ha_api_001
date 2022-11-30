@@ -49,7 +49,7 @@ const saveDocURL = async (docsArrey, oauth) => {
     body: body,
   };
 
-  console.log({ Req });
+  //console.log({ Req });
   return await fetchData(Req, "/api/saveDocs")
     .then((result) => {
       // console.log("result in fetch %%%%", result);
@@ -58,8 +58,7 @@ const saveDocURL = async (docsArrey, oauth) => {
       return { resultData };
     })
     .catch((e) => {
-      console.log("error in save doc url");
-      console.log(e);
+      console.log("error in save doc url", e);
     });
 };
 
@@ -86,7 +85,7 @@ const saveMatrixesToDB = async (req, isTrue) => {
   // console.log(Req);
   return await fetchData(Req, "/api/saveMatrix")
     .then((result) => {
-      //   console.log("result in fetch %%%%", result);
+      if (result.status == "no") console.log(result.data._message);
       let resultData = result;
       return { resultData };
     })
@@ -110,7 +109,7 @@ const authenticateToken = (req, res, next) => {
   //  console.log({ authHeader });
   const token = authHeader && authHeader.split(" ")[1];
 
-  console.log({ token });
+  //console.log({ token });
   if (token == null) {
     req.testMsg = {
       status: 401,
@@ -131,13 +130,13 @@ const authenticateToken = (req, res, next) => {
     }
     req.testMsg = { status: 200 };
     req.user = user;
-    console.log(user);
+    //console.log(user);
     next();
   });
 };
 
 const createRetJson = async (answer, index, Action, userID, addedValue) => {
-  console.log(`CreateRetJson function !! \n number doc ${index} \n ${JSON.stringify(answer)}`);
+  console.log(`CreateRetJson function`);
   try {
     ret = {
       userID: userID,
@@ -204,17 +203,16 @@ const updateJsonFILE = async (fileName, newData) => {
 
     console.log(err, "See resaults in myApiRes.txt");
   });
-  console.log(data);
+  // console.log(data);
   data = await JSON.parse(data);
-  console.log(data);
+  //console.log(data);
 
   newData.forEach((row, index) => {
-    console.log("row  " + row + "index " + index);
+    // console.log("row  " + row + "index " + index);
     data.data.push(row);
   });
 
-  console.log(typeof data);
-  console.log(data);
+  //console.log(typeof data);
 
   fs.writeFileSync(path.resolve(__dirname, `../${fileName}.json`), JSON.stringify(data), (err) => {
     if (err) throw err;
@@ -290,7 +288,7 @@ const sortReportData = (reportData, sortKey) => {
       }
     });
     updatedData = newSortedData;
-    console.log(`sorted data \n ${JSON.stringify(newSortedData)}`);
+    // console.log(`sorted data \n ${JSON.stringify(newSortedData)}`);
   });
 
   if (!updatedData)

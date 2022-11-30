@@ -162,7 +162,7 @@ const setProgressBar = async (filename, messageData, gotStats, currentDoc, total
 };
 
 const updateProgressBar = async (filename, progressData) => {
-  console.log("IN PROGRESS BAR --", { filename, progressData });
+  //console.log("IN PROGRESS BAR --", { filename, progressData });
   const data = progressData;
   let path = "./" + filename + ".json";
   if (fs.existsSync(path))
@@ -223,14 +223,14 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
     .then(async (result) => {
       Action = result.ActionID;
       let allData = result.data.docData;
-      console.log({ allData });
+
       let data = await allData.filter((row, idx) => {
         if (matrixesData.matrixesData.mainMatrix.ActionID[idx] == 1) return row;
       });
 
       console.log({ data });
       const dataLength = data.length;
-      console.log("************* data length **************\n", dataLength);
+
       for (let i = 0; i <= data.length - 1; i++) {
         await documentCreator
           .createDoc(data[i], i, userID)
@@ -430,7 +430,7 @@ app.post("/api/getProgressBar", async (req, res) => {
   const Filename = req.headers["filename"];
   const TimeLimit = parseInt(req.headers["timelimit"]);
 
-  console.log("IN GET PROGRESS DATA ", { Filename, TimeLimit });
+  // console.log("IN GET PROGRESS DATA ", { Filename, TimeLimit });
   let path = "./" + Filename + ".json";
 
   res.writeHead(200, {
@@ -443,12 +443,12 @@ app.post("/api/getProgressBar", async (req, res) => {
   let runtime = 0;
   let stageName = "";
   let intervals = setInterval(() => {
-    console.log("IN GET PROGRESS DATA ", { Filename, TimeLimit, runtime });
+    // console.log("IN GET PROGRESS DATA ", { Filename, TimeLimit, runtime });
     let file_exist = fs.existsSync(path);
-    console.log({ file_exist });
+    //  console.log({ file_exist });
     if (file_exist) {
       let result = JSON.parse(fs.readFileSync(path, { encoding: "utf8", flag: "r" }));
-      console.log("file exist");
+      //  console.log("file exist");
 
       if (result.stageName == "finish" || result?.termenate) {
         toBreak = true;
