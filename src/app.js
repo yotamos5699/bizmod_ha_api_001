@@ -176,8 +176,10 @@ const updateProgressBar = async (filename, progressData) => {
 app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
   const Filename = req?.headers["filename"];
-  const progressBar = false;
+  const progressBar = true;
   const validator = true;
+  res.setHeader("Access-Control-Allow-Origin", "*");
+
   let oauth = req.headers["authorization"];
   let addedValue;
   const user = await req?.user;
