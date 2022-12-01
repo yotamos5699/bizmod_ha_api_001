@@ -284,7 +284,118 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
       res.send(JSON.stringify({ status: "no", data: err }));
     });
 });
+app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
+  console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
+  const Filename = req?.headers["filename"];
+  const progressBar = true;
+  const validator = true;
+  res.setHeader("Access-Control-Allow-Origin", "*");
 
+  let oauth = req.headers["authorization"];
+  let addedValue;
+  const user = await req?.user;
+
+  const matrixesData = await req.body;
+  const test = await createDocValidator.validate(matrixesData, "default");
+  if (validator) {
+    if (test?.status == "no") return res.send({ status: "no", data: test });
+  } else return res.send({ status: "yes", data: "object ok" });
+  console.log({ matrixesData });
+
+  progressBar && setProgressBar(Filename, { stageName: "start", text: "מאתחל...." }, false);
+
+  let userID;
+  try {
+    userID = user?.fetchedData?.userID ? user.fetchedData.userID : user.userID;
+    console.log("userID", userID);
+  } catch (e) {
+    console.log(`
+      status: no, user id invalid value ${userID},
+      data: JSON.stringify(e),
+    `);
+  }
+
+  let Action;
+  let logArrey = [];
+
+  progressBar && setProgressBar(Filename, { stageName: "a", text: "מכין מטריצה לעיבוד" }, false);
+  console.log("sssssssssssssssssssssfadggasdgs", Object.keys(matrixesData));
+  matrixesHandeler
+    .prererMatixesData(matrixesData)
+    .then(async (result) => {
+      progressBar && setProgressBar(Filename, { stageName: "b", text: "שומר תוכן מטריצות במסד נתונים" }, false);
+      const dataToSave = await matrixesHandeler.constructMatrixToDbObjB(req);
+
+      const saveStatus = await Helper.saveMatrixesToDB(dataToSave, true);
+      if (saveStatus?.resultData?.status == "no") console.log(` status: "no", data: "problem with matrix name"`);
+      const statusMsg = saveStatus?.resultData?.status == "yes" ? "נשמר בהצלחה" : "תקלה בתהליך השמירה ";
+
+      progressBar && setProgressBar(Filename, { stageName: "c", text: statusMsg }, false);
+      return result;
+    })
+    .then(async (result) => {
+      Action = parseInt(Filename.slice(2, filename.length - 1));
+      let allData = result.data.docData;
+
+      let data = await allData.filter((row, idx) => {
+        if (matrixesData.matrixesData.mainMatrix.ActionID[idx] == 1) return row;
+      });
+
+      console.log({ data });
+      const dataLength = data.length;
+
+      for (let i = 0; i <= data.length - 1; i++) {
+        await documentCreator
+          .createDoc(data[i], i, userID)
+          .then(async (docOutPut) => {
+            progressBar && setProgressBar(Filename, { stageName: `f${i}`, text: "מפיק מסמך" }, true, i + 1, dataLength);
+            console.log("aaaaasssssssssssssssssssss", { docOutPut });
+            if (docOutPut?.status == "no") {
+              progressBar &&
+                setProgressBar(Filename, {
+                  stageName: "finish",
+                  text: "תקלה בהפקת מסמכים",
+                });
+              return console.log(` status: "no", data: "error in docOutPut" `);
+            }
+            if (i == 0) addedValue = docOutPut[0]["DocumentDetails"][0][0]["DocNumber"];
+            let val = docOutPut;
+
+            console.log("doc output **", { val });
+            //   docOutPut[0][]
+            //     {
+            //       NewDocumentStockID: 3208,
+            //       DocumentIssuedStatus: 'IsError',
+            //       TempDocumentDeleted: 'No'
+            //     },
+            //     [ [Object], [Object] ]
+            //   ]
+            // }
+            return await Helper.createRetJson(docOutPut, i, Action, userID, addedValue);
+          })
+          .then(async (docResult) => {
+            logArrey.push(docResult);
+          });
+      }
+    })
+    .then(async () => {
+      progressBar && setProgressBar(Filename, { stageName: "S", text: "שומר תוצאות במסד הנתונים" }, false);
+
+      // _______________________________________________________________//
+      return await Helper.saveDocURL(logArrey, oauth);
+    })
+    .then((result) => {
+      progressBar && setProgressBar(Filename, { stageName: "finish", text: "המסמכים הופקו", termenate: true }, false);
+      console.log(` status: "yes", data: ${result}`);
+      //   res.send(JSON.stringify({ status: "yes", data: result }));
+    })
+    .catch((err) => {
+      console.log(`catch in main loop...\n ${err}`);
+      progressBar && setProgressBar(Filename, { stageName: "finish", text: "תקלה בהפקת המטריצה" }, false);
+      // deleteProgressFile(Filename);
+      console.log(` status: "no", data: ${error}`);
+    });
+});
 app.post("/api/initvalidate", Helper.authenticateToken, async function (req, res) {
   const { usserDbname, usserPrivetKey, usserServerName } = await req.body;
   // console.log("********************* DATA IN REQUEST **********************");
