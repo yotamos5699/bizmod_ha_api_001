@@ -151,13 +151,14 @@ const createRetJson = async (answer, index, Action, userID, addedValue) => {
       Address: answer[0]["DocumentDetails"][0][0]["Address"],
       DocumentDetails: answer[0]["DocumentDetails"][0][0]["Phone"],
       DocUrl: answer[0]["urlDoc"],
-      Action: parseInt(Action + addedValue),
+      Action: parseInt(Action),
       SigStat: { isSigned: false },
     };
   } catch (err) {
     console.error("create json ", err);
     return { status: "no", data: err };
   }
+  console.log("after action object ", { ret });
   return ret;
 };
 

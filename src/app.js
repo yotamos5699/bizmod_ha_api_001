@@ -287,6 +287,7 @@ app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
 app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
   console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
   const Filename = req?.headers["filename"];
+  console.log({ Filename });
   const progressBar = true;
   const validator = true;
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -298,8 +299,15 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
   const matrixesData = await req.body;
   const test = await createDocValidator.validate(matrixesData, "default");
   if (validator) {
-    if (test?.status == "no") return res.send({ status: "no", data: test });
-  } else return res.send({ status: "yes", data: "object ok" });
+    console.log("!!!!!!!! validatror in !!!!!");
+    if (test?.status == "no") {
+      console.log("validator in no ");
+      return res.send({ status: "no", data: test });
+    } else {
+      console.log("validator in yes ");
+      res.send({ status: "yes", data: "object ok" });
+    }
+  }
   console.log({ matrixesData });
 
   progressBar && setProgressBar(Filename, { stageName: "start", text: "מאתחל...." }, false);
@@ -315,7 +323,8 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
     `);
   }
 
-  let Action;
+  let Action = await parseInt(Filename.slice(2, Filename.length));
+  console.log({ Action });
   let logArrey = [];
 
   progressBar && setProgressBar(Filename, { stageName: "a", text: "מכין מטריצה לעיבוד" }, false);
@@ -334,7 +343,7 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
       return result;
     })
     .then(async (result) => {
-      Action = parseInt(Filename.slice(2, filename.length - 1));
+      console.log({ Action });
       let allData = result.data.docData;
 
       let data = await allData.filter((row, idx) => {
@@ -393,7 +402,7 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
       console.log(`catch in main loop...\n ${err}`);
       progressBar && setProgressBar(Filename, { stageName: "finish", text: "תקלה בהפקת המטריצה" }, false);
       // deleteProgressFile(Filename);
-      console.log(` status: "no", data: ${error}`);
+      console.log(` status: "no", data: ${err}`);
     });
 });
 app.post("/api/initvalidate", Helper.authenticateToken, async function (req, res) {
