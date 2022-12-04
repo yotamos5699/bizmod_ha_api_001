@@ -162,7 +162,7 @@ const setProgressBar = async (filename, messageData, gotStats, currentDoc, total
 };
 
 const updateProgressBar = async (filename, progressData) => {
-  //console.log("IN PROGRESS BAR --", { filename, progressData });
+  //console.log("IN PROGRESS BAR --", { filename, progr essData });
   const data = progressData;
   let path = "./" + filename + ".json";
   if (fs.existsSync(path))
