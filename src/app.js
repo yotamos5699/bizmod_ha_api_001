@@ -71,7 +71,7 @@ app.post("/api/mergepdfs", Helper.authenticateToken, async (req, res) => {
   const progressBar = false;
 
   progressBar && setProgressBar(Filename, { stageName: 1, text: "פונקציית mergePdf מתחילה לעבוד" }, false);
-  console.log("%%%%%%%%%%% merge pdfs%%%%%%%%%");
+  console.log("%%%%%%%%%s%% merge pdfs%%%%%%%%%");
   res.contentType("application/pdf");
   let pdfsObject;
   try {
