@@ -5,6 +5,9 @@ const defultReports = require("./filencryption");
 const e = require("express");
 const realUserID = "6358f8717dd95eceee53eac3";
 
+const amir = "638dac1454f08b935ed4af2f";
+const yafit = "638dad0c54f08b935ed4af34";
+
 let docHash = {};
 try {
   docHash = {
@@ -29,7 +32,7 @@ async function exportRecords(reqData, userID) {
   let Warehouse = "";
   fileData == "1" ? (Warehouse = reqData.Warehouse) : (Warehouse = null);
 
-  let ID = (await userID) == realUserID ? realUserID : "1111";
+  let ID = (await userID) == realUserID ? realUserID : amir ? amir : yafit ? yafit : "1111";
   if (ID != "1111") console.log("ofek is connected");
   console.log({ ID });
   const { usserDbname, usserServerName, usserPrivetKey } = await getCredential.getCastumersCred(ID);
