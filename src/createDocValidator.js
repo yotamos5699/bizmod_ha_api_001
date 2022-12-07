@@ -1,11 +1,3 @@
-const validate = async (data, type = "default") => {
-  console.log("validating input in  ", { type });
-
-  return checkNull(data);
-};
-
-module.exports.validate = validate;
-
 const documenDef = {
   1: "חשבונית מס ",
   2: "חשבונית מס/קבלה",
@@ -25,8 +17,18 @@ const documenDef = {
   16: "הצעת מחיר רכש",
   17: "הזמנת רכש",
 };
-
 const allowedDocs = [1, 3];
+
+const validate = async (data, type = "default") => {
+  console.log("validating input in  ", { type });
+
+  return checkNull(data);
+};
+
+module.exports.validate = validate;
+
+
+
 const checkNull = async (data) => {
   let checks = [];
   if (!data.matrixesData.mainMatrix || !data.matrixesData.changesMatrix)
