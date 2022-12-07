@@ -32,8 +32,20 @@ async function exportRecords(reqData, userID) {
   let Warehouse = "";
   fileData == "1" ? (Warehouse = reqData.Warehouse) : (Warehouse = null);
 
-  let ID = (await userID) == realUserID ? realUserID : amir ? amir : yafit ? yafit : "1111";
-  if (ID != "1111") console.log("ofek is connected");
+  //let ID = (await userID) == realUserID ? realUserID : amir ? amir : yafit ? yafit : "1111";
+  //if (ID != "1111") console.log("ofek is connected");
+
+  let ID;
+  if (userID == realUserID) {
+    ID = realUserID;
+  } else if (userID == amir) {
+    ID = amir;
+  } else if (userID == yafit) {
+    ID = yafit;
+  } else {
+    ID = "1111";
+  }
+
   console.log({ ID });
   const { usserDbname, usserServerName, usserPrivetKey } = await getCredential.getCastumersCred(ID);
 
