@@ -29,12 +29,15 @@ async function createDoc(docData, index, userID) {
   const { usserDbname, usserServerName, usserPrivetKey } = await getCredential.getCastumersCred(ID);
 
   let myDBname = usserDbname;
-  try {
-    wizlib.init(usserPrivetKey, usserServerName);
-  } catch (e) {
-    console.log(e);
+  console.log({ index });
+  if (parseInt(index) == 0 || parseInt(index) % 5 == 0) {
+    console.log("index passed");
+    try {
+      wizlib.init(usserPrivetKey, usserServerName);
+    } catch (e) {
+      console.log(e);
+    }
   }
-
   //console.log("DOC DATA  !!!!!!!!!", docData);
   let apiRes = await wizlib.createDocument(myDBname, {
     rows: docData,

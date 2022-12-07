@@ -4,7 +4,8 @@ const path = require("path");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 let utfZone = "en";
-const dbUrl = process.env.DBport || "http://localhost:4000";
+//const dbUrl = process.env.DBport || "http://localhost:4000";
+const dbUrl = "http://localhost:4000";
 const axios = require("axios");
 
 const fetchData = async (data, reqUrl) => {
@@ -135,8 +136,8 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-const createRetJson = async (answer, index, Action, userID, addedValue) => {
-  console.log(`CreateRetJson function`);
+const createRetJson = async (answer, Action, userID) => {
+  console.log(`CreateRetJson function `, answer);
   try {
     ret = {
       userID: userID,
@@ -156,7 +157,7 @@ const createRetJson = async (answer, index, Action, userID, addedValue) => {
     };
   } catch (err) {
     console.error("create json ", err);
-    return { status: "no", data: err };
+    return { status: "no", data: err, error: answer?.error };
   }
   console.log("after action object ", { ret });
   return ret;
