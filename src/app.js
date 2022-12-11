@@ -328,9 +328,10 @@ app.post("/api/getrecords", Helper.authenticateToken, async function (req, res) 
   let isSended = false;
   const reportData = await req.body;
   console.log(reportData);
-  const UPDATE_TIME_INTERVAL = 1000 * 12;
+  const UPDATE_TIME_INTERVAL = 1000 * 30;
   await StoredReports.find({ ID: JSON.stringify(reportData), userID: userID })
     .then(async (report) => {
+      console.log({ report });
       let len = report.length;
       console.log({ len });
       report.length == 0 ? (isNew = true) : (isNew = false);
