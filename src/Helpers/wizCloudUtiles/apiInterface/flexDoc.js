@@ -80,6 +80,7 @@ async function exportRecords(reqData, userID) {
     });
   }
   apiRes = JSON.parse(apiRes);
+  //console.log(apiRes.status.repdata);
   // console.log(apiRes)
 
   let resArrey = [];
@@ -89,19 +90,19 @@ async function exportRecords(reqData, userID) {
     } catch (e) {
       return e;
     }
-    console.log(JSON.stringify(treeData, null, 2));
+    // console.log(JSON.stringify(treeData, null, 2));
     apiRes.status.repdata.forEach((itemsDataRow) => {
       let record = {};
-
+      let isRecord = false;
       treeData.status.repdata.forEach((treeDataRow) => {
         if (itemsDataRow["מפתח פריט"] == treeDataRow["מפתח פריט אב"]) {
           record = itemsDataRow;
           record["מפתח פריט אב"] = treeDataRow["מפתח פריט"];
-
+          isRecord = true;
           //  console.log(row['מפתח פריט'] + " " + item['מפתח פריט אב'])
         }
       });
-      if (record) {
+      if (isRecord) {
         resArrey.push(record);
       } else {
         record = itemsDataRow;
@@ -112,7 +113,7 @@ async function exportRecords(reqData, userID) {
   }
 
   let newArrey = [];
-
+  console.log("resss array ", resArrey);
   resArrey.forEach((resRow) => {
     let record = {};
 
@@ -125,14 +126,15 @@ async function exportRecords(reqData, userID) {
       }
     });
   });
+  //console.log(JSON.stringify(newArrey, null, 2));
   //console.log({ apiRes });
   // console.log("res keys", Object.keys(apiRes.status));
   //console.log("RES.REPDATA", apiRes.status.repdata);
   //  console.log({ newArrey });
   let jsondata = resArrey.length > 0 ? newArrey : apiRes.status.repdata;
   // console.log({ jsondata });
-  const data = JSON.stringify(jsondata, null, 2);
-
+  //const data = JSON.stringify(jsondata, null, 2);
+  //console.log("json data !!!", jsondata);
   if (sortKey) {
     try {
       jsondata = Helper.sortReportData(jsondata, sortKey);
