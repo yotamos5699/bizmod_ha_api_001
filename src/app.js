@@ -146,6 +146,34 @@ app.post("/api/generatekey", async (req, res) => {
   res.send({ key: crypto.randomBytes(32).toString("hex") });
 });
 
+//"https://script.google.com/macros/s/AKfycby6-9oemt2hT4jU5jyiWe6Xxf5g6NqgKK7yTFZZ2WxEYWGcwBJ98M9Yu4xMD_U-lsFbQw/exec?type=items&&id=6358f8717dd95eceee53eac3"
+//http://localhost:3000/api/updateTriger?type=items&&id=6358f8717dd95eceee53eac3
+// app.post("/api/updatetrigers", async (req, res) => {
+//   const T =new Date().toLocaleTimeString('iw-IL')
+//   const path = "./trigers.json";
+//   const fileData =await JSON.parse(req.body)
+//   const Action = req?.headers["action"];
+//   if(Action =="write"){
+//     try{
+//   fs.writeFileSync(path, JSON.stringify(fileData), {
+//     encoding: "utf8",
+//     flag: "w",
+//   })
+// return res.send({status:yes,data:'saved',timeStemp:T})
+// }
+// catch{
+//   res.send({status:'no',data:'problem with writing trigers file',timeStemp:T})
+// }
+// }else if(Action == "read")
+// if(fs.existsSync(path)){
+// const result = JSON.parse(fs.readFileSync(path, { encoding: "utf8", flag: "r" }));
+// res.send({status:'yes',da})
+// }
+// )
+// )
+
+//   });
+
 const setProgressBar = async (filename, messageData, gotStats, currentDoc, totalDocs) => {
   const data = {
     termenate: messageData?.termenate ? true : false,
@@ -327,24 +355,23 @@ app.post("/api/getrecords", Helper.authenticateToken, async function (req, res) 
   let isNew;
   let isSended = false;
   const reportData = await req.body;
-  console.log(reportData);
-  const UPDATE_TIME_INTERVAL = 1000 * 30;
+  // console.log(reportData);
+  const UPDATE_TIME_INTERVAL = 1000 * 300;
   await StoredReports.find({ ID: JSON.stringify(reportData), userID: userID })
     .then(async (report) => {
-      console.log({ report });
+      //  console.log({ report });
       let len = report.length;
       console.log({ len });
       report.length == 0 ? (isNew = true) : (isNew = false);
       searchData = report;
       const DATA_TO_log = report[0]._doc;
-      console.log("date in report", DATA_TO_log.Date);
+      //   console.log("date in report", DATA_TO_log.Date);
 
       if (!isNew) {
-        const currentTime = new Date().getTime();
+        const currentTime = new Date(new Date().toLocaleString("en", { timeZone: "Asia/Jerusalem" })).getTime();
         //.toLocaleStrinutfZone, {
         //   timeZone: "Asia/Jerusalem",
         // }).getTime();
-
         const reportTime = new Date(report[0]._doc.Date).getTime();
         console.table({ currentTime, reportTime });
         if (currentTime - reportTime < UPDATE_TIME_INTERVAL) {
@@ -374,9 +401,7 @@ app.post("/api/getrecords", Helper.authenticateToken, async function (req, res) 
         .then(async (jsondata, validationMsg) => {
           const reportObject = {
             userID: userID,
-            Date: new Date().toLocaleString(utfZone, {
-              timeZone: "Asia/Jerusalem",
-            }),
+            Date: new Date().toLocaleString("en", { timeZone: "Asia/Jerusalem" }),
             ID: JSON.stringify(reportData),
             Report: jsondata,
           };
