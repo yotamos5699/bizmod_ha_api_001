@@ -89,11 +89,11 @@ async function exportRecords(reqData, userID) {
     } catch (e) {
       return e;
     }
-
-    treeData.status.repdata.forEach((treeDataRow) => {
+    console.log(JSON.stringify(treeData, null, 2));
+    apiRes.status.repdata.forEach((itemsDataRow) => {
       let record = {};
 
-      apiRes.status.repdata.forEach((itemsDataRow) => {
+      treeData.status.repdata.forEach((treeDataRow) => {
         if (itemsDataRow["מפתח פריט"] == treeDataRow["מפתח פריט אב"]) {
           record = itemsDataRow;
           record["מפתח פריט אב"] = treeDataRow["מפתח פריט"];
