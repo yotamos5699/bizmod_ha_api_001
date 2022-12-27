@@ -37,8 +37,9 @@ const { encode } = require("punycode");
 const MGoptions = { useNewUrlParser: true, useUnifiedTopology: true };
 // const accountSid = process.env.TWILIO_ACCOUNT_SID;
 // const authToken = process.env.TWILIO_AUTH_TOKEN;
+//AC0228e43244a7b1cd0a5ce9d10b14d4eb
 const accountSid = "AC0228e43244a7b1cd0a5ce9d10b14d4eb";
-const authToken = "ffce7057328fc54b8fbbc6f1643a7188";
+const authToken = "d3156c45622da27e95a3ca4f975cf474";
 const client = require("twilio")(accountSid, authToken);
 
 mongoose
@@ -568,7 +569,8 @@ app.post("/api/sendMsgs/sms", async (req, res) => {
 
 async function sendSms(to2, body3) {
   console.log({ to2, body3 });
-  const fromSms = "+12395227812";
+  const fromSms = "+972521205702";
+  // const fromSms = "+12395227812";
   // const ACCOUNT_SID = "AC0228e43244a7b1cd0a5ce9d10b14d4eb";
   // const ACCOUNT_TOKEN = "ffce7057328fc54b8fbbc6f1643a7188";
 
