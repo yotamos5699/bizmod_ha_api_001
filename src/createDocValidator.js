@@ -27,8 +27,6 @@ const validate = async (data, type = "default") => {
 
 module.exports.validate = validate;
 
-
-
 const checkNull = async (data) => {
   let checks = [];
   if (!data.matrixesData.mainMatrix || !data.matrixesData.changesMatrix)
@@ -38,12 +36,9 @@ const checkNull = async (data) => {
         "expected matrixesData:  \n    mainMatrix: { \n  ....... \n }, \n changesMatrix: { \n ..........}\ngot " +
         { ...data },
     };
+  else {
+    if (!data.matrixID) checks.push({ path: "matrixID", error: "missing" });
 
-  if (!data.matrixID) checks.push({ path: "matrixID", error: "missing" });
-
-  if (!data.matrixesData.mainMatrix) {
-    checks.push({ path: "matrixesData.mainMatrix", error: "missing" });
-  } else {
     let innerMatrix = data.matrixesData.mainMatrix;
     const nestedArrays = await getArrays(innerMatrix);
 
@@ -55,6 +50,11 @@ const checkNull = async (data) => {
         });
     });
     if (!Array.isArray(innerMatrix.ActionID)) return { status: "no", data: checks };
+    const nullsInArrays = checkNullsInArras([
+      [innerMatrix.itemsHeaders, "itemsHeaders"],
+      [innerMatrix.itemsNames, "itemsNames"],
+    ]);
+    if (nullsInArrays) checks = [...checks, ...nullsInArrays];
 
     if (!innerMatrix.ActionID.find((value) => value == 1) && !innerMatrix.ActionID.find((value) => value == 3)) {
       checks.push({
@@ -73,8 +73,7 @@ const checkNull = async (data) => {
           });
         }
       }
-      const type1 = innerMatrix.AccountKey.length;
-      const type2 = innerMatrix.itemsHeaders.length;
+
       if (
         innerMatrix.AccountKey.length != innerMatrix.DocumentID.length ||
         innerMatrix.AccountKey.length != innerMatrix.ActionAutho.length
@@ -132,6 +131,18 @@ async function getArrays(ineerMatrix) {
       type: 2,
     },
   ];
+}
+
+function checkNullsInArras(arrays) {
+  let errors = [];
+  for (let i = 0; i <= arrays.length - 1; i++) {
+    if (!arrays[i][0].every((element) => element !== null)) {
+      errors.push({ path: arrays[i][1], error: "array contains null" });
+    }
+  }
+  if (errors?.length) {
+    return errors;
+  } else return false;
 }
 
 //"ActionID": [

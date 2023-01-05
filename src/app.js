@@ -34,10 +34,12 @@ const mongoose = require("mongoose");
 const { Console } = require("console");
 const { default: axios } = require("axios");
 const { encode } = require("punycode");
+const { ZC_ErrorLogger } = require("./ZCmonitor");
 const MGoptions = { useNewUrlParser: true, useUnifiedTopology: true };
 // const accountSid = process.env.TWILIO_ACCOUNT_SID;
 // const authToken = process.env.TWILIO_AUTH_TOKEN;
 //AC0228e43244a7b1cd0a5ce9d10b14d4eb
+
 const accountSid = "AC0228e43244a7b1cd0a5ce9d10b14d4eb";
 const authToken = "d3156c45622da27e95a3ca4f975cf474";
 const client = require("twilio")(accountSid, authToken);
@@ -185,6 +187,7 @@ app.post("/api/generatekey", async (req, res) => {
 
 const setProgressBar = async (filename, messageData, gotStats, currentDoc, totalDocs) => {
   const data = {
+    data: messageData?.urlsData ? messageData.urlsData : null,
     termenate: messageData?.termenate ? true : false,
     stageName: typeof messageData == "object" ? messageData.stageName : "in process",
     msg: typeof messageData == "object" ? messageData.text : messageData,
@@ -230,7 +233,7 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
   if (validator) {
     console.log("!!!!!!!! validatror in !!!!!");
     if (test?.status == "no") {
-      console.log("validator in no ");
+      ZC_ErrorLogger(test, { text: "validation error ,", toLog: true }, { serverName: "ha" }, null, true);
       return res.send({ status: "no", data: test });
     } else {
       console.log("validator in yes ");
@@ -318,10 +321,17 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
       return await Helper.saveDocURL(logArrey, oauth);
     })
     .then((result) => {
+      console.log({ result });
       progressBar &&
         setProgressBar(
           Filename,
-          { stageName: "finish", text: "המסמכים הופקו", termenate: true, errors: Errors },
+          {
+            stageName: "finish",
+            text: "המסמכים הופקו",
+            termenate: true,
+            errors: Errors,
+            urlsData: [...result.resultData.data],
+          },
           false
         );
       console.log(` status: "yes", data: ${result}`);
@@ -334,6 +344,7 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
       console.log(` status: "no", data: ${err}`);
     });
 });
+
 app.post("/api/initvalidate", Helper.authenticateToken, async function (req, res) {
   const { usserDbname, usserPrivetKey, usserServerName } = await req.body;
   // console.log("********************* DATA IN REQUEST **********************");
