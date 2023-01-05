@@ -200,6 +200,9 @@ const setProgressBar = async (filename, messageData, gotStats, currentDoc, total
   };
   let path = `./${filename}.json`;
   updateProgressBar(filename, data);
+  setInterval(() => {
+    return "ok";
+  }, 550);
 };
 
 const updateProgressBar = async (filename, progressData) => {
@@ -214,6 +217,14 @@ const updateProgressBar = async (filename, progressData) => {
     });
   else fs.writeFileSync(path, JSON.stringify(data), { encoding: "utf8" });
 };
+
+function delay(delayInms) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(2);
+    }, delayInms);
+  });
+}
 
 app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
   console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
@@ -316,21 +327,34 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
     })
     .then(async () => {
       progressBar && setProgressBar(Filename, { stageName: "S", text: "שומר תוצאות במסד הנתונים" }, false);
+      const docsArray = await Helper.saveDocURL(logArrey, oauth);
 
-      // _______________________________________________________________//
-      return await Helper.saveDocURL(logArrey, oauth);
+      return docsArray;
     })
-    .then((result) => {
+    .then(async (result) => {
       console.log({ result });
       progressBar &&
         setProgressBar(
           Filename,
           {
-            stageName: "finish",
+            stageName: "data",
             text: "המסמכים הופקו",
-            termenate: true,
+            // termenate: true,
             errors: Errors,
             urlsData: [...result.resultData.data],
+          },
+          false
+        );
+      let delayres = await delay(3000);
+      progressBar &&
+        setProgressBar(
+          Filename,
+          {
+            stageName: "finish",
+            text: "סיום",
+            termenate: true,
+            errors: Errors,
+            // urlsData: [...result.resultData.data],
           },
           false
         );
