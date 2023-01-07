@@ -341,7 +341,7 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
             text: "המסמכים הופקו",
             // termenate: true,
             errors: Errors,
-            urlsData: [...result.resultData.data],
+            urlsData: Array.isArray(result.resultData.data) ? [...result.resultData.data] : result.resultData.data,
           },
           false
         );
