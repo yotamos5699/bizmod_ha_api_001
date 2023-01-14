@@ -320,7 +320,6 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
             } else {
               Errors.push(docResult.error[0]);
               console.log({ Errors });
-              console.log("bad document for save !!!!!!!");
             }
           });
       }
@@ -332,19 +331,41 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
       return docsArray;
     })
     .then(async (result) => {
+      const docsAmount = result.resultData.data.length;
+      const chunks = docsAmount % 10 ? parseInt(docsAmount / 10) + 1 : parseInt(docsAmount / 10);
       console.log({ result });
       progressBar &&
         setProgressBar(
           Filename,
           {
             stageName: "data",
-            text: "המסמכים הופקו",
+            text: `חלקים`,
             // termenate: true,
             errors: Errors,
-            urlsData: Array.isArray(result.resultData.data) ? [...result.resultData.data] : result.resultData.data,
+            // urlsData: Array.isArray(result.resultData.data) ? [...result.resultData.data] : result.resultData.data,
+            urisData: chunks,
           },
           false
         );
+      for (let i = 0; i <= docsAmount.length - 1; i++) {
+        setProgressBar(
+          Filename,
+          {
+            stageName: `data ${i}`,
+            text: `${i} חלק`,
+            // termenate: true,
+            errors: Errors,
+            urlsData: {
+              chunkNumber: i,
+              prtialArray: result.resultData.data.slice(
+                i * 10,
+                i <= docsAmount.length - 1 ? (i + 1) * 10 : docsAmount.length - 1
+              ),
+            },
+          },
+          false
+        );
+      }
       let delayres = await delay(3000);
       progressBar &&
         setProgressBar(
