@@ -200,9 +200,9 @@ const setProgressBar = async (filename, messageData, gotStats, currentDoc, total
   };
   let path = `./${filename}.json`;
   updateProgressBar(filename, data);
-  setInterval(() => {
-    return "ok";
-  }, 550);
+  // setInterval(() => {
+  //   return "ok";
+  // }, 550);
 };
 
 const updateProgressBar = async (filename, progressData) => {
@@ -266,7 +266,7 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
     `);
   }
 
-  let Action = await parseInt(Filename.slice(2, Filename.length));
+  let Action = parseInt(Filename.slice(2, Filename.length));
   console.log({ Action });
   let logArrey = [];
 
@@ -293,96 +293,56 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
         if (matrixesData.matrixesData.mainMatrix.ActionID[idx] == 1) return row;
       });
 
-      console.log({ data });
       const dataLength = data.length;
-
-      for (let i = 0; i <= data.length - 1; i++) {
-        await documentCreator
-          .createDoc(data[i], i, userID)
-          .then(async (docOutPut) => {
-            progressBar && setProgressBar(Filename, { stageName: `f${i}`, text: "מפיק מסמך" }, true, i + 1, dataLength);
-            console.log("aaaaasssssssssssssssssssss", { docOutPut });
-            if (docOutPut?.status == "no") {
+      console.log("sssssssssssssssssss", { data, dataLength });
+      for (let j = 0; j <= data.length - 1; j++) {
+        await documentCreator.createDoc(data[j], j, userID).then(async (docOutPut) => {
+          await Helper.createRetJson(docOutPut, Action, userID)
+            .then((docData) => {
+              console.log({ j, docData });
               progressBar &&
-                setProgressBar(Filename, {
-                  stageName: "finish",
-                  text: "תקלה בהפקת מסמכים",
-                });
-              return console.log(` status: "no", data: "error in docOutPut" `);
-            }
+                setProgressBar(
+                  Filename,
+                  { stageName: `f${j}`, text: "מפיק מסמך", urlsData: docData },
+                  true,
+                  j + 1,
+                  dataLength
+                );
+              console.log("aaaaasssssssssssssssssssss", { docOutPut });
+              if (docOutPut?.status == "no") {
+                progressBar &&
+                  setProgressBar(Filename, {
+                    stageName: "finish",
+                    text: "תקלה בהפקת מסמכים",
+                  });
+                return console.log(` status: "no", data: "error in docOutPut" `);
+              }
 
-            return await Helper.createRetJson(docOutPut, Action, userID);
-          })
-          .then(async (docResult) => {
-            if (!docResult?.status) {
-              console.log("cocument k to save");
-              logArrey.push(docResult);
-            } else {
-              Errors.push(docResult.error[0]);
-              console.log({ Errors });
-            }
-          });
+              return docData;
+            })
+            .then(async (docResult) => {
+              if (!docResult?.status) {
+                console.log("cocument k to save");
+                logArrey.push(docResult);
+              } else {
+                Errors.push(docResult.error[0]);
+                console.log({ Errors });
+              }
+            });
+        });
+        //let d = delay(12000);
       }
+      d = await delay(2000);
+      return logArrey;
     })
     .then(async () => {
       progressBar && setProgressBar(Filename, { stageName: "S", text: "שומר תוצאות במסד הנתונים" }, false);
+      console.log({ logArrey, oauth });
       const docsArray = await Helper.saveDocURL(logArrey, oauth);
-
+      console.log("sssdara", docsArray.resultData.data);
       return docsArray;
     })
     .then(async (result) => {
-      const docsAmount = result.resultData.data.length;
-      if (docsAmount <= 10) {
-        progressBar &&
-          setProgressBar(
-            Filename,
-            {
-              stageName: "data",
-              text: `חלקים`,
-              // termenate: true,
-              errors: Errors,
-              urlsData: Array.isArray(result.resultData.data) ? [...result.resultData.data] : result.resultData.data,
-              urisData: chunks,
-            },
-            false
-          );
-      } else {
-        const chunks = docsAmount % 10 ? parseInt(docsAmount / 10) + 1 : parseInt(docsAmount / 10);
-        console.log({ result });
-        progressBar &&
-          setProgressBar(
-            Filename,
-            {
-              stageName: "data",
-              text: `חלקים`,
-              // termenate: true,
-              errors: Errors,
-              // urlsData: Array.isArray(result.resultData.data) ? [...result.resultData.data] : result.resultData.data,
-              urisData: chunks,
-            },
-            false
-          );
-        for (let i = 0; i <= docsAmount.length - 1; i++) {
-          setProgressBar(
-            Filename,
-            {
-              stageName: `data ${i}`,
-              text: `${i} חלק`,
-              // termenate: true,
-              errors: Errors,
-              urlsData: {
-                chunkNumber: i,
-                prtialArray: result.resultData.data.slice(
-                  i * 10,
-                  i <= docsAmount.length - 1 ? (i + 1) * 10 : docsAmount.length - 1
-                ),
-              },
-            },
-            false
-          );
-        }
-      }
-      let delayres = await delay(3000);
       progressBar &&
         setProgressBar(
           Filename,
@@ -395,13 +355,14 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
           },
           false
         );
+
       console.log(` status: "yes", data: ${result}`);
       //   res.send(JSON.stringify({ status: "yes", data: result }));
     })
     .catch((err) => {
       console.log(`catch in main loop...\n ${err}`);
       progressBar && setProgressBar(Filename, { stageName: "finish", text: "תקלה בהפקת המטריצה" }, false);
-      // deleteProgressFile(Filename);
+
       console.log(` status: "no", data: ${err}`);
     });
 });
@@ -570,27 +531,29 @@ app.post("/api/getProgressBar", async (req, res) => {
     if (file_exist) {
       let result = JSON.parse(fs.readFileSync(path, { encoding: "utf8", flag: "r" }));
       //  console.log("file exist");
-
-      if (result.stageName == "finish" || result?.termenate) {
-        toBreak = true;
-        clearInterval(intervals);
-        res.write("finish");
-        fs.unlinkSync(path);
-        return res.end();
-      }
-
+      console.log("resualt Stage Name", result.stageName, { stageName });
       if (result.stageName != stageName) {
         stageName = result.stageName;
         res.write(JSON.stringify(result));
         console.log("file updated");
       }
+      if (result.stageName == "finish" || result?.termenate) {
+        toBreak = true;
+        clearInterval(intervals);
+        // res.write(JSON.stringify(result));
+        console.log("BRAKING FROM GET PROGRESS BAR");
+        //  res.write("finish");
+        fs.unlinkSync(path);
+        return res.end();
+      }
     }
 
     runtime += 1;
 
-    let limit = TimeLimit ? TimeLimit * 2 : 60;
+    let limit = TimeLimit ? TimeLimit * 2000 : 60;
 
     if (runtime > limit) {
+      ``;
       res.write("to long");
       file_exist && fs.unlinkSync(path);
       clearInterval(intervals);
