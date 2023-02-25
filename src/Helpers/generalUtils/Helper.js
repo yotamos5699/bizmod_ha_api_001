@@ -9,6 +9,7 @@ const dbUrl = process.env.DBport || "http://localhost:4000";
 const axios = require("axios");
 
 const fetchData = async (data, reqUrl) => {
+  // console.log({ data });
   let options = {
     url: `${dbUrl}${reqUrl}`,
     method: "POST",
@@ -18,7 +19,10 @@ const fetchData = async (data, reqUrl) => {
     },
     data: data.body ? data.body : data,
   };
-  return axios(options).then((result) => result.data);
+  return await axios(options).then((result) => {
+    //  console.log({ result });
+    return result.data;
+  });
 };
 const getUsserID = async (req) => {
   let user = await req?.user;
@@ -269,37 +273,6 @@ const checkDataValidation = async (jsonData, columnToValidate) => {
 
 //checkDataValidation();
 
-const sortReportData = (reportData, sortKey) => {
-  let Keys;
-  let Values;
-  try {
-    Keys = Object.keys(sortKey);
-    Values = Object.values(sortKey);
-  } catch (err) {
-    console.log("keys and sheet ", err);
-  }
-
-  let newSortedData;
-  let updatedData = reportData;
-
-  Keys.forEach((key, index) => {
-    newSortedData = [];
-    updatedData.forEach((row) => {
-      if (row[key] == Values[index]) {
-        newSortedData.push(row);
-      }
-    });
-    updatedData = newSortedData;
-    // console.log(`sorted data \n ${JSON.stringify(newSortedData)}`);
-  });
-
-  if (!updatedData)
-    return {
-      status: "no rows to return",
-    };
-  return updatedData;
-};
-
 module.exports.getUsserID = getUsserID;
 module.exports.saveMatrixesToDB = saveMatrixesToDB;
 module.exports.saveDocURL = saveDocURL;
@@ -308,7 +281,7 @@ module.exports.constructNewUserCred = constructNewUserCred;
 module.exports.constructUsserCred = constructUsserCred;
 module.exports.readJsonFILE = readJsonFILE;
 module.exports.updateJsonFILE = updateJsonFILE;
-module.exports.sortReportData = sortReportData;
+module.exports.fetchData = fetchData;
 module.exports.createRetJson = createRetJson;
 module.exports.checkDataValidation = checkDataValidation;
 module.exports.authenticateTokenTest = authenticateTokenTest;

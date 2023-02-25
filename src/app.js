@@ -1,16 +1,3 @@
-// *************** MAIN APP SERVER *************ss**
-/*
-++ remove db call in bi data. insted deliver the items names from ui
-++ regular async functions on start
-   
-   * update items/castumers report
-   * check prems
-
-
-*/
-//const axios = require()
-//const Buffer = require("buffer");
-//const Buffer = require("node:buffer");
 const download = require("download");
 const createDocValidator = require("./createDocValidator");
 const castumReports = require("./castumReports");
@@ -36,9 +23,6 @@ const { default: axios } = require("axios");
 const { encode } = require("punycode");
 const { ZC_ErrorLogger } = require("./ZCmonitor");
 const MGoptions = { useNewUrlParser: true, useUnifiedTopology: true };
-// const accountSid = process.env.TWILIO_ACCOUNT_SID;
-// const authToken = process.env.TWILIO_AUTH_TOKEN;
-//AC0228e43244a7b1cd0a5ce9d10b14d4eb
 
 const accountSid = "AC0228e43244a7b1cd0a5ce9d10b14d4eb";
 const authToken = "d3156c45622da27e95a3ca4f975cf474";
@@ -368,19 +352,36 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
 });
 
 app.post("/api/initvalidate", Helper.authenticateToken, async function (req, res) {
-  const { usserDbname, usserPrivetKey, usserServerName } = await req.body;
-  // console.log("********************* DATA IN REQUEST **********************");
-  console.table({ usserDbname, usserPrivetKey, usserServerName });
-  try {
-    documentCreator
-      .validateInitialData(usserDbname, usserPrivetKey, usserServerName)
-      .then((result) => res.send(result))
-      .catch((e) => {
-        console.log(e);
-        res.send(e);
-      });
-  } catch (e) {
-    console.log(e);
+  const stage = req.headers["stage"];
+  const body = await req.body;
+
+  console.log({ stage });
+  if (stage === "conection") {
+    const result = await reportsCreator.checkConectionJson(body);
+    res.send(result);
+  }
+  if (stage === "reports") {
+    console.log("in reports check");
+    const userID = Helper.getUsserID(req);
+    console.log({ userID });
+    const data = {
+      headers: { authorization: req.headers?.authorization },
+      body: { collection: "Config" },
+    };
+    const config = await Helper.fetchData(data, "/api/getdata").then((res) => res.data[0]);
+    console.log({ config });
+
+    const erpConectionJson = config.ErpConfig[config.ErpConfig.erpName];
+
+    const reports = await Promise.all([
+      reportsCreator.exportRecords({ castumers: body.castumers[0], TID: "2" }, userID, erpConectionJson),
+      reportsCreator.exportRecords({ products: body.products[0], TID: "1" }, userID, erpConectionJson),
+    ]).then((values) => {
+      console.log({ values });
+      return values;
+    });
+    console.log({ reports });
+    return res.send(reports);
   }
 });
 
@@ -437,6 +438,8 @@ app.post("/api/getrecords", Helper.authenticateToken, async function (req, res) 
     ? reportsCreator
         .exportRecords(reportData, userID)
         .then(async (jsondata) => {
+          console.log({ jsondata });
+          // if (jsondata !== "object") throw console.error(jsondata);
           let validationMsg = await Helper.checkDataValidation(jsondata, [1, 2]);
           return { jsondata, validationMsg };
         })
@@ -483,15 +486,8 @@ app.post("/api/getrecords", Helper.authenticateToken, async function (req, res) 
 });
 
 app.post("/api/flexdoc", async function (req, res) {
-  // console.log(`/n*************************Request details***********************\n
-  // ${JSON.stringify(req)}\n`)
-
   let fileCod = await req.body;
-  //console.log("reqqqqqq +++++ " + JSON.stringify(fileCod));
-
   const jsdata = await castumReports.exportCastumersRecords(fileCod);
-  // consolgge.log(jsdata);
-  //console.log(jsdata);
   let parsed = await JSON.parse(jsdata);
   fs.writeFileSync("jsonData.json", JSON.stringify(parsed.status.repdata, null, 2), (err) => console.log);
   res.send(jsdata).end();
@@ -650,119 +646,109 @@ async function sendSms(to2, body3) {
     })
     .then((message) => console.log(message.sid));
 }
-app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
-  console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
-  const Filename = req?.headers["filename"];
-  const progressBar = true;
-  const validator = true;
-  res.setHeader("Access-Control-Allow-Origin", "*");
+// app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
+//   console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
+//   const Filename = req?.headers["filename"];
+//   const progressBar = true;
+//   const validator = true;
+//   res.setHeader("Access-Control-Allow-Origin", "*");
 
-  let oauth = req.headers["authorization"];
-  let addedValue;
-  const user = await req?.user;
+//   let oauth = req.headers["authorization"];
+//   let addedValue;
+//   const user = await req?.user;
 
-  const matrixesData = await req.body;
-  const test = await createDocValidator.validate(matrixesData, "default");
-  if (validator) {
-    if (test?.status == "no") return res.send(test);
-  }
-  console.log({ matrixesData });
+//   const matrixesData = await req.body;
+//   const test = await createDocValidator.validate(matrixesData, "default");
+//   if (validator) {
+//     if (test?.status == "no") return res.send(test);
+//   }
+//   console.log({ matrixesData });
 
-  progressBar && setProgressBar(Filename, { stageName: "start", text: "מאתחל...." }, false);
+//   progressBar && setProgressBar(Filename, { stageName: "start", text: "מאתחל...." }, false);
 
-  let userID;
-  try {
-    userID = user?.fetchedData?.userID ? user.fetchedData.userID : user.userID;
-    console.log("userID", userID);
-  } catch (e) {
-    return res.send({
-      status: `no, user id invalid value ${userID}`,
-      data: JSON.stringify(e),
-    });
-  }
+//   let userID;
+//   try {
+//     userID = user?.fetchedData?.userID ? user.fetchedData.userID : user.userID;
+//     console.log("userID", userID);
+//   } catch (e) {
+//     return res.send({
+//       status: `no, user id invalid value ${userID}`,
+//       data: JSON.stringify(e),
+//     });
+//   }
 
-  let Action;
-  let logArrey = [];
+//   let Action;
+//   let logArrey = [];
 
-  progressBar && setProgressBar(Filename, { stageName: "a", text: "מכין מטריצה לעיבוד" }, false);
-  console.log("sssssssssssssssssssssfadggasdgs", Object.keys(matrixesData));
-  matrixesHandeler
-    .prererMatixesData(matrixesData)
-    .then(async (result) => {
-      progressBar && setProgressBar(Filename, { stageName: "b", text: "שומר תוכן מטריצות במסד נתונים" }, false);
-      const dataToSave = await matrixesHandeler.constructMatrixToDbObjB(req);
+//   progressBar && setProgressBar(Filename, { stageName: "a", text: "מכין מטריצה לעיבוד" }, false);
+//   console.log("sssssssssssssssssssssfadggasdgs", Object.keys(matrixesData));
+//   matrixesHandeler
+//     .prererMatixesData(matrixesData)
+//     .then(async (result) => {
+//       progressBar && setProgressBar(Filename, { stageName: "b", text: "שומר תוכן מטריצות במסד נתונים" }, false);
+//       const dataToSave = await matrixesHandeler.constructMatrixToDbObjB(req);
 
-      const saveStatus = await Helper.saveMatrixesToDB(dataToSave, true);
-      if (saveStatus?.resultData?.status == "no") return res.send({ status: "no", data: "problem with matrix name" });
-      const statusMsg = saveStatus?.resultData?.status == "yes" ? "נשמר בהצלחה" : "תקלה בתהליך השמירה ";
+//       const saveStatus = await Helper.saveMatrixesToDB(dataToSave, true);
+//       if (saveStatus?.resultData?.status == "no") return res.send({ status: "no", data: "problem with matrix name" });
+//       const statusMsg = saveStatus?.resultData?.status == "yes" ? "נשמר בהצלחה" : "תקלה בתהליך השמירה ";
 
-      progressBar && setProgressBar(Filename, { stageName: "c", text: statusMsg }, false);
-      return result;
-    })
-    .then(async (result) => {
-      Action = result.ActionID;
-      let allData = result.data.docData;
+//       progressBar && setProgressBar(Filename, { stageName: "c", text: statusMsg }, false);
+//       return result;
+//     })
+//     .then(async (result) => {
+//       Action = result.ActionID;
+//       let allData = result.data.docData;
 
-      let data = await allData.filter((row, idx) => {
-        if (matrixesData.matrixesData.mainMatrix.ActionID[idx] == 1) return row;
-      });
+//       let data = await allData.filter((row, idx) => {
+//         if (matrixesData.matrixesData.mainMatrix.ActionID[idx] == 1) return row;
+//       });
 
-      console.log({ data });
-      const dataLength = data.length;
+//       console.log({ data });
+//       const dataLength = data.length;
 
-      for (let i = 0; i <= data.length - 1; i++) {
-        await documentCreator
-          .createDoc(data[i], i, userID)
-          .then(async (docOutPut) => {
-            progressBar && setProgressBar(Filename, { stageName: `f${i}`, text: "מפיק מסמך" }, true, i + 1, dataLength);
-            //    console.log("aaaaasssssssssssssssssssss", { docOutPut });
-            if (docOutPut?.status == "no") {
-              progressBar &&
-                setProgressBar(Filename, {
-                  stageName: "finish",
-                  text: "תקלה בהפקת מסמכים",
-                });
-              return res.send({ status: "no", data: "error in docOutPut" });
-            }
-            if (i == 0) addedValue = docOutPut[0]["DocumentDetails"][0][0]["DocNumber"];
-            let val = docOutPut;
+//       for (let i = 0; i <= data.length - 1; i++) {
+//         await documentCreator
+//           .createDoc(data[i], i, userID)
+//           .then(async (docOutPut) => {
+//             progressBar && setProgressBar(Filename, { stageName: `f${i}`, text: "מפיק מסמך" }, true, i + 1, dataLength);
+//             //    console.log("aaaaasssssssssssssssssssss", { docOutPut });
+//             if (docOutPut?.status == "no") {
+//               progressBar &&
+//                 setProgressBar(Filename, {
+//                   stageName: "finish",
+//                   text: "תקלה בהפקת מסמכים",
+//                 });
+//               return res.send({ status: "no", data: "error in docOutPut" });
+//             }
+//             if (i == 0) addedValue = docOutPut[0]["DocumentDetails"][0][0]["DocNumber"];
+//             let val = docOutPut;
 
-            //     console.log("doc output **", { val });
-            //   docOutPut[0][]
-            //     {
-            //       NewDocumentStockID: 3208,
-            //       DocumentIssuedStatus: 'IsError',
-            //       TempDocumentDeleted: 'No'
-            //     },
-            //     [ [Object], [Object] ]
-            //   ]
-            // }
-            return await Helper.createRetJson(docOutPut, i, Action, userID, addedValue);
-          })
-          .then(async (docResult) => {
-            if (!docResult?.status) {
-              console.log("cocument k to save");
-              logArrey.push(docResult);
-            } else {
-              console.log("bad document for save !!!!!!!");
-            }
-          });
-      }
-    })
-    .then(async () => {
-      progressBar && setProgressBar(Filename, { stageName: "S", text: "שומר תוצאות במסד הנתונים" }, false);
+//             return await Helper.createRetJson(docOutPut, i, Action, userID, addedValue);
+//           })
+//           .then(async (docResult) => {
+//             if (!docResult?.status) {
+//               console.log("cocument k to save");
+//               logArrey.push(docResult);
+//             } else {
+//               console.log("bad document for save !!!!!!!");
+//             }
+//           });
+//       }
+//     })
+//     .then(async () => {
+//       progressBar && setProgressBar(Filename, { stageName: "S", text: "שומר תוצאות במסד הנתונים" }, false);
 
-      // _______________________________________________________________//
-      return await Helper.saveDocURL(logArrey, oauth);
-    })
-    .then((result) => {
-      progressBar && setProgressBar(Filename, { stageName: "finish", text: "המסמכים הופקו", termenate: true }, false);
-      res.send(JSON.stringify({ status: "yes", data: result }));
-    })
-    .catch((err) => {
-      console.log(`catch in main loop...\n ${err}`);
-      progressBar && setProgressBar(Filename, { stageName: "finish", text: "תקלה בהפקת המטריצה" }, false);
-      // deleteProgressFile(Filename);
-      res.send(JSON.stringify({ status: "no", data: err }));
-    });
-});
+//       // _______________________________________________________________//
+//       return await Helper.saveDocURL(logArrey, oauth);
+//     })
+//     .then((result) => {
+//       progressBar && setProgressBar(Filename, { stageName: "finish", text: "המסמכים הופקו", termenate: true }, false);
+//       res.send(JSON.stringify({ status: "yes", data: result }));
+//     })
+//     .catch((err) => {
+//       console.log(`catch in main loop...\n ${err}`);
+//       progressBar && setProgressBar(Filename, { stageName: "finish", text: "תקלה בהפקת המטריצה" }, false);
+//       // deleteProgressFile(Filename);
+//       res.send(JSON.stringify({ status: "no", data: err }));
+//     });
+// });

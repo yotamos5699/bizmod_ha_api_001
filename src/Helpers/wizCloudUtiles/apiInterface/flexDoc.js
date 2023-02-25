@@ -8,6 +8,11 @@ const realUserID = "6358f8717dd95eceee53eac3";
 const amir = "638dac1454f08b935ed4af2f";
 const yafit = "638dad0c54f08b935ed4af34";
 
+const sortKeysDict = {
+  sort: "קוד מיון",
+  storage: "מחסן",
+};
+
 let docHash = {};
 try {
   docHash = {
@@ -22,18 +27,68 @@ try {
   console.dir(err);
   return err;
 }
+const mockConfig = {
+  // ErpConfig: { erpName: "HA", CompanyKey: "kjklj", CompanyServer: "jkjlkjl", CompanyDbName: "" },
+  Reports: {
+    defaultReports: {
+      castumers: [{ sortingKey: "קוד מיון", sortingType: "single", sortingValue: [8] }],
+      products: [
+        { sortingKey: "מחסן", sortingType: "single", sortingValue: [1, 2] },
+        { sortingKey: "קוד מיון", sortingType: "range", sortingValue: [250, 600] },
+      ],
+    },
+  },
+  mtxConfig: { docLimit: { isLimited: true, Amount: 1 }, taxDocs: { isAllow: false, Refund: { Amount: null } } },
+  selectedDoc: "taxInvoice",
+  selectedAction: "produce",
+  docsAmount: 1,
+  refoundMaxAmount: null,
+  detailsCode: [10],
+  customersCode: [8],
+  ErpConfig: {
+    erpName: "HA",
+    HA: {
+      // usserPrivetKey:
+      //   "23e54b4b3e541261140bdeb257538ba11c5104620e61217d5d6735a3c9361a5aac67a7f85278e4e53f3008598d8927f68e89e3e16147c194f96976bdf3075d55",
+      // usserServerName: "lb11.wizcloud.co.il",
+      // usserDbname: "wizdb2394n5",
+      usserPrivetKey:
+        "23e54b4b3e541261140bdeb257538ba11c5104620e61217d5d6735a3c9361a5aac67a7f85278e4e53f3008598d8927f68e89e3e16147c194f96976bdf3075d55",
+      usserServerName: "lb11.wizcloud.co.il",
+      usserDbname: "wizdb2394n5",
+    },
+  },
+};
 
-async function exportRecords(reqData, userID) {
+async function checkConectionJson(erpConectionData) {
+  console.log({ erpConectionData });
+  // const erpConectionData = config ? config.ErpConfig.HA : await getCredential.getCastumersCred(ID);
+  const { usserDbname, usserServerName, usserPrivetKey } = erpConectionData;
+  let myDBname = usserDbname;
+  let initData;
+  try {
+    initData = wizlib.init(usserPrivetKey, usserServerName);
+    console.log({ initData });
+  } catch (e) {}
+  let cc = await wizlib
+    .CompaniesForToken(myDBname)
+    .then(() => {
+      return { status: "yes", data: "conection json ok" };
+    })
+    .catch((e) => {
+      return { status: "no", data: e };
+    });
+  return cc;
+}
+
+async function exportRecords(reqData, userID, config = mockConfig) {
   console.log("~~~~~~~~~~~~~~~~~ in flex docs ~~~~~~~~~~~~~~~~~~");
   if (defultReports == undefined) return "error in fetching defultReports data";
 
   let fileData = reqData.TID;
   let sortKey = await reqData.sortKey;
-  let Warehouse = "";
-  fileData == "1" ? (Warehouse = reqData.Warehouse) : (Warehouse = null);
 
-  //let ID = (await userID) == realUserID ? realUserID : amir ? amir : yafit ? yafit : "1111";
-  //if (ID != "1111") console.log("ofek is connected");
+  fileData == "1" ? (Warehouse = reqData.Warehouse) : (Warehouse = null);
 
   let ID;
   if (userID == realUserID) {
@@ -46,8 +101,9 @@ async function exportRecords(reqData, userID) {
     ID = "1111";
   }
 
-  console.log({ ID });
-  const { usserDbname, usserServerName, usserPrivetKey } = await getCredential.getCastumersCred(ID);
+  if (config) console.log({ config });
+  const erpConectionData = config ? config : await getCredential.getCastumersCred(ID);
+  const { usserDbname, usserServerName, usserPrivetKey } = erpConectionData;
 
   let myDBname = usserDbname;
   try {
@@ -56,68 +112,75 @@ async function exportRecords(reqData, userID) {
     return e;
   }
 
-  let reportCod, parameters;
-  if (fileData == "4") {
-    [reportCod, parameters] = fileData;
-  } else if (fileData == "1") {
+  if (fileData == "1") {
     [reportCod, parameters] = docHash[fileData][0];
   } else if (fileData == "2") {
     [reportCod, parameters] = docHash[fileData];
     console.log("file data ", fileData);
   }
 
-  let apiRes = await wizlib.exportDataRecords(myDBname, {
-    datafile: reportCod,
-    parameters: parameters,
-  });
-
-  let treeData;
-  if (fileData == "1") {
-    [reportCod, parameters] = docHash[fileData][1];
-    treeData = await wizlib.exportDataRecords(myDBname, {
+  let apiRes = await JSON.parse(
+    await wizlib.exportDataRecords(myDBname, {
       datafile: reportCod,
       parameters: parameters,
-    });
+    })
+  );
+  let itemsReportData;
+  if (fileData == "1") {
+    itemsReportData = formatItemsData({ reportCod, parameters, myDBname, apiRes, fileData });
   }
-  apiRes = JSON.parse(apiRes);
-  //console.log(apiRes.status.repdata);
-  // console.log(apiRes)
+  //apiRes = JSON.parse(apiRes);
+
+  let jsondata = itemsReportData?.length > 0 ? itemsReportData : apiRes.status.repdata;
+
+  const reportSortParams = fileData == "1" ? config.products : config.castumers;
+  if (reportSortParams) {
+    jsondata = sortReportData({ jsondata, reportSortParams });
+    return jsondata;
+  } else return jsondata;
+}
+
+async function formatItemsData(props) {
+  let treeData;
+  try {
+    [reportCod, parameters] = docHash[props.fileData][1];
+    treeData = await JSON.parse(
+      await wizlib.exportDataRecords(props.myDBname, {
+        datafile: props.reportCod,
+        parameters: props.parameters,
+      })
+    );
+  } catch (e) {
+    console.log({ e });
+  }
 
   let resArrey = [];
-  if (fileData == "1") {
-    try {
-      treeData = JSON.parse(treeData);
-    } catch (e) {
-      return e;
-    }
-    // console.log(JSON.stringify(treeData, null, 2));
-    apiRes.status.repdata.forEach((itemsDataRow) => {
-      let record = {};
-      let isRecord = false;
-      treeData.status.repdata.forEach((treeDataRow) => {
-        if (itemsDataRow["מפתח פריט"] == treeDataRow["מפתח פריט אב"]) {
-          record = itemsDataRow;
-          record["מפתח פריט אב"] = treeDataRow["מפתח פריט"];
-          isRecord = true;
-          //  console.log(row['מפתח פריט'] + " " + item['מפתח פריט אב'])
-        }
-      });
-      if (isRecord) {
-        resArrey.push(record);
-      } else {
+
+  props.apiRes.status.repdata.forEach((itemsDataRow) => {
+    let record = {};
+    let isRecord = false;
+    treeData.status.repdata.forEach((treeDataRow) => {
+      if (itemsDataRow["מפתח פריט"] == treeDataRow["מפתח פריט אב"]) {
         record = itemsDataRow;
-        record["מפתח פריט אב"] = itemsDataRow["מפתח פריט"];
-        resArrey.push(record);
+        record["מפתח פריט אב"] = treeDataRow["מפתח פריט"];
+        isRecord = true;
+        //  console.log(row['מפתח פריט'] + " " + item['מפתח פריט אב'])
       }
     });
-  }
+    if (isRecord) {
+      resArrey.push(record);
+    } else {
+      record = itemsDataRow;
+      record["מפתח פריט אב"] = itemsDataRow["מפתח פריט"];
+      resArrey.push(record);
+    }
+  });
 
   let newArrey = [];
-  console.log("resss array ", resArrey);
   resArrey.forEach((resRow) => {
     let record = {};
 
-    apiRes.status.repdata.forEach((tableRow) => {
+    props.apiRes.status.repdata.forEach((tableRow) => {
       if (resRow["מפתח פריט אב"] == tableRow["מפתח פריט"]) {
         record = resRow;
         record["שם פריט אב"] = tableRow["שם פריט"];
@@ -126,45 +189,59 @@ async function exportRecords(reqData, userID) {
       }
     });
   });
-  //console.log(JSON.stringify(newArrey, null, 2));
-  //console.log({ apiRes });
-  // console.log("res keys", Object.keys(apiRes.status));
-  //console.log("RES.REPDATA", apiRes.status.repdata);
-  //  console.log({ newArrey });
-  let jsondata = resArrey.length > 0 ? newArrey : apiRes.status.repdata;
-  // console.log({ jsondata });
-  //const data = JSON.stringify(jsondata, null, 2);
-  //console.log("json data !!!", jsondata);
-  if (sortKey) {
-    try {
-      jsondata = Helper.sortReportData(jsondata, sortKey);
 
-      return jsondata;
-    } catch (err) {
-      console.log(`error on sortReportData${err}`);
+  return newArrey;
+}
+
+function sortReportData(props) {
+  console.log("sortReportData", { props });
+  let newSortedData = [];
+  //let updatedData = props.reportData;
+  console.log("sorting type !!!!!!!!!!!", props.reportSortParams);
+
+  for (let i = 0; i <= props.reportSortParams.length - 1; i++) {
+    if (props.reportSortParams[i].sortingType == "single" || props.reportSortParams[i].sortingType == "multi") {
+      let currentFilterdData = [];
+      let key = props.reportSortParams[i].sortingKey;
+
+      props.reportSortParams[i].sortingValue.forEach((value) => {
+        console.log({ key, value });
+        props.jsondata.forEach((row) => {
+          if (row[key] == value) {
+            currentFilterdData.push(row);
+          }
+        });
+      });
+
+      currentFilterdData && newSortedData.push([...currentFilterdData]);
+    } else if (props.reportSortParams.sortingType == "range") {
+      for (let i = 0; i <= props.reportSortParams.length - 1; i++) {
+        let currentFilterdData = [];
+        let key = props.reportSortParams[i].sortingKey;
+
+        console.log({ key, value });
+        props.jsondata.forEach((row) => {
+          if (
+            row[key] > props.reportSortParams[i].sortingValue[0] &&
+            row[key] < props.reportSortParams[i].sortingValue[1]
+          ) {
+            currentFilterdData.push(row);
+          }
+        });
+
+        currentFilterdData && newSortedData.push([...currentFilterdData]);
+      }
+    } else {
+      return "invalid sorting type, getting " + props.reportSortParams.sortingType;
     }
-  } else {
-    console.log("raw data...." + JSON.stringify(jsondata));
-    return jsondata;
   }
+  console.log({ newSortedData });
+  return newSortedData;
+
+  //   console.log({ newSortedData });
+  //   return newSortedData;
+  // }
 }
 
 module.exports.exportRecords = exportRecords;
-
-// record['שם אב'] = itemsDataRow['שם פריט']
-// record['יתרה כמותית במלאי'] = row['יתרה כמותית במלאי']
-// record['משקל'] = itemsDataRow['משקל']
-// //   {
-//   "איתור אב": null,
-//   "מפתח פריט אב": "XPF",
-//   "משקל אב": 1,
-//   "איתור": null,
-//   "מפתח פריט": "XP",
-//   "משקל": 1
-// },
-// "שם פריט": "גת קימבו לפי משקל",
-// "מפתח פריט": "KIKG",
-// "קוד מיון": 51200,
-// "יתרה כמותית במלאי": 0,
-// "משקל": 1,
-// "מחסן": 1
+module.exports.checkConectionJson = checkConectionJson;

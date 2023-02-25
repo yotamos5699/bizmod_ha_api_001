@@ -23,6 +23,7 @@ DBrouter.use(bodyParser.json());
 const doLoginOnRegister = async (loginData) => {
   let options = {
     url: `https://bizmod-oauth-server.onrender.com/api/login`,
+    //url: "http://localhost:5000/api/login",
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -98,21 +99,30 @@ DBrouter.post("/api/getData", Helper.authenticateToken, async (req, res) => {
 });
 
 DBrouter.post("/api/Register", async (req, res) => {
+  console.log("register !!!");
   const testMsg = req.testMsg;
   const body = await req.body;
 
   // console.log("in matrix ui set config", data);
   let isError = false;
-  const registerRes = await fetchData(req, "/api/register")
-    .then((result) => {
+  const registerRes = await Helper.fetchData(req, "/api/register")
+    .then((result_) => {
+      console.log({ result_ });
+      const isPassword = Object.keys(result_).find((value) => value === "userPassword");
+      const result = {
+        status: result_.status,
+        data: isPassword ? { ...result_.data, userPassword: "********" } : { data: result_, status: "no" },
+      };
+      console.log({ result, result_ });
       return testMsg ? { result, testMsg } : { result };
     })
     .catch((e) => {
+      console.log({ e });
       isError = true;
-      return e;
+      return res.send(e);
     });
 
-  if (isError) return res.send(registerRes);
+  if (isError) return;
 
   const loginData = {
     Mail: body.Mail,
@@ -124,6 +134,7 @@ DBrouter.post("/api/Register", async (req, res) => {
     })
     .catch((e) => e);
   registerRes.loginData = { ...loginRes };
+
   return res.send(registerRes);
 });
 
@@ -170,3 +181,4 @@ DBrouter.post("/api/loadsignedFiles", Helper.authenticateToken, async (req, res)
 });
 
 module.exports = DBrouter;
+module.exports.fetchData = fetchData;
