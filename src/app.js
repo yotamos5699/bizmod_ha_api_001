@@ -361,26 +361,26 @@ app.post("/api/initvalidate", Helper.authenticateToken, async function (req, res
     res.send(result);
   }
   if (stage === "reports") {
-    console.log("in reports check");
+    //console.log("in reports check");
     const userID = Helper.getUsserID(req);
-    console.log({ userID });
+    //console.log({ userID });
     const data = {
       headers: { authorization: req.headers?.authorization },
       body: { collection: "Config" },
     };
     const config = await Helper.fetchData(data, "/api/getdata").then((res) => res.data[0]);
-    console.log({ config });
+    //console.log({ config });
 
     const erpConectionJson = config.ErpConfig[config.ErpConfig.erpName];
 
     const reports = await Promise.all([
-      reportsCreator.exportRecords({ castumers: body.castumers[0], TID: "2" }, userID, erpConectionJson),
-      reportsCreator.exportRecords({ products: body.products[0], TID: "1" }, userID, erpConectionJson),
+      reportsCreator.exportRecords({ castumers: body.castumers, TID: "2" }, userID, erpConectionJson),
+      reportsCreator.exportRecords({ products: body.products, TID: "1" }, userID, erpConectionJson),
     ]).then((values) => {
-      console.log({ values });
+      //console.log({ values });
       return values;
     });
-    console.log({ reports });
+    //console.log({ reports });
     return res.send(reports);
   }
 });

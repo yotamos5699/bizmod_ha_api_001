@@ -75,8 +75,9 @@ DBrouter.post("/api/deleteData", Helper.authenticateToken, async (req, res) => {
     .catch((e) => res.send(e));
 });
 DBrouter.post("/api/saveMatrix", Helper.authenticateToken, async (req, res) => {
+  console.log("saveMatrix");
   const testMsg = req.testMsg;
-
+  console.log("save matrix ..");
   fetchData(req, "/api/savematrix")
     .then((result) => res.send(testMsg ? { result, testMsg } : { result }))
     .catch((e) => res.send(e));

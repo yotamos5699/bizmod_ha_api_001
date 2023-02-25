@@ -61,14 +61,14 @@ const mockConfig = {
 };
 
 async function checkConectionJson(erpConectionData) {
-  console.log({ erpConectionData });
+  //console.log({ erpConectionData });
   // const erpConectionData = config ? config.ErpConfig.HA : await getCredential.getCastumersCred(ID);
   const { usserDbname, usserServerName, usserPrivetKey } = erpConectionData;
   let myDBname = usserDbname;
   let initData;
   try {
     initData = wizlib.init(usserPrivetKey, usserServerName);
-    console.log({ initData });
+    //console.log({ initData });
   } catch (e) {}
   let cc = await wizlib
     .CompaniesForToken(myDBname)
@@ -82,7 +82,7 @@ async function checkConectionJson(erpConectionData) {
 }
 
 async function exportRecords(reqData, userID, config = mockConfig) {
-  console.log("~~~~~~~~~~~~~~~~~ in flex docs ~~~~~~~~~~~~~~~~~~");
+  //console.log("~~~~~~~~~~~~~~~~~ in flex docs ~~~~~~~~~~~~~~~~~~");
   if (defultReports == undefined) return "error in fetching defultReports data";
 
   let fileData = reqData.TID;
@@ -116,7 +116,7 @@ async function exportRecords(reqData, userID, config = mockConfig) {
     [reportCod, parameters] = docHash[fileData][0];
   } else if (fileData == "2") {
     [reportCod, parameters] = docHash[fileData];
-    console.log("file data ", fileData);
+    console.log("file data ", reqData);
   }
 
   let apiRes = await JSON.parse(
@@ -133,9 +133,11 @@ async function exportRecords(reqData, userID, config = mockConfig) {
 
   let jsondata = itemsReportData?.length > 0 ? itemsReportData : apiRes.status.repdata;
 
-  const reportSortParams = fileData == "1" ? config.products : config.castumers;
+  const reportSortParams = fileData == "1" ? reqData.products : reqData.castumers;
+  console.log({ reportSortParams });
   if (reportSortParams) {
-    jsondata = sortReportData({ jsondata, reportSortParams });
+    console.log("if (reportSortParams)");
+    jsondata = sortReportData({ jsondata, reportSortParams }, fileData);
     return jsondata;
   } else return jsondata;
 }
@@ -151,7 +153,7 @@ async function formatItemsData(props) {
       })
     );
   } catch (e) {
-    console.log({ e });
+    //console.log({ e });
   }
 
   let resArrey = [];
@@ -164,7 +166,7 @@ async function formatItemsData(props) {
         record = itemsDataRow;
         record["מפתח פריט אב"] = treeDataRow["מפתח פריט"];
         isRecord = true;
-        //  console.log(row['מפתח פריט'] + " " + item['מפתח פריט אב'])
+        //  //console.log(row['מפתח פריט'] + " " + item['מפתח פריט אב'])
       }
     });
     if (isRecord) {
@@ -193,11 +195,11 @@ async function formatItemsData(props) {
   return newArrey;
 }
 
-function sortReportData(props) {
-  console.log("sortReportData", { props });
+function sortReportData(props, tbNum) {
+  console.log("sortReportData", { props, tbNum });
   let newSortedData = [];
   //let updatedData = props.reportData;
-  console.log("sorting type !!!!!!!!!!!", props.reportSortParams);
+  //console.log("sorting type !!!!!!!!!!!", props.reportSortParams);
 
   for (let i = 0; i <= props.reportSortParams.length - 1; i++) {
     if (props.reportSortParams[i].sortingType == "single" || props.reportSortParams[i].sortingType == "multi") {
@@ -205,28 +207,35 @@ function sortReportData(props) {
       let key = props.reportSortParams[i].sortingKey;
 
       props.reportSortParams[i].sortingValue.forEach((value) => {
-        console.log({ key, value });
+        let isIn = false;
+        //console.log({ key, value });
         props.jsondata.forEach((row) => {
           if (row[key] == value) {
+            isIn = true;
             currentFilterdData.push(row);
           }
+          console.log({ row, isIn });
         });
       });
 
       currentFilterdData && newSortedData.push([...currentFilterdData]);
-    } else if (props.reportSortParams.sortingType == "range") {
+    } else if (props.reportSortParams[i].sortingType == "range") {
       for (let i = 0; i <= props.reportSortParams.length - 1; i++) {
         let currentFilterdData = [];
         let key = props.reportSortParams[i].sortingKey;
 
-        console.log({ key, value });
+        //console.log({ key, value });
         props.jsondata.forEach((row) => {
+          let isIn;
+
           if (
             row[key] > props.reportSortParams[i].sortingValue[0] &&
             row[key] < props.reportSortParams[i].sortingValue[1]
           ) {
+            isIn = true;
             currentFilterdData.push(row);
           }
+          console.log({ row, isIn });
         });
 
         currentFilterdData && newSortedData.push([...currentFilterdData]);
@@ -235,10 +244,10 @@ function sortReportData(props) {
       return "invalid sorting type, getting " + props.reportSortParams.sortingType;
     }
   }
-  console.log({ newSortedData });
+  //console.log({ newSortedData });
   return newSortedData;
 
-  //   console.log({ newSortedData });
+  //   //console.log({ newSortedData });
   //   return newSortedData;
   // }
 }
