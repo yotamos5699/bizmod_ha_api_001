@@ -110,10 +110,8 @@ DBrouter.post("/api/Register", async (req, res) => {
     .then((result_) => {
       console.log({ result_ });
       const isPassword = Object.keys(result_).find((value) => value === "userPassword");
-      const result = {
-        status: result_.status,
-        data: isPassword ? { ...result_.data, userPassword: "********" } : { data: result_, status: "no" },
-      };
+      const result = isPassword ? { ...result_.data, userPassword: "********" } : { data: result_.error, status: "no" };
+
       console.log({ result, result_ });
       return testMsg ? { result, testMsg } : { result };
     })
