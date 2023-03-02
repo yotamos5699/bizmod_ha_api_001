@@ -63,24 +63,24 @@ DBrouter.post("/api/loadmatrixes", Helper.authenticateToken, async (req, res) =>
   const testMsg = req.testMsg;
 
   fetchData(req, "/api/loadmatrixes")
-    .then((result) => res.send(testMsg ? { result, testMsg } : { result }))
-    .catch((e) => res.send(e));
+    .then((result) => res.status(result.status == "no" ? 500 : 200).send(testMsg ? { result, testMsg } : { result }))
+    .catch((e) => res.status(400).send(e));
 });
 
 DBrouter.post("/api/deleteData", Helper.authenticateToken, async (req, res) => {
   const testMsg = req.testMsg;
 
   fetchData(req, "/api/deleteData")
-    .then((result) => res.send(testMsg ? { result, testMsg } : { result }))
-    .catch((e) => res.send(e));
+    .then((result) => res.status(result.status == "no" ? 500 : 200).send(testMsg ? { result, testMsg } : { result }))
+    .catch((e) => res.status(400).send(e));
 });
 DBrouter.post("/api/saveMatrix", Helper.authenticateToken, async (req, res) => {
   console.log("saveMatrix");
   const testMsg = req.testMsg;
   console.log("save matrix ..");
   fetchData(req, "/api/savematrix")
-    .then((result) => res.send(testMsg ? { result, testMsg } : { result }))
-    .catch((e) => res.send(e));
+    .then((result) => res.status(result.status == "no" ? 500 : 200).send(testMsg ? { result, testMsg } : { result }))
+    .catch((e) => res.status(400).send(e));
 });
 
 // ****************************  MONGO DB END POINTS  **************************** //
@@ -88,15 +88,15 @@ DBrouter.post("/api/loadDocUrls", Helper.authenticateToken, async (req, res) => 
   const testMsg = req.testMsg;
 
   fetchData(req, "/api/loadDocUrls")
-    .then((result) => res.send(testMsg ? { result, testMsg } : { result }))
-    .catch((e) => res.send(e));
+    .then((result) => res.status(result.status == "no" ? 500 : 200).send(testMsg ? { result, testMsg } : { result }))
+    .catch((e) => res.status(400).send(e));
 });
 
 DBrouter.post("/api/getData", Helper.authenticateToken, async (req, res) => {
   const testMsg = req.testMsg;
   fetchData(req, "/api/getdata")
-    .then((result) => res.send(testMsg ? { result, testMsg } : { result }))
-    .catch((e) => res.send(e));
+    .then((result) => res.status(result.status == "no" ? 500 : 200).send(testMsg ? { result, testMsg } : { result }))
+    .catch((e) => res.status(400).send(e));
 });
 
 DBrouter.post("/api/Register", async (req, res) => {
@@ -108,20 +108,23 @@ DBrouter.post("/api/Register", async (req, res) => {
   let isError = false;
   const registerRes = await Helper.fetchData(req, "/api/register")
     .then((result_) => {
-      console.log({ result_ });
       const isPassword = Object.keys(result_).find((value) => value === "userPassword");
-      const result = isPassword ? { ...result_.data, userPassword: "********" } : { data: result_.error, status: "no" };
+      const result = isPassword
+        ? { ...result_.data, userPassword: "********" }
+        : { data: result_.error ?? result_.data, status: result_?.error ? "no" : "yes" };
 
       console.log({ result, result_ });
       return testMsg ? { result, testMsg } : { result };
     })
     .catch((e) => {
-      console.log({ e });
       isError = true;
-      return res.send(e);
+      return res.status(400).send(e);
     });
 
-  if (isError) return;
+  if (isError) {
+    console.log("is error");
+    return;
+  }
 
   const loginData = {
     Mail: body.Mail,
@@ -131,10 +134,20 @@ DBrouter.post("/api/Register", async (req, res) => {
     .then((result) => {
       return testMsg ? { result, testMsg } : { result };
     })
-    .catch((e) => e);
+    .catch((e) => {
+      console.log({ e });
+      isError = true;
+      res.status(400).send(e);
+    });
+  if (isError) {
+    return;
+  }
+  console.log("after login is error", loginRes.result.status, registerRes.result.status);
   registerRes.loginData = { ...loginRes };
 
-  return res.send(registerRes);
+  return res
+    .status(loginRes.result.status == "no" ? 400 : registerRes.result.status == "no" ? 500 : 200)
+    .send(registerRes);
 });
 
 DBrouter.post("/api/setConfig", Helper.authenticateToken, async (req, res) => {
@@ -146,9 +159,9 @@ DBrouter.post("/api/setConfig", Helper.authenticateToken, async (req, res) => {
     .then((result) => {
       console.log("result in fetch %%%%", result);
       let resultData = result;
-      res.send(testMsg ? { resultData, testMsg } : { resultData });
+      res.status(result.status == "no" ? 500 : 200).send(testMsg ? { resultData, testMsg } : { resultData });
     })
-    .catch((e) => res.send(e));
+    .catch((e) => res.status(400).send(e));
 });
 
 DBrouter.post("/api/setErpConfig", Helper.authenticateToken, async (req, res) => {
@@ -160,9 +173,9 @@ DBrouter.post("/api/setErpConfig", Helper.authenticateToken, async (req, res) =>
     .then((result) => {
       console.log("result in fetch %%%%", result);
       let resultData = result.data;
-      res.send(testMsg ? { resultData, testMsg } : { resultData });
+      res.status(result.status == "no" ? 500 : 200).send(testMsg ? { resultData, testMsg } : { resultData });
     })
-    .catch((e) => res.send(e));
+    .catch((e) => res.status(400).send(e));
 });
 //  *****************************  FIRE BASE END POINTS  **********************************//
 DBrouter.post("/api/savesignedFiles", Helper.authenticateToken, async (req, res) => {
