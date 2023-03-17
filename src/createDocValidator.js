@@ -17,6 +17,7 @@ const documenDef = {
   16: "הצעת מחיר רכש",
   17: "הזמנת רכש",
 };
+
 const allowedDocs = [1, 3];
 
 const validate = async (data, type = "default") => {
@@ -28,6 +29,7 @@ const validate = async (data, type = "default") => {
 module.exports.validate = validate;
 
 const checkNull = async (data) => {
+  let isBracking = false;
   let checks = [];
   if (!data.matrixesData.mainMatrix || !data.matrixesData.changesMatrix)
     return {
@@ -62,10 +64,13 @@ const checkNull = async (data) => {
         error: "no documents to make expecting 1 or more of types [1,3]",
       });
     } else {
+      let numOfFlalsi = 0;
       for (let i = 0; i <= innerMatrix.ActionID.length - 1; i++) {
         let currentID = innerMatrix.DocumentID[i];
         if (innerMatrix.ActionID[i] == 1 && !allowedDocs.find((ID) => ID == currentID)) {
+          numOfFlalsi += 1;
           checks.push({
+            RowPosition: i,
             path: "mainMatrix.DocumentID",
             error: `document of type ${documenDef[innerMatrix.DocumentID[i]]} on key ${
               innerMatrix.DocumentID[i]
@@ -73,18 +78,23 @@ const checkNull = async (data) => {
           });
         }
       }
-
+      if (numOfFlalsi == innerMatrix.ActionID.length) {
+        isBracking = true;
+        console.log("length: ", innerMatrix.ActionID.length - 1, { numOfFlalsi, isBracking });
+      }
       if (
         innerMatrix.AccountKey.length != innerMatrix.DocumentID.length ||
         innerMatrix.AccountKey.length != innerMatrix.ActionAutho.length
-      )
+      ) {
         checks.push({
           path: "matrixesData.mainMatrix",
           error: "unequal arrays length",
         });
+        isBracking = true;
+      }
     }
     if (checks?.length > 0) {
-      return { status: "no", data: checks };
+      return { status: isBracking ? "no" : "yes", data: checks };
     }
   }
 };

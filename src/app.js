@@ -23,7 +23,8 @@ const { default: axios } = require("axios");
 const { encode } = require("punycode");
 const { ZC_ErrorLogger } = require("./ZCmonitor");
 const MGoptions = { useNewUrlParser: true, useUnifiedTopology: true };
-
+const docHelper = require("./createDocsHelper");
+const { join } = require("path");
 const accountSid = "AC0228e43244a7b1cd0a5ce9d10b14d4eb";
 const authToken = "d3156c45622da27e95a3ca4f975cf474";
 const client = require("twilio")(accountSid, authToken);
@@ -55,11 +56,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(DBrouter);
-
-app.post("/api/showDocument", async (req, res) => {
-  let reso = await documentCreator.showDocument();
-  res.send(reso);
-});
 
 app.post("/api/mergepdfs", Helper.authenticateToken, async (req, res) => {
   const Filename = req?.headers["filename"];
@@ -141,41 +137,13 @@ app.post("/api/generatekey", async (req, res) => {
   res.send({ key: crypto.randomBytes(32).toString("hex") });
 });
 
-//"https://script.google.com/macros/s/AKfycby6-9oemt2hT4jU5jyiWe6Xxf5g6NqgKK7yTFZZ2WxEYWGcwBJ98M9Yu4xMD_U-lsFbQw/exec?type=items&&id=6358f8717dd95eceee53eac3"
-//http://localhost:3000/api/updateTriger?type=items&&id=6358f8717dd95eceee53eac3
-// app.post("/api/updatetrigers", async (req, res) => {
-//   const T =new Date().toLocaleTimeString('iw-IL')
-//   const path = "./trigers.json";
-//   const fileData =await JSON.parse(req.body)
-//   const Action = req?.headers["action"];
-//   if(Action =="write"){
-//     try{
-//   fs.writeFileSync(path, JSON.stringify(fileData), {
-//     encoding: "utf8",
-//     flag: "w",
-//   })
-// return res.send({status:yes,data:'saved',timeStemp:T})
-// }
-// catch{
-//   res.send({status:'no',data:'problem with writing trigers file',timeStemp:T})
-// }
-// }else if(Action == "read")
-// if(fs.existsSync(path)){
-// const result = JSON.parse(fs.readFileSync(path, { encoding: "utf8", flag: "r" }));
-// res.send({status:'yes',da})
-// }
-// )
-// )
-
-//   });
-
 const setProgressBar = async (filename, messageData, gotStats, currentDoc, totalDocs) => {
   const data = {
     data: messageData?.urlsData ? messageData.urlsData : null,
     termenate: messageData?.termenate ? true : false,
     stageName: typeof messageData == "object" ? messageData.stageName : "in process",
     msg: typeof messageData == "object" ? messageData.text : messageData,
-    errors: messageData?.errors?.length > 0 ? messageData.errors : "no errors",
+    errors: messageData?.errors ? messageData.errors : null,
     gotStats: gotStats,
     stats: {
       amountFinished: currentDoc ? currentDoc : 0,
@@ -189,10 +157,7 @@ const setProgressBar = async (filename, messageData, gotStats, currentDoc, total
   // }, 550);
 };
 
-const updateProgressBar = async (filename, progressData) => {
-  //console.log("IN PROGRESS BAR --", { filename, progr essData });
-  const data = progressData;
-  console.log("progress bar data 11!!!!", { data });
+const writeFileIfExist = (filename, data) => {
   let path = "./" + filename + ".json";
   if (fs.existsSync(path))
     fs.writeFileSync(path, JSON.stringify(data), {
@@ -200,6 +165,27 @@ const updateProgressBar = async (filename, progressData) => {
       flag: "w",
     });
   else fs.writeFileSync(path, JSON.stringify(data), { encoding: "utf8" });
+};
+
+// app.post("/api/getlasterrorlog", Helper.authenticateToken, async (req, res) => {
+//   const { filename } = await req.body;
+//   let path = "./" + filename + ".json";
+//   let file_exist = fs.existsSync(path);
+//   //  console.log({ file_exist });
+//   if (file_exist) {
+//     let result = JSON.parse(fs.readFileSync(path, { encoding: "utf8", flag: "r" }));
+//     res.send(result);
+//   } else {
+//     res.status(503).send({ status: "no", data: "no file in seraver by thet name" });
+//   }
+// });
+
+const updateProgressBar = async (filename, progressData) => {
+  //console.log("IN PROGRESS BAR --", { filename, progr essData });
+  const data = progressData;
+  console.log("progress bar data 11!!!!", { data });
+
+  writeFileIfExist(filename, data);
 };
 
 function delay(delayInms) {
@@ -211,9 +197,9 @@ function delay(delayInms) {
 }
 
 app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
-  console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
+  // console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
   const Filename = req?.headers["filename"];
-  console.log({ Filename });
+  // console.log({ Filename });
   const progressBar = true;
   const validator = true;
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -225,24 +211,32 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
 
   const matrixesData = await req.body;
   const test = await createDocValidator.validate(matrixesData, "default");
+
+  let objectErrors;
   if (validator) {
-    console.log("!!!!!!!! validatror in !!!!!");
+    // console.log("!!!!!!!! validatror in !!!!!");
     if (test?.status == "no") {
       ZC_ErrorLogger(test, { text: "validation error ,", toLog: true }, { serverName: "ha" }, null, true);
       return res.send({ status: "no", data: test });
     } else {
-      console.log("validator in yes ");
-      res.send({ status: "yes", data: "object ok" });
+      //   console.log("validator in yes ");
+
+      objectErrors = test?.data?.length ? [...test.data] : null;
+      res.send({
+        status: "yes",
+        data: objectErrors ? "object got problems but not bracking ones " : "object ok",
+        errors: objectErrors,
+      });
     }
   }
-  console.log({ matrixesData });
+  // console.log({ matrixesData });
 
   progressBar && setProgressBar(Filename, { stageName: "start", text: "מאתחל...." }, false);
 
   let userID;
   try {
     userID = user?.fetchedData?.userID ? user.fetchedData.userID : user.userID;
-    console.log("userID", userID);
+    // console.log("userID", userID);
   } catch (e) {
     console.log(`
       status: no, user id invalid value ${userID},
@@ -251,11 +245,11 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
   }
 
   let Action = parseInt(Filename.slice(2, Filename.length));
-  console.log({ Action });
+  //console.log({ Action });
   let logArrey = [];
-
+  let ErrorMatrix = [];
   progressBar && setProgressBar(Filename, { stageName: "a", text: "מכין מטריצה לעיבוד" }, false);
-  console.log("sssssssssssssssssssssfadggasdgs", Object.keys(matrixesData));
+  // console.log("sssssssssssssssssssssfadggasdgs", Object.keys(matrixesData));
   matrixesHandeler
     .prererMatixesData(matrixesData)
     .then(async (result) => {
@@ -270,15 +264,12 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
       return result;
     })
     .then(async (result) => {
-      console.log({ Action });
+      //   console.log({ Action });
       let allData = result.data.docData;
+      const { data, errorMatrix } = await docHelper.setApprovedDataAndErrorLog(allData, matrixesData);
+      //   console.log({ data, errorMatrix });
+      ErrorMatrix = docHelper.joinErrorMatrixWithObjsectErrors(errorMatrix, objectErrors);
 
-      let data = await allData.filter((row, idx) => {
-        if (matrixesData.matrixesData.mainMatrix.ActionID[idx] == 1) return row;
-      });
-
-      const dataLength = data.length;
-      console.log("sssssssssssssssssss", { data, dataLength });
       for (let j = 0; j <= data.length - 1; j++) {
         await documentCreator.createDoc(data[j], j, userID).then(async (docOutPut) => {
           await Helper.createRetJson(docOutPut, Action, userID)
@@ -290,9 +281,9 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
                   { stageName: `f${j}`, text: "מפיק מסמך", urlsData: docData },
                   true,
                   j + 1,
-                  dataLength
+                  data.length
                 );
-              console.log("aaaaasssssssssssssssssssss", { docOutPut });
+
               if (docOutPut?.status == "no") {
                 progressBar &&
                   setProgressBar(Filename, {
@@ -306,10 +297,10 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
             })
             .then(async (docResult) => {
               if (!docResult?.status) {
-                console.log("cocument k to save");
                 logArrey.push(docResult);
               } else {
                 Errors.push(docResult.error[0]);
+                ErrorMatrix = docHelper.updateErrorMatrix(ErrorMatrix, matrixesData, docResult.error[0]);
                 console.log({ Errors });
               }
             });
@@ -334,7 +325,10 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
             stageName: "finish",
             text: "סיום",
             termenate: true,
-            errors: Errors,
+            errors: {
+              global: Errors.length > 0 ? Errors : null,
+              errorsMatrix: docHelper.gotErrors(ErrorMatrix) ? ErrorMatrix : null,
+            },
             // urlsData: [...result.resultData.data],
           },
           false
@@ -345,7 +339,19 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
     })
     .catch((err) => {
       console.log(`catch in main loop...\n ${err}`);
-      progressBar && setProgressBar(Filename, { stageName: "finish", text: "תקלה בהפקת המטריצה" }, false);
+      progressBar &&
+        setProgressBar(
+          Filename,
+          {
+            stageName: "finish",
+            text: "תקלה בהפקת המטריצה",
+            errors: {
+              global: Errors.length > 0 ? Errors : null,
+              errorsMatrix: docHelper.gotErrors(ErrorMatrix) ? ErrorMatrix : null,
+            },
+          },
+          false
+        );
 
       console.log(` status: "no", data: ${err}`);
     });
@@ -398,23 +404,17 @@ app.post("/api/getrecords", Helper.authenticateToken, async function (req, res) 
   let isNew;
   let isSended = false;
   const reportData = await req.body;
-  // console.log(reportData);
+
   const UPDATE_TIME_INTERVAL = 1000 * 300;
   await StoredReports.find({ ID: JSON.stringify(reportData), userID: userID })
     .then(async (report) => {
-      //  console.log({ report });
       let len = report.length;
       console.log({ len });
       report.length == 0 ? (isNew = true) : (isNew = false);
       searchData = report;
-      const DATA_TO_log = report[0]._doc;
-      //   console.log("date in report", DATA_TO_log.Date);
 
       if (!isNew) {
         const currentTime = new Date(new Date().toLocaleString("en", { timeZone: "Asia/Jerusalem" })).getTime();
-        //.toLocaleStrinutfZone, {
-        //   timeZone: "Asia/Jerusalem",
-        // }).getTime();
         const reportTime = new Date(report[0]._doc.Date).getTime();
         console.table({ currentTime, reportTime });
         if (currentTime - reportTime < UPDATE_TIME_INTERVAL) {
@@ -536,9 +536,7 @@ app.post("/api/getProgressBar", async (req, res) => {
       if (result.stageName == "finish" || result?.termenate) {
         toBreak = true;
         clearInterval(intervals);
-        // res.write(JSON.stringify(result));
         console.log("BRAKING FROM GET PROGRESS BAR");
-        //  res.write("finish");
         fs.unlinkSync(path);
         return res.end();
       }
@@ -557,198 +555,3 @@ app.post("/api/getProgressBar", async (req, res) => {
     }
   }, 500);
 });
-
-// ##################################### messsages Server ########################################//
-app.post("/api/sendMsgs/sms", async (req, res) => {
-  // let { numbers, msg } = await req.body;
-  // const sss = await req.body;
-  // console.log({ sss });
-  const { numbers, msg } = await req.body;
-  // console.log(req);
-  let actionLog = [];
-  console.log({ numbers, msg });
-
-  if (msg.length != numbers.length) return res.send({ status: "no", data: "msg arrey != numbers arrey" });
-
-  try {
-    for (let i = 0; i <= numbers.length - 1; i++) {
-      let record = {};
-      let Message = msg[i];
-      console.log(numbers[i], { Message });
-      await sendSms(numbers[i], Message)
-        .then(async (res) => {
-          let r = res;
-          console.log({ r });
-          record = { number: numbers[i], status: "ok", row: i, msg: Message };
-        })
-        .catch((err) => {
-          record = {
-            number: numbers[i],
-            status: "catch error",
-            row: i,
-            msg: err,
-          };
-        });
-      actionLog.push(record);
-    }
-  } catch (e) {
-    return res.send(e);
-  }
-  console.log(actionLog);
-  return res.send(JSON.stringify(actionLog));
-});
-
-async function sendSms(to2, body3) {
-  console.log({ to2, body3 });
-  const fromSms = "+972521205702";
-  // const fromSms = "+12395227812";
-  // const ACCOUNT_SID = "AC0228e43244a7b1cd0a5ce9d10b14d4eb";
-  // const ACCOUNT_TOKEN = "ffce7057328fc54b8fbbc6f1643a7188";
-
-  //const url = "https://api.twilio.com/2010-04-01/Accounts/" + ACCOUNT_SID + "/Messages.json";
-  // const options = {
-  //   // method: "post",
-  //   headers: {
-  //     Authorization: "Basic " + encodeURI(ACCOUNT_SID + ":" + ACCOUNT_TOKEN),
-  //   },
-  //   payload: {
-  //     From: fromSms,
-  //     Body: body3,
-  //     To: to2,
-  //   },
-  // };
-  // const payload = {
-  //   From: fromSms,
-  //   Body: body3,
-  //   To: to2,
-  // };
-  // const bufferData = new Buffer(`${ACCOUNT_SID}:${ACCOUNT_TOKEN}`);
-  // let base64data = bufferData.toString("base64");
-  // console.log({ base64data });
-  // try {
-  //   await axios
-  //     .post(url, payload, {
-  //       headers: {
-  //         Authorization: "Basic " + base64data,
-  //       },
-  //     })
-  //     .then((res) => console.log("ressssssssssssssssssssss", JSON.stringify(res)))
-  //     .catch((e) => console.log({ e }));
-  // } catch (e) {
-  //   console.log("error sending sms", { e });
-  // }
-
-  client.messages
-    .create({
-      body: body3,
-      from: fromSms,
-      to: to2,
-    })
-    .then((message) => console.log(message.sid));
-}
-// app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
-//   console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
-//   const Filename = req?.headers["filename"];
-//   const progressBar = true;
-//   const validator = true;
-//   res.setHeader("Access-Control-Allow-Origin", "*");
-
-//   let oauth = req.headers["authorization"];
-//   let addedValue;
-//   const user = await req?.user;
-
-//   const matrixesData = await req.body;
-//   const test = await createDocValidator.validate(matrixesData, "default");
-//   if (validator) {
-//     if (test?.status == "no") return res.send(test);
-//   }
-//   console.log({ matrixesData });
-
-//   progressBar && setProgressBar(Filename, { stageName: "start", text: "מאתחל...." }, false);
-
-//   let userID;
-//   try {
-//     userID = user?.fetchedData?.userID ? user.fetchedData.userID : user.userID;
-//     console.log("userID", userID);
-//   } catch (e) {
-//     return res.send({
-//       status: `no, user id invalid value ${userID}`,
-//       data: JSON.stringify(e),
-//     });
-//   }
-
-//   let Action;
-//   let logArrey = [];
-
-//   progressBar && setProgressBar(Filename, { stageName: "a", text: "מכין מטריצה לעיבוד" }, false);
-//   console.log("sssssssssssssssssssssfadggasdgs", Object.keys(matrixesData));
-//   matrixesHandeler
-//     .prererMatixesData(matrixesData)
-//     .then(async (result) => {
-//       progressBar && setProgressBar(Filename, { stageName: "b", text: "שומר תוכן מטריצות במסד נתונים" }, false);
-//       const dataToSave = await matrixesHandeler.constructMatrixToDbObjB(req);
-
-//       const saveStatus = await Helper.saveMatrixesToDB(dataToSave, true);
-//       if (saveStatus?.resultData?.status == "no") return res.send({ status: "no", data: "problem with matrix name" });
-//       const statusMsg = saveStatus?.resultData?.status == "yes" ? "נשמר בהצלחה" : "תקלה בתהליך השמירה ";
-
-//       progressBar && setProgressBar(Filename, { stageName: "c", text: statusMsg }, false);
-//       return result;
-//     })
-//     .then(async (result) => {
-//       Action = result.ActionID;
-//       let allData = result.data.docData;
-
-//       let data = await allData.filter((row, idx) => {
-//         if (matrixesData.matrixesData.mainMatrix.ActionID[idx] == 1) return row;
-//       });
-
-//       console.log({ data });
-//       const dataLength = data.length;
-
-//       for (let i = 0; i <= data.length - 1; i++) {
-//         await documentCreator
-//           .createDoc(data[i], i, userID)
-//           .then(async (docOutPut) => {
-//             progressBar && setProgressBar(Filename, { stageName: `f${i}`, text: "מפיק מסמך" }, true, i + 1, dataLength);
-//             //    console.log("aaaaasssssssssssssssssssss", { docOutPut });
-//             if (docOutPut?.status == "no") {
-//               progressBar &&
-//                 setProgressBar(Filename, {
-//                   stageName: "finish",
-//                   text: "תקלה בהפקת מסמכים",
-//                 });
-//               return res.send({ status: "no", data: "error in docOutPut" });
-//             }
-//             if (i == 0) addedValue = docOutPut[0]["DocumentDetails"][0][0]["DocNumber"];
-//             let val = docOutPut;
-
-//             return await Helper.createRetJson(docOutPut, i, Action, userID, addedValue);
-//           })
-//           .then(async (docResult) => {
-//             if (!docResult?.status) {
-//               console.log("cocument k to save");
-//               logArrey.push(docResult);
-//             } else {
-//               console.log("bad document for save !!!!!!!");
-//             }
-//           });
-//       }
-//     })
-//     .then(async () => {
-//       progressBar && setProgressBar(Filename, { stageName: "S", text: "שומר תוצאות במסד הנתונים" }, false);
-
-//       // _______________________________________________________________//
-//       return await Helper.saveDocURL(logArrey, oauth);
-//     })
-//     .then((result) => {
-//       progressBar && setProgressBar(Filename, { stageName: "finish", text: "המסמכים הופקו", termenate: true }, false);
-//       res.send(JSON.stringify({ status: "yes", data: result }));
-//     })
-//     .catch((err) => {
-//       console.log(`catch in main loop...\n ${err}`);
-//       progressBar && setProgressBar(Filename, { stageName: "finish", text: "תקלה בהפקת המטריצה" }, false);
-//       // deleteProgressFile(Filename);
-//       res.send(JSON.stringify({ status: "no", data: err }));
-//     });
-// });
