@@ -395,7 +395,10 @@ app.post("/api/getrecords", Helper.authenticateToken, async function (req, res) 
   console.log("~~~~~~~~~~~~~ getrecords ~~~~~~~~~~~~~~~~~");
 
   const columnToValidate = await req.body.columnToValidate;
+  const defaultReports = req.user.fetchedData.configObj.Reports.defaultReports;
 
+  console.log("user object:");
+  // return res.end("ok");
   let checkUserID = await Helper.getUsserID(req);
   if (checkUserID.status == false) return res.send(checkUserID.data);
   let userID = checkUserID.data;
@@ -403,7 +406,13 @@ app.post("/api/getrecords", Helper.authenticateToken, async function (req, res) 
   let searchData;
   let isNew;
   let isSended = false;
-  const reportData = await req.body;
+  const Body = await req.body;
+
+  const erpName = req.user.fetchedData.configObj.ErpConfig.erpName;
+  const erpConfig = req.user.fetchedData.configObj.ErpConfig[erpName];
+
+  if (!defaultReports) return res.status(500).send({ status: "no", data: "no query data" });
+  const reportData = { ...defaultReports, ...Body };
 
   const UPDATE_TIME_INTERVAL = 1000 * 300;
   await StoredReports.find({ ID: JSON.stringify(reportData), userID: userID })
@@ -436,7 +445,7 @@ app.post("/api/getrecords", Helper.authenticateToken, async function (req, res) 
 
   reportData.TID != "4"
     ? reportsCreator
-        .exportRecords(reportData, userID)
+        .exportRecords(reportData, userID, erpConfig)
         .then(async (jsondata) => {
           console.log({ jsondata });
           // if (jsondata !== "object") throw console.error(jsondata);
