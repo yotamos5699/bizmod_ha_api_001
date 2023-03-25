@@ -394,6 +394,8 @@ app.post("/api/initvalidate", Helper.authenticateToken, async function (req, res
 app.post("/api/getrecords", Helper.authenticateToken, async function (req, res) {
   console.log("~~~~~~~~~~~~~ getrecords ~~~~~~~~~~~~~~~~~");
 
+  console.log("req usser: ", req.user);
+  //return;
   const columnToValidate = await req.body.columnToValidate;
   const defaultReports = req.user.fetchedData.configObj.Reports.defaultReports;
 

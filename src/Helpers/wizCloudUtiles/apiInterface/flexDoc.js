@@ -199,7 +199,7 @@ function sortReportData(props, tbNum) {
   console.log("sortReportData", { props, tbNum });
   let newSortedData = [];
   //let updatedData = props.reportData;
-  //console.log("sorting type !!!!!!!!!!!", props.reportSortParams);
+  console.log("sorting type !!!!!!!!!!!", props.reportSortParams);
 
   for (let i = 0; i <= props.reportSortParams.length - 1; i++) {
     if (props.reportSortParams[i].sortingType == "single" || props.reportSortParams[i].sortingType == "multi") {
