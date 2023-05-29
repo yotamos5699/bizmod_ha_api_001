@@ -197,9 +197,8 @@ function delay(delayInms) {
 }
 
 app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
-  // console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
   const Filename = req?.headers["filename"];
-  // console.log({ Filename });
+
   const progressBar = true;
   const validator = true;
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -397,7 +396,10 @@ app.post("/api/getrecords", Helper.authenticateToken, async function (req, res) 
   console.log("req usser: ", req.user);
   //return;
   const columnToValidate = await req.body.columnToValidate;
-  const defaultReports = req.user.fetchedData.configObj.Reports.defaultReports;
+  const user = req.user;
+  console.log({ user });
+  const defaultReports = req.user?.fetchedData?.configObj?.Reports?.defaultReports;
+  if (!defaultReports) return res.status(503).send({ status: "no", data: "no config object" });
 
   console.log("user object:");
   // return res.end("ok");
