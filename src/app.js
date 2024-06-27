@@ -36,13 +36,9 @@ const { default: axios } = require("axios");
 const { encode } = require("punycode");
 const { ZC_ErrorLogger } = require("./ZCmonitor");
 const MGoptions = { useNewUrlParser: true, useUnifiedTopology: true };
-// const accountSid = process.env.TWILIO_ACCOUNT_SID;
-// const authToken = process.env.TWILIO_AUTH_TOKEN;
-//AC0228e43244a7b1cd0a5ce9d10b14d4eb
 
 const accountSid = "AC0228e43244a7b1cd0a5ce9d10b14d4eb";
 const authToken = "d3156c45622da27e95a3ca4f975cf474";
-const client = require("twilio")(accountSid, authToken);
 
 mongoose
   .connect(uri, MGoptions)
@@ -603,54 +599,6 @@ app.post("/api/sendMsgs/sms", async (req, res) => {
   return res.send(JSON.stringify(actionLog));
 });
 
-async function sendSms(to2, body3) {
-  console.log({ to2, body3 });
-  const fromSms = "+972521205702";
-  // const fromSms = "+12395227812";
-  // const ACCOUNT_SID = "AC0228e43244a7b1cd0a5ce9d10b14d4eb";
-  // const ACCOUNT_TOKEN = "ffce7057328fc54b8fbbc6f1643a7188";
-
-  //const url = "https://api.twilio.com/2010-04-01/Accounts/" + ACCOUNT_SID + "/Messages.json";
-  // const options = {
-  //   // method: "post",
-  //   headers: {
-  //     Authorization: "Basic " + encodeURI(ACCOUNT_SID + ":" + ACCOUNT_TOKEN),
-  //   },
-  //   payload: {
-  //     From: fromSms,
-  //     Body: body3,
-  //     To: to2,
-  //   },
-  // };
-  // const payload = {
-  //   From: fromSms,
-  //   Body: body3,
-  //   To: to2,
-  // };
-  // const bufferData = new Buffer(`${ACCOUNT_SID}:${ACCOUNT_TOKEN}`);
-  // let base64data = bufferData.toString("base64");
-  // console.log({ base64data });
-  // try {
-  //   await axios
-  //     .post(url, payload, {
-  //       headers: {
-  //         Authorization: "Basic " + base64data,
-  //       },
-  //     })
-  //     .then((res) => console.log("ressssssssssssssssssssss", JSON.stringify(res)))
-  //     .catch((e) => console.log({ e }));
-  // } catch (e) {
-  //   console.log("error sending sms", { e });
-  // }
-
-  client.messages
-    .create({
-      body: body3,
-      from: fromSms,
-      to: to2,
-    })
-    .then((message) => console.log(message.sid));
-}
 app.post("/api/createdoc", Helper.authenticateToken, async (req, res) => {
   console.log("%%%%%%%%%%% in create docs %%%%%%%%%");
   const Filename = req?.headers["filename"];
