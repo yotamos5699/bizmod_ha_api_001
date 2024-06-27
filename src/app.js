@@ -18,7 +18,7 @@ const crypto = require("crypto");
 const express = require("express");
 const app = express();
 const fs = require("fs");
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3400;
 //const PORT = 3000;
 const cors = require(`cors`);
 const bodyParser = require("body-parser");
@@ -339,6 +339,7 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
       progressBar && setProgressBar(Filename, { stageName: "S", text: "שומר תוצאות במסד הנתונים" }, false);
       console.log({ logArrey, oauth });
       const docsArray = await Helper.saveDocURL(logArrey, oauth);
+      Helper.saveSigningState(docsArray.resultData.data, oauth);
       console.log("sssdara", docsArray.resultData.data);
       return docsArray;
     })

@@ -24,6 +24,14 @@
     "WizcloudApiDBName": "wizdb2394n7"
   },
   {
+    "Key": "638dac1454f08b9sd35ed4af2f",
+    "Name": "ארייה",
+    "Email": "ariya@gatavigdor.co.il",
+    "WizcloudApiPrivateKey": "23e54b4b3e541261140bdeb257538ba11c5104620e61217d5d6735a3c9361a5aac67a7f85278e4e53f3008598d8927f68e89e3e16147c194f96976bdf3075d55",
+    "WizcloudApiServer": "lb11.wizcloud.co.il",
+    "WizcloudApiDBName": "wizdb2394n7"
+  },
+  {
     "Key": "638dac1454f08b935ed4af2f",
     "Name": "amir",
     "Email": "amir@gatavigdor.com",
@@ -45,69 +53,27 @@
     "matrixesData": {
       "mainMatrix": {
         "matrixID": "1b599270a11987656398ae233adc8c70cc369ec6233db2d52044944d26090ffc",
-        "ActionID": [
-          1,
-          1
-        ],
-        "AccountKey": [
-          "6026",
-          "6027"
-        ],
-        "DocumentID": [
-          6,
-          3
-        ],
-        "DriverID": [
-          "qewr135256edrfh",
-          "qewr135256edrfh"
-        ],
+        "ActionID": [1, 1],
+        "AccountKey": ["6026", "6027"],
+        "DocumentID": [6, 3],
+        "DriverID": ["qewr135256edrfh", "qewr135256edrfh"],
         "ActionAutho": [],
-        "itemsHeaders": [
-          "HI250SA",
-          "SX250SA",
-          "AB500SA"
-        ],
-        "itemsNames": [
-          "הרנה 250 גרם",
-          "גת SPXP",
-          "אבו מיסמר גדול"
-        ],
+        "itemsHeaders": ["HI250SA", "SX250SA", "AB500SA"],
+        "itemsNames": ["הרנה 250 גרם", "גת SPXP", "אבו מיסמר גדול"],
         "cellsData": [
-          [
-            3,
-            2,
-            1
-          ],
-          [
-            1,
-            0,
-            0
-          ]
+          [3, 2, 1],
+          [1, 0, 0]
         ]
       },
       "changesMatrix": {
         "matrixConfig": null,
         "matrixGlobalData": null,
         "cellsData": [
-          [
-            null,
-            null,
-            null
-          ],
-          [
-            null,
-            null,
-            null
-          ]
+          [null, null, null],
+          [null, null, null]
         ],
-        "docData": [
-          null,
-          null
-        ],
-        "metaData": [
-          null,
-          null
-        ]
+        "docData": [null, null],
+        "metaData": [null, null]
       }
     },
     "Date": "11/23/2022, 6:18:04 PM",
@@ -124,45 +90,15 @@
     "matrixesData": {
       "mainMatrix": {
         "matrixID": "1234",
-        "ActionID": [
-          1,
-          2
-        ],
-        "AccountKey": [
-          "6259",
-          "6304"
-        ],
-        "DocumentID": [
-          1,
-          1
-        ],
-        "DriverID": [
-          "6259",
-          "62594"
-        ],
-        "ActionAutho": [
-          "Default",
-          "Default"
-        ],
-        "itemsHeaders": [
-          "HI250SA",
-          "HI250SA",
-          "BB100SA",
-          "XP100SA"
-        ],
+        "ActionID": [1, 2],
+        "AccountKey": ["6259", "6304"],
+        "DocumentID": [1, 1],
+        "DriverID": ["6259", "62594"],
+        "ActionAutho": ["Default", "Default"],
+        "itemsHeaders": ["HI250SA", "HI250SA", "BB100SA", "XP100SA"],
         "cellsData": [
-          [
-            0,
-            2,
-            4,
-            6
-          ],
-          [
-            3,
-            5,
-            1,
-            7
-          ]
+          [0, 2, 4, 6],
+          [3, 5, 1, 7]
         ]
       },
       "changesMatrix": {
@@ -177,12 +113,7 @@
             null,
             null
           ],
-          [
-            null,
-            null,
-            null,
-            null
-          ]
+          [null, null, null, null]
         ],
         "docData": [
           {

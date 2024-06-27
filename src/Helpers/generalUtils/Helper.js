@@ -62,6 +62,31 @@ const saveDocURL = async (docsArrey, oauth) => {
       console.log("error in save doc url", e);
     });
 };
+const saveSigningState = async (docsArrey, oauth) => {
+  // console.log({ docsArrey });
+  let body = await docsArrey;
+
+  let Req = {
+    headers: {
+      authorization: oauth,
+    },
+    body: body,
+  };
+  let options = {
+    url: "http://localhost:3001/api/data/saveNewDocs",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json;charset=UTF-8",
+      authorization: oauth,
+    },
+    data: body,
+  };
+  axios(options)
+    .then((result) => {
+      console.log("saved for signing resault ", result.data);
+    })
+    .catch((err) => console.log({ err }));
+};
 
 const saveMatrixesToDB = async (req, isTrue) => {
   //console.log("$$$$$$$$$$$$$$$ in  saveMatrixesToDB $$$$$$$$$$$$$$$\n", obj);
@@ -299,7 +324,7 @@ const sortReportData = (reportData, sortKey) => {
     };
   return updatedData;
 };
-
+module.exports.saveSigningState = saveSigningState;
 module.exports.getUsserID = getUsserID;
 module.exports.saveMatrixesToDB = saveMatrixesToDB;
 module.exports.saveDocURL = saveDocURL;
