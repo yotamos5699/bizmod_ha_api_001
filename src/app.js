@@ -37,9 +37,6 @@ const { encode } = require("punycode");
 const { ZC_ErrorLogger } = require("./ZCmonitor");
 const MGoptions = { useNewUrlParser: true, useUnifiedTopology: true };
 
-const accountSid = "AC0228e43244a7b1cd0a5ce9d10b14d4eb";
-const authToken = "d3156c45622da27e95a3ca4f975cf474";
-
 mongoose
   .connect(uri, MGoptions)
   .then(() => console.log("conected to mongo...."))
