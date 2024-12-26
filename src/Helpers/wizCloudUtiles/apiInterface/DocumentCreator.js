@@ -5,7 +5,8 @@ const getCredential = require("../helpers/getCred");
 const realUserID = "6358f8717dd95eceee53eac3";
 const amir = "638dac1454f08b935ed4af2f";
 const yafit = "638dad0c54f08b935ed4af34";
-const ariya = "638dac1454f08b9sd35ed4af2f";
+
+const ariya = "667d28a8a17c5ff3ae37a50a";
 
 const tempKey =
   "23e54b4b3e541261140bdeb257538ba11c5104620e61217d5d6735a3c9361a5aac67a7f85278e4e53f3008598d8927f68e89e3e16147c194f96976bdf3075d55";
