@@ -11,6 +11,7 @@
 //const axios = require()
 //const Buffer = require("buffer");
 //const Buffer = require("node:buffer");
+require("dotenv").config();
 const download = require("download");
 const createDocValidator = require("./createDocValidator");
 const castumReports = require("./castumReports");
@@ -36,7 +37,6 @@ const { Console } = require("console");
 const { default: axios } = require("axios");
 const { encode } = require("punycode");
 const { ZC_ErrorLogger } = require("./ZCmonitor");
-const MGoptions = { useNewUrlParser: true, useUnifiedTopology: true };
 // const accountSid = process.env.TWILIO_ACCOUNT_SID;
 // const authToken = process.env.TWILIO_AUTH_TOKEN;
 //AC0228e43244a7b1cd0a5ce9d10b14d4eb
@@ -44,10 +44,10 @@ const MGoptions = { useNewUrlParser: true, useUnifiedTopology: true };
 const accountSid = "AC0228e43244a7b1cd0a5ce9d10b14d4eb";
 const authToken = "d3156c45622da27e95a3ca4f975cf474";
 const client = require("twilio")(accountSid, authToken);
-const uri = "mongodb+srv://matrix:linux6926@main.tybk4aa.mongodb.net/?appName=main";
+const uri = process.env.MONGODB_URI || "mongodb+srv://matrix:linux6926@main.tybk4aa.mongodb.net/?appName=main";
 
 mongoose
-  .connect(uri, MGoptions)
+  .connect(uri)
   .then(() => console.log("conected to mongo...."))
 
   .catch((e) => console.log(e));
