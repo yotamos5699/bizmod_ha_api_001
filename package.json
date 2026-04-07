@@ -36,7 +36,7 @@
     "url": "https://github.com/TalCohenGit/HashavshevetAPI/issues"
   },
   "engines": {
-    "node": ">=20.19.0"
+    "node": ">=23.0.0"
   },
   "homepage": "https://github.com/TalCohenGit/HashavshevetAPI#readme"
 }
