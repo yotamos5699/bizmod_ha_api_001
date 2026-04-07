@@ -29,7 +29,8 @@ const Helper = require("./Helpers/generalUtils/Helper");
 const matrixesHandeler = require("./Helpers/wizCloudUtiles/helpers/calcKi");
 const PDFMerger = require("pdf-merger-js");
 const utfZone = "en";
-const uri = "mongodb+srv://yotamos:linux6926@cluster0.zj6wiy3.mongodb.net/mtxlog?retryWrites=true&w=majority";
+
+// const uri = "mongodb+srv://yotamos:linux6926@cluster0.zj6wiy3.mongodb.net/mtxlog?retryWrites=true&w=majority";
 const mongoose = require("mongoose");
 const { Console } = require("console");
 const { default: axios } = require("axios");
@@ -43,6 +44,7 @@ const MGoptions = { useNewUrlParser: true, useUnifiedTopology: true };
 const accountSid = "AC0228e43244a7b1cd0a5ce9d10b14d4eb";
 const authToken = "d3156c45622da27e95a3ca4f975cf474";
 const client = require("twilio")(accountSid, authToken);
+const uri = "mongodb+srv://matrix:linux6926@main.tybk4aa.mongodb.net/?appName=main";
 
 mongoose
   .connect(uri, MGoptions)
@@ -57,7 +59,7 @@ const storedReports = new mongoose.Schema(
     ID: String,
     Report: Object,
   },
-  { timestamps: true, strict: true, strictQuery: false }
+  { timestamps: true, strict: true, strictQuery: false },
 );
 
 const StoredReports = mongoose.model("StoredReports", storedReports);
@@ -65,7 +67,7 @@ const StoredReports = mongoose.model("StoredReports", storedReports);
 app.use(
   cors({
     origin: "*",
-  })
+  }),
 );
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -307,7 +309,7 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
                   { stageName: `f${j}`, text: "מפיק מסמך", urlsData: docData },
                   true,
                   j + 1,
-                  dataLength
+                  dataLength,
                 );
               console.log("aaaaasssssssssssssssssssss", { docOutPut });
               if (docOutPut?.status == "no") {
@@ -355,7 +357,7 @@ app.post("/api/createdoc2", Helper.authenticateToken, async (req, res) => {
             errors: Errors,
             // urlsData: [...result.resultData.data],
           },
-          false
+          false,
         );
 
       console.log(` status: "yes", data: ${result}`);
@@ -464,7 +466,7 @@ app.post("/api/getrecords", Helper.authenticateToken, async function (req, res) 
                 { ID: JSON.stringify(reportData) },
                 {
                   $set: { ...reportObject, id: searchData._id },
-                }
+                },
               )
                 .then((result) => console.log(result))
                 .catch((e) => console.log(e));

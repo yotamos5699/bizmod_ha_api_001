@@ -14,7 +14,7 @@
     "fetch": "^1.1.0",
     "firebase": "^9.8.4",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.5.1",
+    "mongoose": "^9.4.1",
     "nodemon": "^2.0.20",
     "pdf-merger-js": "^4.1.1",
     "twilio": "^3.84.0",
