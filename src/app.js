@@ -45,7 +45,7 @@ const accountSid = "AC0228e43244a7b1cd0a5ce9d10b14d4eb";
 const authToken = "d3156c45622da27e95a3ca4f975cf474";
 const client = require("twilio")(accountSid, authToken);
 const uri = process.env.MONGODB_URI || "mongodb+srv://matrix:linux6926@main.tybk4aa.mongodb.net/?appName=main";
-
+console.log("connecting to mongo with uri", uri);
 mongoose
   .connect(uri)
   .then(() => console.log("conected to mongo...."))
