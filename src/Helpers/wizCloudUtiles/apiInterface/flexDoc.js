@@ -37,7 +37,7 @@ async function exportRecords(reqData, userID) {
   //let ID = (await userID) == realUserID ? realUserID : amir ? amir : yafit ? yafit : "1111";
   //if (ID != "1111") console.log("ofek is connected");
   let ID;
-  if (userID == realUserID) {
+  if (userID == ofek) {
     ID = ofek;
   } else if (userID == amir) {
     ID = amir;
