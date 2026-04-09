@@ -3,7 +3,7 @@ const getCredential = require("../helpers/getCred");
 const Helper = require("../../generalUtils/Helper");
 const defultReports = require("./filencryption");
 const e = require("express");
-const realUserID = "6358f8717dd95eceee53eac3";
+const ofek = "69d62ed5fab64d1dae700d34";
 
 const ariya = "667d28a8a17c5ff3ae37a50a";
 
@@ -38,7 +38,7 @@ async function exportRecords(reqData, userID) {
   //if (ID != "1111") console.log("ofek is connected");
   let ID;
   if (userID == realUserID) {
-    ID = realUserID;
+    ID = ofek;
   } else if (userID == amir) {
     ID = amir;
   } else if (userID == yafit) {
