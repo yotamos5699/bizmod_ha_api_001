@@ -4,6 +4,7 @@ const wizlib = require("wizcloud-api");
 const getCredential = require("../helpers/getCred");
 const realUserID = "6358f8717dd95eceee53eac3";
 const amir = "638dac1454f08b935ed4af2f";
+const ofek = "69d62ed5fab64d1dae700d34";
 const yafit = "638dad0c54f08b935ed4af34";
 
 const ariya = "667d28a8a17c5ff3ae37a50a";
@@ -30,6 +31,7 @@ async function createDoc(docData, index, userID) {
   else if (userID == amir) ID = amir;
   else if (userID == yafit) ID = yafit;
   else if (userID == ariya) ID = ariya;
+  else if (userID == ofek) ID = ofek;
   else ID = "1111";
   const { usserDbname, usserServerName, usserPrivetKey } = await getCredential.getCastumersCred(ID);
 

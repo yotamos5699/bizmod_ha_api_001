@@ -27,8 +27,7 @@ const generateKey = (collection) => {
   const Key = crypto.randomBytes(32).toString("hex");
   const hashedKey = hashUserKey(Key);
 
-  if ([collection].find(`"${keysLocation[collection]}":"${hashedKey}"`))
-    generateKey();
+  if ([collection].find(`"${keysLocation[collection]}":"${hashedKey}"`)) generateKey();
   else return { hashedKey: hashedKey, Key: Key };
 };
 
