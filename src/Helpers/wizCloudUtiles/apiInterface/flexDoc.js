@@ -24,7 +24,7 @@ try {
   console.dir(err);
   return err;
 }
-
+let last_init_time = 0;
 async function exportRecords(reqData, userID) {
   console.log("~~~~~~~~~~~~~~~~~ in flex docs ~~~~~~~~~~~~~~~~~~");
   if (defultReports == undefined) return "error in fetching defultReports data";
@@ -53,12 +53,15 @@ async function exportRecords(reqData, userID) {
   const { usserDbname, usserServerName, usserPrivetKey } = await getCredential.getCastumersCred(ID);
 
   let myDBname = usserDbname;
-  try {
-    wizlib.init(usserPrivetKey, usserServerName);
-  } catch (e) {
-    return e;
+  const now = Date.now();
+  if (!last_init_time || now - last_init_time > 30000) {
+    last_init_time = now;
+    try {
+      wizlib.init(usserPrivetKey, usserServerName);
+    } catch (e) {
+      return e;
+    }
   }
-
   let reportCod, parameters;
   if (fileData == "4") {
     [reportCod, parameters] = fileData;
