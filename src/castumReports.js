@@ -1,4 +1,4 @@
-const wizlib = require("wizcloud-api");
+const wizlib = require("./Helpers/generalUtils/wizClient");
 
 const myObjData = require("../src/Helpers/wizCloudUtiles/helpers/apiConfig.json");
 

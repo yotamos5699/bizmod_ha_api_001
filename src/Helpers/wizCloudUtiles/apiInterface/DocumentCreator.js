@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////basic required code
 //Must to configure private data on apiConfig.js file
-const wizlib = require("wizcloud-api");
+const wizlib = require("../../generalUtils/wizClient");
 const getCredential = require("../helpers/getCred");
 const realUserID = "6358f8717dd95eceee53eac3";
 const amir = "638dac1454f08b935ed4af2f";

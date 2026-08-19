@@ -1,4 +1,4 @@
-const wizlib = require("wizcloud-api");
+const wizlib = require("../../generalUtils/wizClient");
 //var express = require("express");
 //var router = express.Router();
 var fs = require("fs");

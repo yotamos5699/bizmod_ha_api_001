@@ -1,4 +1,4 @@
-const wizlib = require("wizcloud-api");
+const wizlib = require("../../generalUtils/wizClient");
 const getCredential = require("../helpers/getCred");
 const Helper = require("../../generalUtils/Helper");
 const defultReports = require("./filencryption");
