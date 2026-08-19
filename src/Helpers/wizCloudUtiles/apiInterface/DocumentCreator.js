@@ -37,7 +37,7 @@ async function createDoc(docData, index, userID) {
 
   let myDBname = usserDbname;
   console.log({ index });
-  if (parseInt(index) == 0 || parseInt(index) % 5 == 0) {
+  if (parseInt(index) == 0) {
     console.log("index passed");
     try {
       wizlib.init(usserPrivetKey, usserServerName);
